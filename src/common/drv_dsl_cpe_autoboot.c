@@ -40,11 +40,6 @@ static DSL_Error_t DSL_DRV_AutobootHandleFwRequest(
 static DSL_Error_t DSL_DRV_AutobootHandleFwWait(
    DSL_Context_t *pContext);
 
-#if defined (DSL_VRX_DEVICE_VR11)
-static DSL_Error_t DSL_DRV_AutobootHandlePowerDown(
-   DSL_Context_t *pContext);
-#endif
-
 static DSL_Error_t DSL_DRV_AutobootHandleFwReady(
    DSL_Context_t *pContext);
 
@@ -87,12 +82,29 @@ DSL_Error_t DSL_DRV_AutobootSignalDeviceEvt(
 DSL_Error_t DSL_DRV_AutobootHandleDeviceEvt(
    DSL_Context_t *pContext)
 {
-   if (pContext->bFwEventRcvd || pContext->nFwEventLastReadErr == DSL_SUCCESS)
+   DSL_Error_t nErrChReadMessage;
+   DSL_Error_t nErrCode = DSL_SUCCESS;
+
+   DSL_DEBUG(DSL_DBG_MSG,
+      (pContext, SYS_DBG_MSG"DSL[%02d]: IN - DSL_DRV_AutobootHandleDeviceEvt"
+      DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+
+   if (pContext->bFwEventRcvd)
    {
-      DSL_DRV_VRX_HandleMessage(pContext);
+      pContext->bFwEventRcvd = DSL_FALSE;
+
+      do
+      {
+         /* Handle VRX driver autonomous messages*/
+         DSL_DRV_VRX_HandleMessage(pContext, &nErrChReadMessage);
+      } while(nErrChReadMessage == DSL_SUCCESS);
    }
 
-   return DSL_SUCCESS;
+   DSL_DEBUG(DSL_DBG_MSG,
+      (pContext, SYS_DBG_MSG"DSL[%02d]: OUT - DSL_DRV_AutobootHandleDeviceEvt"
+      DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+
+   return nErrCode;
 }
 
 static DSL_Error_t DSL_DRV_AutobootThreadInit(
@@ -152,9 +164,6 @@ DSL_Error_t DSL_DRV_AutobootThreadStart(
    DSL_Context_t *pContext)
 {
    DSL_Error_t nErrCode = DSL_SUCCESS;
-#if defined (DSL_VRX_DEVICE_VR11)
-   DSL_boolean_t bPowerDown = DSL_FALSE;
-#endif
 
    DSL_CHECK_POINTER(pContext, pContext->pDevCtx);
    DSL_CHECK_ERR_CODE();
@@ -164,20 +173,6 @@ DSL_Error_t DSL_DRV_AutobootThreadStart(
       DSL_DEBUG(DSL_DBG_MSG,
          (pContext, SYS_DBG_MSG"DSL[%02d]: Autoboot thread will be started..."
          DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
-
-#if defined (DSL_VRX_DEVICE_VR11)
-      DSL_CTX_READ_SCALAR(pContext, nErrCode, bPowerDown, bPowerDown);
-      if (bPowerDown)
-      {
-         DSL_DEBUG(DSL_DBG_WRN,
-            (pContext, SYS_DBG_WRN"DSL[%02d]: Autoboot thread previously powered down. "
-             "Finishing thread completion..."DSL_DRV_CRLF,
-             DSL_DEV_NUM(pContext)));
-
-         DSL_CTX_WRITE_SCALAR(pContext, nErrCode, bPowerDown, DSL_FALSE);
-         DSL_DRV_WAIT_COMPLETION(&pContext->AutobootControl);
-      }
-#endif
 
       pContext->bAutobootThreadStarted = DSL_TRUE;
 
@@ -242,9 +237,6 @@ static DSL_int_t DSL_DRV_AutobootThreadMain(
    (defined(INCLUDE_DSL_CPE_API_DANUBE) && defined(INCLUDE_DSL_G997_LINE_INVENTORY))
    DSL_int_t nEventType = 0;
    DSL_uint32_t nTimeoutID = 0;
-#endif
-#if defined (DSL_VRX_DEVICE_VR11)
-   DSL_boolean_t bPowerDown = DSL_FALSE;
 #endif
 
    if (pContext == DSL_NULL)
@@ -323,21 +315,9 @@ static DSL_int_t DSL_DRV_AutobootThreadMain(
       (pContext, SYS_DBG_MSG"DSL[%02d]: autoboot ending (%lu)"DSL_DRV_CRLF,
       DSL_DEV_NUM(pContext), DSL_DRV_TimeMSecGet()));
 
-#if defined (DSL_VRX_DEVICE_VR11)
-   DSL_CTX_READ_SCALAR(pContext, nErrCode, bPowerDown, bPowerDown);
-
-   if(bPowerDown)
-   {
-      nErrCode = DSL_DRV_AutobootStatusSet(pContext, DSL_AUTOBOOT_STATUS_STOPPED_PD,
-                                           DSL_FW_REQUEST_NA);
-   }
-   else
-#endif
-   {
    /* Set Autoboot Status*/
-      nErrCode = DSL_DRV_AutobootStatusSet(pContext, DSL_AUTOBOOT_STATUS_STOPPED,
-                                           DSL_FW_REQUEST_NA);
-   }
+   nErrCode = DSL_DRV_AutobootStatusSet(pContext, DSL_AUTOBOOT_STATUS_STOPPED,
+      DSL_FW_REQUEST_NA);
 
    pContext->bAutobootThreadStarted = DSL_FALSE;
 
@@ -576,17 +556,6 @@ DSL_Error_t DSL_DRV_AutobootStateCheck(
          break;
 
       case DSL_AUTOBOOTSTATE_CONFIG_WRITE_WAIT:
-#if defined (DSL_VRX_DEVICE_VR11)
-         nErrCode = DSL_DRV_AutobootHandlePowerDown(pContext);
-
-         if (nErrCode != DSL_SUCCESS)
-         {
-            DSL_DEBUG(DSL_DBG_ERR, (pContext, SYS_DBG_ERR
-               "DSL[%02d]: ERROR - DSL_DRV_AutobootHandlePowerDown returned=%d!"
-               DSL_DRV_CRLF, DSL_DEV_NUM(pContext), nErrCode));
-         }
-#endif
-
          /* Wait for the external trigger to continue Autoboot processing*/
          DSL_CTX_READ_SCALAR(pContext, nErrCode, bAutobootContinue,
             bAutobootContinue);
@@ -1183,9 +1152,6 @@ static DSL_Error_t DSL_DRV_AutobootHandleRestart(
 #endif
    DSL_boolean_t bSoftRestart = DSL_FALSE;
    DSL_uint8_t XTSE[DSL_G997_NUM_XTSE_OCTETS] = {0};
-#if defined (DSL_VRX_DEVICE_VR11)
-   DSL_boolean_t bPowerDown = DSL_FALSE;
-#endif
 
    DSL_DEBUG(DSL_DBG_MSG,
       (pContext, SYS_DBG_MSG"DSL[%02d]: IN - DSL_AutobootHandleRestart"
@@ -1284,15 +1250,7 @@ static DSL_Error_t DSL_DRV_AutobootHandleRestart(
 
    DSL_CTX_READ(pContext, nErrCode, bAutobootDisable, bAutobootDisable);
 
-#if defined (DSL_VRX_DEVICE_VR11)
-   DSL_CTX_READ(pContext, nErrCode, bPowerDown, bPowerDown);
-#endif
-
-   if (bAutobootDisable
-#if defined (DSL_VRX_DEVICE_VR11)
-       && !bPowerDown
-#endif
-       )
+   if (bAutobootDisable)
    {
       if (DSL_DRV_BONDING_ENABLED && DSL_DRV_LINES_PER_DEVICE == 2)
       {
@@ -1933,96 +1891,12 @@ static DSL_Error_t DSL_DRV_AutobootHandleFwWait(
    return nErrCode;
 }
 
-#if defined(DSL_VRX_DEVICE_VR11)
-static DSL_Error_t DSL_DRV_AutobootHandlePowerDown(
-   DSL_Context_t *pContext)
-{
-   DSL_Error_t nErrCode = DSL_SUCCESS;
-   DSL_boolean_t bPowerDown = DSL_FALSE, bPoweredDown = DSL_FALSE;
-   DSL_DEV_VersionCheck_t nVerCheck = 0;
-   ACK_ADSL_FeatureMapGet_t nFeatureMapGetAck = { 0 };
-
-   DSL_CTX_READ_SCALAR(pContext, nErrCode, bPowerDown, bPowerDown);
-
-   if (bPowerDown)
-   {
-      if (DSL_DRV_VRX_FirmwareXdslModeCheck(pContext, DSL_VRX_FW_VDSL2))
-      {
-         nErrCode = DSL_DRV_VRX_FirmwareVersionCheck(pContext,
-                       DSL_MIN_FW_VERSION_VR11_PD, &nVerCheck);
-      }
-      else
-      {
-         nErrCode = DSL_DRV_VRX_FirmwareVersionCheck(pContext,
-                       DSL_MIN_FW_VERSION_VR11_PD_ADSL, &nVerCheck);
-      }
-
-      if (nErrCode == DSL_SUCCESS && nVerCheck >= DSL_VERSION_EQUAL)
-      {
-         nErrCode = DSL_DRV_VRX_SendMsgFeatureMapGet(pContext, (DSL_uint8_t *) &nFeatureMapGetAck);
-
-         if (nErrCode == DSL_SUCCESS && nFeatureMapGetAck.W0F12 == VRX_ENABLE)
-         {
-            bPoweredDown = DSL_TRUE;
-
-            DSL_DRV_LineStateSet(pContext, DSL_LINESTATE_POWER_DOWN);
-            DSL_DRV_DEV_LinkPowerDown(pContext);
-
-            /** Stop Autoboot thread now (from within)
-             * Need to complete it on the next restart
-             */
-            pContext->bAutobootThreadShutdown = DSL_TRUE;
-
-#ifdef INCLUDE_DSL_PM
-            if (DSL_DRV_PM_Suspend(pContext) != DSL_SUCCESS)
-            {
-               DSL_DEBUG( DSL_DBG_ERR,
-                  (pContext, SYS_DBG_ERR"DSL[%02d]: ERROR - PM module suspend failed!"
-                  DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
-            }
-#endif /* #ifdef INCLUDE_DSL_PM*/
-
-            /* Trigger restart sequence */
-            DSL_CTX_WRITE_SCALAR(pContext, nErrCode, bAutobootRestart, DSL_TRUE);
-            DSL_CTX_WRITE_SCALAR(pContext, nErrCode, bAutobootContinue, DSL_FALSE);
-
-            DSL_DEBUG(DSL_DBG_WRN, (pContext, SYS_DBG_WRN
-               "DSL[%02d]: Powering down..."
-               DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
-         }
-         else if (nFeatureMapGetAck.W0F12 == VRX_DISABLE)
-         {
-            DSL_DEBUG( DSL_DBG_WRN,
-               (pContext, SYS_DBG_WRN"DSL[%02d]: Feature-Bit12 is disabled!"
-               DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
-
-            nErrCode = DSL_ERR_NOT_SUPPORTED_BY_FIRMWARE;
-         }
-      }
-      else
-      {
-         nErrCode = DSL_ERR_NOT_SUPPORTED_BY_FIRMWARE;
-      }
-
-      if (bPoweredDown == DSL_FALSE)
-      {
-         DSL_CTX_WRITE_SCALAR(pContext, nErrCode, bPowerDown, DSL_FALSE);
-      }
-   }
-
-   return (nErrCode);
-}
-#endif /* DSL_VRX_DEVICE_VR11 */
-
 static DSL_Error_t DSL_DRV_AutobootHandleFwReady(
    DSL_Context_t *pContext)
 {
    DSL_Error_t nErrCode = DSL_SUCCESS, nRet;
    DSL_boolean_t bPowerManagementL3Forced = DSL_FALSE,
                  bWaitBeforeConfigWrite = DSL_FALSE;
-#if defined(DSL_VRX_DEVICE_VR11)
-   DSL_boolean_t bPowerDown = DSL_FALSE;
-#endif
 
    /* Reset bFwRequestHandled flag*/
    DSL_CTX_WRITE_SCALAR(pContext, nErrCode, bFwRequestHandled, DSL_FALSE);
@@ -2043,21 +1917,10 @@ static DSL_Error_t DSL_DRV_AutobootHandleFwReady(
    DSL_CTX_READ_SCALAR(pContext, nErrCode, bPowerManagementL3Forced,
       bPowerManagementL3Forced);
 
-#if defined(DSL_VRX_DEVICE_VR11)
-   DSL_CTX_READ_SCALAR(pContext, nErrCode, bPowerDown, bPowerDown);
-
-   if(bPowerDown)
-   {
-      bWaitBeforeConfigWrite = DSL_TRUE;
-   }
-   else
-#endif
-   {
-      /* Get Link Activation option*/
-      DSL_CTX_READ_SCALAR(pContext, nErrCode,
-         nAutobootConfig.nStateMachineOptions.bWaitBeforeConfigWrite,
-         bWaitBeforeConfigWrite);
-   }
+   /* Get Link Activation option*/
+   DSL_CTX_READ_SCALAR(pContext, nErrCode,
+      nAutobootConfig.nStateMachineOptions.bWaitBeforeConfigWrite,
+      bWaitBeforeConfigWrite);
 
    /* Switch to the next state according to the link activation option*/
    if (bWaitBeforeConfigWrite)

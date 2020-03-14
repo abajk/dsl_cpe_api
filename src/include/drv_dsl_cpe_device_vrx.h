@@ -68,8 +68,7 @@
 #define DSL_MIN_FW_VERSION_RA_MODE_GET         5,   1,  -1,  -1,  -1
 #define DSL_MIN_FW_VERSION_ADSL_PTM_BONDING  0xB,   0,   4,  -1,  -1
 #define DSL_MIN_FW_VERSION_VR11_R5           0xC,  -1,  -1,  -1,  -1
-#define DSL_MIN_FW_VERSION_VR11_PD           0xC,   1,   4,  -1,  -1
-#define DSL_MIN_FW_VERSION_VR11_PD_ADSL      0xC,   1,   0,  -1,  -1
+
 
 /*
    Internal device dependent configuration options
@@ -856,7 +855,8 @@ DSL_Error_t DSL_DRV_VRX_FirmwareVersionCheck(
    DSL_DEV_VersionCheck_t *pVerCheck);
 
 DSL_Error_t DSL_DRV_VRX_HandleMessage(
-   DSL_Context_t *pContext);
+   DSL_Context_t *pContext,
+   DSL_Error_t *pnErrChReadMessage);
 /* ============================================================================
    Definition of the MESSAGE OPCODES.
    ========================================================================= */

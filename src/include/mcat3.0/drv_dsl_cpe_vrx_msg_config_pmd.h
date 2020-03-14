@@ -52,7 +52,6 @@
 #define ACK_ModemFSM_StateGet_GHS_BONDING_CLR_STATE 16
 #define ACK_ModemFSM_StateGet_MFD_STATE 18
 #define ACK_ModemFSM_StateGet_MFD_COMPLETE_STATE 19
-#define ACK_ModemFSM_StateGet_DSL_POWER_DOWN_STATE 20
 #define ACK_ModemFSM_StateGet_TEST_STATE 240
 #define ACK_ModemFSM_StateGet_L0 0
 #define ACK_ModemFSM_StateGet_L2 2
@@ -71,16 +70,15 @@
 #define EVT_ModemFSM_StateGet_GHS_BONDING_CLR_STATE 16
 #define EVT_ModemFSM_StateGet_MFD_STATE 18
 #define EVT_ModemFSM_StateGet_MFD_COMPLETE_STATE 19
-#define EVT_ModemFSM_StateGet_DSL_POWER_DOWN_STATE 20
 #define EVT_ModemFSM_StateGet_TEST_STATE 240
 #define EVT_ModemFSM_StateGet_L0 0
 #define EVT_ModemFSM_StateGet_L2 2
 #define EVT_ModemFSM_StateGet_L3 3
 #define EVT_ModemReady_MRERR_OK 0x0
 #define EVT_ModemReady_MRWARN_OK 0x0
+#define CMD_ModemFSM_StateSet_LINKRES 0
 #define CMD_ModemFSM_StateSet_LINKINI 2
 #define CMD_ModemFSM_StateSet_TERMINATE 4
-#define CMD_ModemFSM_StateSet_POWERDOWN 7
 #define CMD_ModemFSM_StateSet_TESTSTA 8
 #define CMD_ModemFSM_StateSet_MFD 9
 #define ALM_ModemFSM_FailReasonGet_S_OK 0x0
@@ -112,7 +110,6 @@
 #define ALM_ModemFSM_FailReasonGet_S_HW 0x27
 #define ALM_ModemFSM_FailReasonGet_S_CALIBRATION 0x28
 #define ALM_ModemFSM_FailReasonGet_S_PP_CLOCK_NEW 0x29
-#define ALM_ModemFSM_FailReasonGet_S_PP_ERB_INIT 0x2A
 #define ALM_ModemFSM_FailReasonGet_E_OK 0x0
 #define ALM_ModemFSM_FailReasonGet_E_CONFIG 0x1
 #define ALM_ModemFSM_FailReasonGet_E_NOTFEASIBLE 0x2
@@ -153,7 +150,6 @@
 #define ACK_ModemFSM_FailReasonGet_S_HW 0x27
 #define ACK_ModemFSM_FailReasonGet_S_CALIBRATION 0x28
 #define ACK_ModemFSM_FailReasonGet_S_PP_CLOCK_NEW 0x29
-#define ACK_ModemFSM_FailReasonGet_S_PP_ERB_INIT 0x2A
 #define ACK_ModemFSM_FailReasonGet_E_OK 0x0
 #define ACK_ModemFSM_FailReasonGet_E_CONFIG 0x1
 #define ACK_ModemFSM_FailReasonGet_E_NOTFEASIBLE 0x2
@@ -229,8 +225,6 @@
 #define CMD_OperatorSelect_TELCO_ATT 14
 #define CMD_OperatorSelect_TELCO_SWISSCOM 15
 #define CMD_OperatorSelect_TELCO_NETGEAR 16
-#define CMD_OperatorSelect_TELCO_CTL 17
-#define CMD_OperatorSelect_TELCO_TI 17
 #define ACK_OperatorSelectionGet_TELCO_OFF 0
 #define ACK_OperatorSelectionGet_TELCO_DTAG 1
 #define ACK_OperatorSelectionGet_TELCO_BT 2
@@ -248,23 +242,6 @@
 #define ACK_OperatorSelectionGet_TELCO_ATT 14
 #define ACK_OperatorSelectionGet_TELCO_SWISSCOM 15
 #define ACK_OperatorSelectionGet_TELCO_NETGEAR 16
-#define ACK_OperatorSelectionGet_TELCO_CTL 17
-#define CMD_ClockSet_M1 1
-#define CMD_ClockSet_M2 2
-#define CMD_ClockSet_M3 3
-#define CMD_ClockSet_M4 4
-#define CMD_PPE_ClockConfigure_FSCALE_AUTO_OFF 0
-#define CMD_PPE_ClockConfigure_FSCALE_AUTO_A 1
-#define CMD_PPE_ClockConfigure_FSCALE_AUTO_B 2
-#define CMD_PPE_ClockConfigure_FSCALE_AUTO_C 3
-#define ACK_PPE_ClockGet_M1 1
-#define ACK_PPE_ClockGet_M2 2
-#define ACK_PPE_ClockGet_M3 3
-#define ACK_PPE_ClockGet_M4 4
-#define ACK_PPE_ClockConfigGet_FSCALE_AUTO_OFF 0
-#define ACK_PPE_ClockConfigGet_FSCALE_AUTO_A 1
-#define ACK_PPE_ClockConfigGet_FSCALE_AUTO_B 2
-#define ACK_PPE_ClockConfigGet_FSCALE_AUTO_C 3
 /* ----- Message Specific Constants Definition section (End) ----- */
 
 /** Message ID for CMD_ModemFSM_StateGet */
@@ -955,10 +932,7 @@ typedef struct ACK_TestOptionsSet ACK_TestOptionsSet_t;
 #define CMD_CLOCKSET 0x0F62
 
 /**
-   Sets the PPE clock. The message is supposed to be used for debug/test
-   purposes only. If applied this PPE clock is forced and will be kept
-   throughout the link. The PPE frequency scaling automode (see
-   CMD_PPE_ClockConfigure) will then not change it but behave as being disabled.
+   Sets the PPE clock.
 */
 typedef struct CMD_ClockSet CMD_ClockSet_t;
 
@@ -970,63 +944,12 @@ typedef struct CMD_ClockSet CMD_ClockSet_t;
 */
 typedef struct ACK_ClockSet ACK_ClockSet_t;
 
-/** Message ID for CMD_PPE_ClockConfigure */
-#define CMD_PPE_CLOCKCONFIGURE 0x2262
-
-/**
-   Configures PPE clock options.The message CMD_ClockSet used for debug/test
-   purposes forces a PPE clock frequency which will be kept throughout the
-   link.. The PPE frequency scaling automode (see CMD_ClockSet) will then not
-   change it but behave as being disabled.
-*/
-typedef struct CMD_PPE_ClockConfigure CMD_PPE_ClockConfigure_t;
-
-/** Message ID for ACK_PPE_ClockConfigure */
-#define ACK_PPE_CLOCKCONFIGURE 0x2262
-
-/**
-   This is the acknowledgement for CMD_PPE_ClockConfigure.
-*/
-typedef struct ACK_PPE_ClockConfigure ACK_PPE_ClockConfigure_t;
-
-/** Message ID for CMD_PPE_ClockGet */
-#define CMD_PPE_CLOCKGET 0xF403
-
-/**
-   Reads PPE clock settings.
-*/
-typedef struct CMD_PPE_ClockGet CMD_PPE_ClockGet_t;
-
-/** Message ID for ACK_PPE_ClockGet */
-#define ACK_PPE_CLOCKGET 0xF403
-
-/**
-   Provides PPE clock settings.
-*/
-typedef struct ACK_PPE_ClockGet ACK_PPE_ClockGet_t;
-
-/** Message ID for CMD_PPE_ClockConfigGet */
-#define CMD_PPE_CLOCKCONFIGGET 0x2222
-
-/**
-   Reads back PPE clock options.
-*/
-typedef struct CMD_PPE_ClockConfigGet CMD_PPE_ClockConfigGet_t;
-
-/** Message ID for ACK_PPE_ClockConfigGet */
-#define ACK_PPE_CLOCKCONFIGGET 0x2222
-
-/**
-   Provides PPE clock options.
-*/
-typedef struct ACK_PPE_ClockConfigGet ACK_PPE_ClockConfigGet_t;
-
 /** Message ID for CMD_PLL_ClockSet */
 #define CMD_PLL_CLOCKSET 0x1962
 
 /**
    Sets an offset for the PLL frequency compared to the crystals rated nominal
-   frequency of 36 MHz. This allows e.g. to fine tune the handshake tone
+   frequency of 36 MHz. This allows e.g. to finetune the handshake tone
    frequencies to exactly match the standard values.
 */
 typedef struct CMD_PLL_ClockSet CMD_PLL_ClockSet_t;
@@ -1499,10 +1422,6 @@ struct CMD_ModemFSM_EventConfigure
    DSL_uint16_t E1 : 1;
    /** Enable Bit 0 */
    DSL_uint16_t E0 : 1;
-   /** Reserved */
-   DSL_uint16_t Res0 : 15;
-   /** Enable Bit 16 */
-   DSL_uint16_t E16 : 1;
 #else
    /** Index */
    DSL_uint16_t Index;
@@ -1540,10 +1459,6 @@ struct CMD_ModemFSM_EventConfigure
    DSL_uint16_t E14 : 1;
    /** Enable Bit 15 */
    DSL_uint16_t E15 : 1;
-   /** Enable Bit 16 */
-   DSL_uint16_t E16 : 1;
-   /** Reserved */
-   DSL_uint16_t Res0 : 15;
 #endif
 } __PACKED__ ;
 
@@ -3605,10 +3520,7 @@ struct ACK_TestOptionsSet
 
 
 /**
-   Sets the PPE clock. The message is supposed to be used for debug/test
-   purposes only. If applied this PPE clock is forced and will be kept
-   throughout the link. The PPE frequency scaling automode (see
-   CMD_PPE_ClockConfigure) will then not change it but behave as being disabled.
+   Sets the PPE clock.
 */
 struct CMD_ClockSet
 {
@@ -3622,18 +3534,18 @@ struct CMD_ClockSet
    /** Clock Change Trigger */
    DSL_uint16_t ppeClkSet : 1;
    /** Reserved */
-   DSL_uint16_t Res1 : 1;
+   DSL_uint16_t Res1 : 2;
    /** PPE Clock */
-   DSL_uint16_t ppeClock : 3;
+   DSL_uint16_t ppeClock : 2;
 #else
    /** Index */
    DSL_uint16_t Index;
    /** Length */
    DSL_uint16_t Length;
    /** PPE Clock */
-   DSL_uint16_t ppeClock : 3;
+   DSL_uint16_t ppeClock : 2;
    /** Reserved */
-   DSL_uint16_t Res1 : 1;
+   DSL_uint16_t Res1 : 2;
    /** Clock Change Trigger */
    DSL_uint16_t ppeClkSet : 1;
    /** Reserved */
@@ -3662,141 +3574,8 @@ struct ACK_ClockSet
 
 
 /**
-   Configures PPE clock options.The message CMD_ClockSet used for debug/test
-   purposes forces a PPE clock frequency which will be kept throughout the
-   link.. The PPE frequency scaling automode (see CMD_ClockSet) will then not
-   change it but behave as being disabled.
-*/
-struct CMD_PPE_ClockConfigure
-{
-#if DSL_BYTE_ORDER == DSL_BIG_ENDIAN
-   /** Index */
-   DSL_uint16_t Index;
-   /** Length */
-   DSL_uint16_t Length;
-   /** PPE Frequency Scaling Mode */
-   DSL_uint16_t FreqScaleMode;
-#else
-   /** Index */
-   DSL_uint16_t Index;
-   /** Length */
-   DSL_uint16_t Length;
-   /** PPE Frequency Scaling Mode */
-   DSL_uint16_t FreqScaleMode;
-#endif
-} __PACKED__ ;
-
-
-/**
-   This is the acknowledgement for CMD_PPE_ClockConfigure.
-*/
-struct ACK_PPE_ClockConfigure
-{
-#if DSL_BYTE_ORDER == DSL_BIG_ENDIAN
-   /** Index */
-   DSL_uint16_t Index;
-   /** Length */
-   DSL_uint16_t Length;
-#else
-   /** Index */
-   DSL_uint16_t Index;
-   /** Length */
-   DSL_uint16_t Length;
-#endif
-} __PACKED__ ;
-
-
-/**
-   Reads PPE clock settings.
-*/
-struct CMD_PPE_ClockGet
-{
-#if DSL_BYTE_ORDER == DSL_BIG_ENDIAN
-   /** Index */
-   DSL_uint16_t Index;
-   /** Length */
-   DSL_uint16_t Length;
-#else
-   /** Index */
-   DSL_uint16_t Index;
-   /** Length */
-   DSL_uint16_t Length;
-#endif
-} __PACKED__ ;
-
-
-/**
-   Provides PPE clock settings.
-*/
-struct ACK_PPE_ClockGet
-{
-#if DSL_BYTE_ORDER == DSL_BIG_ENDIAN
-   /** Index */
-   DSL_uint16_t Index;
-   /** Length */
-   DSL_uint16_t Length;
-   /** Reserved */
-   DSL_uint16_t Res0 : 13;
-   /** PPE Clock */
-   DSL_uint16_t ppeClock : 3;
-#else
-   /** Index */
-   DSL_uint16_t Index;
-   /** Length */
-   DSL_uint16_t Length;
-   /** PPE Clock */
-   DSL_uint16_t ppeClock : 3;
-   /** Reserved */
-   DSL_uint16_t Res0 : 13;
-#endif
-} __PACKED__ ;
-
-
-/**
-   Reads back PPE clock options.
-*/
-struct CMD_PPE_ClockConfigGet
-{
-#if DSL_BYTE_ORDER == DSL_BIG_ENDIAN
-   /** Index */
-   DSL_uint16_t Index;
-   /** Length */
-   DSL_uint16_t Length;
-#else
-   /** Index */
-   DSL_uint16_t Index;
-   /** Length */
-   DSL_uint16_t Length;
-#endif
-} __PACKED__ ;
-
-
-/**
-   Provides PPE clock options.
-*/
-struct ACK_PPE_ClockConfigGet
-{
-#if DSL_BYTE_ORDER == DSL_BIG_ENDIAN
-   /** Index */
-   DSL_uint16_t Index;
-   /** Length */
-   DSL_uint16_t Length;
-   /** PPE Frequency Scaling Mode */
-   DSL_uint16_t FreqScaleMode;
-#else
-   /** Index */
-   DSL_uint16_t Index;
-   /** Length */
-   DSL_uint16_t Length;
-   /** PPE Frequency Scaling Mode */
-   DSL_uint16_t FreqScaleMode;
-#endif
-} __PACKED__ ;
-
-
-/**
    Sets an offset for the PLL frequency compared to the crystals rated nominal
-   frequency of 36 MHz. This allows e.g. to fine tune the handshake tone
+   frequency of 36 MHz. This allows e.g. to finetune the handshake tone
    frequencies to exactly match the standard values.
 */
 struct CMD_PLL_ClockSet

@@ -118,8 +118,8 @@ typedef struct ACK_GainTableEntriesGet ACK_GainTableEntriesGet_t;
    The message requests information about the SNR per subcarrier with virtual
    noise for the near-end side , which means for downstream direction at the
    CPE. It is the hosts responsibility to select the tone indices
-   accordingly.See also Table 20 "How to Retrieve Test Parameter Data" on Page
-   496.
+   accordingly.See also Table 19 "How to Retrieve Test Parameter Data" on Page
+   489.
 */
 typedef struct CMD_SNR_NE_TableEntriesGet CMD_SNR_NE_TableEntriesGet_t;
 
@@ -607,7 +607,7 @@ typedef struct EVT_ClearEOCStatusGet EVT_ClearEOCStatusGet_t;
    The message is used to reset the transmit or receive status of the clear eoc
    data transmission to IDLE (for defined states see also
    CMD_ClearEOCStatusGet). See the description on the Clear EOC handling on Page
-   540 for when it has to be applied. Transmit and receive status are
+   533 for when it has to be applied. Transmit and receive status are
    distinguished by the Index parameter.
 */
 typedef struct CMD_ClearEOCStatusSet CMD_ClearEOCStatusSet_t;
@@ -1111,8 +1111,8 @@ struct ACK_GainTableEntriesGet
    The message requests information about the SNR per subcarrier with virtual
    noise for the near-end side , which means for downstream direction at the
    CPE. It is the hosts responsibility to select the tone indices
-   accordingly.See also Table 20 "How to Retrieve Test Parameter Data" on Page
-   496.
+   accordingly.See also Table 19 "How to Retrieve Test Parameter Data" on Page
+   489.
 */
 struct CMD_SNR_NE_TableEntriesGet
 {
@@ -2379,7 +2379,7 @@ struct EVT_ClearEOCStatusGet
    The message is used to reset the transmit or receive status of the clear eoc
    data transmission to IDLE (for defined states see also
    CMD_ClearEOCStatusGet). See the description on the Clear EOC handling on Page
-   540 for when it has to be applied. Transmit and receive status are
+   533 for when it has to be applied. Transmit and receive status are
    distinguished by the Index parameter.
 */
 struct CMD_ClearEOCStatusSet
@@ -3096,9 +3096,9 @@ struct CMD_RTX_Control
    DSL_uint16_t ExtMemForced : 1;
    /** Reserved */
    DSL_uint16_t Res1 : 3;
-   /** Intra DTU Interleaving US (VDSL only) */
+   /** Intra DTU Interleaving US */
    DSL_uint16_t DtuInterleavingUs : 1;
-   /** Intra DTU Interleaving DS (VDSL only) */
+   /** Intra DTU Interleaving DS */
    DSL_uint16_t DtuInterleavingDs : 1;
    /** Reserved */
    DSL_uint16_t Res2 : 1;
@@ -3113,9 +3113,9 @@ struct CMD_RTX_Control
    DSL_uint16_t RtxMode : 2;
    /** Reserved */
    DSL_uint16_t Res2 : 1;
-   /** Intra DTU Interleaving DS (VDSL only) */
+   /** Intra DTU Interleaving DS */
    DSL_uint16_t DtuInterleavingDs : 1;
-   /** Intra DTU Interleaving US (VDSL only) */
+   /** Intra DTU Interleaving US */
    DSL_uint16_t DtuInterleavingUs : 1;
    /** Reserved */
    DSL_uint16_t Res1 : 3;
@@ -3571,9 +3571,9 @@ struct ACK_RTX_StatusGet
    DSL_uint16_t RtxUsOffCfgErr : 1;
    /** Reserved */
    DSL_uint16_t Res1 : 3;
-   /** Intra DTU Interleaving US (VDSL only) */
+   /** Intra DTU Interleaving US */
    DSL_uint16_t DtuInterleavingUs : 1;
-   /** Intra DTU Interleaving DS (VDSL only) */
+   /** Intra DTU Interleaving DS */
    DSL_uint16_t DtuInterleavingDs : 1;
    /** Extended Memory */
    DSL_uint16_t ExtMem : 1;
@@ -3592,9 +3592,9 @@ struct ACK_RTX_StatusGet
    DSL_uint16_t RtxUsedUs : 1;
    /** Extended Memory */
    DSL_uint16_t ExtMem : 1;
-   /** Intra DTU Interleaving DS (VDSL only) */
+   /** Intra DTU Interleaving DS */
    DSL_uint16_t DtuInterleavingDs : 1;
-   /** Intra DTU Interleaving US (VDSL only) */
+   /** Intra DTU Interleaving US */
    DSL_uint16_t DtuInterleavingUs : 1;
    /** Reserved */
    DSL_uint16_t Res1 : 3;
@@ -3832,10 +3832,10 @@ struct ACK_DSM_StatsGet
    DSL_uint16_t ErrVecTransmitted_LSW;
    /** Transmitted Error Vectors, MSW */
    DSL_uint16_t ErrVecTransmitted_MSW;
-   /** Total Error Vectors Requested, LSW */
-   DSL_uint16_t ErrVecTotalReq_LSW;
-   /** Total Error Vectors Requested, MSW */
-   DSL_uint16_t ErrVecTotalReq_MSW;
+   /** Total Error Vectors, LSW */
+   DSL_uint16_t ErrVecTotal_LSW;
+   /** Total Error Vectors, MSW */
+   DSL_uint16_t ErrVecTotal_MSW;
 #else
    /** Index */
    DSL_uint16_t Index;
@@ -3849,10 +3849,10 @@ struct ACK_DSM_StatsGet
    DSL_uint16_t ErrVecTransmitted_LSW;
    /** Transmitted Error Vectors, MSW */
    DSL_uint16_t ErrVecTransmitted_MSW;
-   /** Total Error Vectors Requested, LSW */
-   DSL_uint16_t ErrVecTotalReq_LSW;
-   /** Total Error Vectors Requested, MSW */
-   DSL_uint16_t ErrVecTotalReq_MSW;
+   /** Total Error Vectors, LSW */
+   DSL_uint16_t ErrVecTotal_LSW;
+   /** Total Error Vectors, MSW */
+   DSL_uint16_t ErrVecTotal_MSW;
 #endif
 } __PACKED__ ;
 

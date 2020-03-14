@@ -333,12 +333,9 @@ DSL_Error_t DSL_DRV_VRX_CamExceptionHandle(
          }
 
          /* Update FW reinit counter*/
-         if (
-#ifdef DSL_VRX_DEVICE_VR11
-             (lineInitStatus.nLineInitSubStatus == LINIT_SUB_S_PP_CLOCK_NEW) ||
-#endif /* DSL_VRX_DEVICE_VR11 */
-             (lineInitStatus.nLineInitSubStatus == LINIT_SUB_FW_RETRY) ||
-             (lineInitStatus.nLineInitSubStatus == LINIT_SUB_S_PP_DRIVER))
+         if ((lineInitStatus.nLineInitSubStatus == LINIT_SUB_FW_RETRY) ||
+             (lineInitStatus.nLineInitSubStatus == LINIT_SUB_S_PP_DRIVER) ||
+             (lineInitStatus.nLineInitSubStatus == LINIT_SUB_S_PP_CLOCK_NEW))
          {
             nCamFwReinits++;
             DSL_DEBUG(DSL_DBG_MSG,
@@ -1819,14 +1816,9 @@ DSL_Error_t DSL_DRV_VRX_FailReasonGet(
    case ALM_ModemFSM_FailReasonGet_S_INTENDED_LOCAL_SHUTDOWN:
       lineInitSubStatus = LINIT_SUB_S_INTENDED_LOCAL_SHUTDOWN;
       break;
-#if defined (DSL_VRX_DEVICE_VR11)
    case ALM_ModemFSM_FailReasonGet_S_PP_CLOCK_NEW:
       lineInitSubStatus = LINIT_SUB_S_PP_CLOCK_NEW;
       break;
-   case ALM_ModemFSM_FailReasonGet_S_PP_ERB_INIT:
-      lineInitSubStatus = LINIT_SUB_S_PP_ERB_INIT;
-      break;
-#endif /* defined (DSL_VRX_DEVICE_VR11) */
    default:
       lineInitSubStatus = LINIT_SUB_UNKNOWN;
       break;
@@ -3185,7 +3177,8 @@ static DSL_Error_t DSL_DRV_VRX_PollDrvForModemResetState(
    DSL_Error_t nErrCode = DSL_SUCCESS;
    DSL_int32_t nWaitCount = 0;
    DSL_LineStateValue_t nLineState = DSL_LINESTATE_UNKNOWN;
-   DSL_boolean_t bIdleReached = DSL_FALSE;
+   DSL_boolean_t bIdleReached = DSL_FALSE, bFwEventActivation;
+   DSL_Error_t nErrChReadMessage;
 
    DSL_DEBUG(DSL_DBG_MSG,
       (pContext, SYS_DBG_MSG"DSL[%02d]: IN - DSL_DRV_VRX_PollDrvForModemResetState"
@@ -3194,6 +3187,13 @@ static DSL_Error_t DSL_DRV_VRX_PollDrvForModemResetState(
    /* wait for Modem Reset state max 4 sec */
    for (nWaitCount = 0; nWaitCount < 40; nWaitCount++)
    {
+      DSL_CTX_READ_SCALAR(pContext, nErrCode, bFwEventActivation, bFwEventActivation);
+
+      if(bFwEventActivation)
+      {
+         DSL_DRV_VRX_HandleMessage(pContext, &nErrChReadMessage);
+      }
+
       /* Get line state*/
       nErrCode = DSL_DRV_DEV_LineStateGet( pContext, &nLineState, DSL_NULL);
       if( nErrCode != DSL_SUCCESS )
@@ -3407,7 +3407,6 @@ static DSL_Error_t DSL_DRV_VRX_TestParametersFeUpdate(
    DSL_uint16_t nDataLen = 0;
 #ifndef DSL_DEBUG_DISABLE
    DSL_uint16_t nMsgId = EVT_PMD_TESTPARAMSGET;
-   DSL_uint16_t nClass = 0x02;
 #endif
 
    DSL_DEBUG( DSL_DBG_MSG,
@@ -3434,7 +3433,7 @@ static DSL_Error_t DSL_DRV_VRX_TestParametersFeUpdate(
    }
 
 #ifndef DSL_DEBUG_DISABLE
-   DSL_DRV_VRX_DumpMessage(pContext, nClass, nMsgId, (DSL_uint16_t *)pMsg, (pMsg->Length + 4), DSL_TRUE);
+   DSL_DRV_VRX_DumpMessage(pContext, nMsgId, (DSL_uint16_t *)pMsg, (pMsg->Length + 4), DSL_TRUE);
 #endif /* DSL_DEBUG_DISABLE */
 
    nDataLen = (pMsg->EndIndex - pMsg->StartIndex) + 1;
@@ -3601,7 +3600,8 @@ static DSL_Error_t DSL_DRV_VRX_WaitingMessageCopyData(
 #endif /* HAS_TO_BE_CROSSCHECKED_FOR_VRX*/
 
 DSL_Error_t DSL_DRV_VRX_HandleMessage(
-   DSL_Context_t *pContext)
+   DSL_Context_t *pContext,
+   DSL_Error_t *pnErrChReadMessage)
 {
    DSL_Error_t nErrCode = DSL_SUCCESS;
    DSL_uint8_t buf[512];
@@ -3617,7 +3617,7 @@ DSL_Error_t DSL_DRV_VRX_HandleMessage(
 
    sMsg.paylSize_byte = sizeof(buf);
    sMsg.pPayload      = buf;
-   pContext->nFwEventLastReadErr = DSL_ERROR;
+   *pnErrChReadMessage = DSL_ERROR;
 
    /* check for received NFCs */
    if( DSL_DRV_VRX_ChReadMessage(pContext, &sMsg) >= DSL_SUCCESS )
@@ -3625,8 +3625,8 @@ DSL_Error_t DSL_DRV_VRX_HandleMessage(
    /* one message received, handle it...*/
       if( sMsg.msgCtrl != MEI_MSG_CTRL_MODEM_MSG )
       {
-         DSL_DEBUG( DSL_DBG_WRN,
-            (pContext, SYS_DBG_WRN"DSL[%02d]: Unsupported VRx driver message received MsgID %x"
+         DSL_DEBUG( DSL_DBG_MSG,
+            (pContext, SYS_DBG_MSG"DSL[%02d]: Unsupported VRx driver message received MsgID %x"
             DSL_DRV_CRLF, DSL_DEV_NUM(pContext), sMsg.msgId));
       }
       else
@@ -3640,19 +3640,17 @@ DSL_Error_t DSL_DRV_VRX_HandleMessage(
             break;
 #endif /* INCLUDE_DSL_DELT*/
          case EVT_MODEMFSM_STATEGET:
-            pContext->bFwEventRcvd = DSL_FALSE;
-            pContext->nFwEventLastReadErr = DSL_SUCCESS;
-
             DSL_DEBUG( DSL_DBG_MSG,
                (pContext, SYS_DBG_MSG"DSL[%02d]: Received EVT_MODEMFSM_STATEGET"
                DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
 
             DSL_DRV_DEV_LineStateGet(pContext, &nLineState, (EVT_ModemFSM_StateGet_t*) buf);
-            DSL_CTX_WRITE_SCALAR(pContext, nErrCode, nFwEventLineState, nLineState);
+            DSL_DRV_LineStateSet(pContext, nLineState);
+            *pnErrChReadMessage = DSL_SUCCESS;
             break;
          default:
-            DSL_DEBUG( DSL_DBG_WRN,
-               (pContext, SYS_DBG_WRN"DSL[%02d]: Unsupported VRx control message CTRL_MODEM_MSG received MsgID %x"
+            DSL_DEBUG( DSL_DBG_MSG,
+               (pContext, SYS_DBG_MSG"DSL[%02d]: Unsupported VRx control message CTRL_MODEM_MSG received MsgID %x"
                DSL_DRV_CRLF, DSL_DEV_NUM(pContext), sMsg.msgId));
 
             break;
@@ -4531,9 +4529,7 @@ DSL_Error_t DSL_DRV_DEV_FwDownload(
    DSL_FirmwareXdslFeature_t nFeatureSet = DSL_FW_XDSLFEATURE_CLEANED;
    DSL_FirmwareFeatures_t nFwFeatures;
    DSL_FirmwareType_t nNextMode;
-#if defined (DSL_VRX_DEVICE_VR11)
    DSL_DEV_VersionCheck_t nVerCheck = DSL_VERSION_ERROR;
-#endif /* defined (DSL_VRX_DEVICE_VR11) */
    DSL_boolean_t bFwEventActivation;
    DSL_uint32_t nOppositeLine;
 
@@ -5186,21 +5182,16 @@ DSL_Error_t DSL_DRV_DEV_LinkReset(
 
    if (DSL_DRV_VRX_FirmwareXdslModeCheck(pContext, DSL_VRX_FW_VDSL2))
    {
-#ifdef FW_R9
-      if (DSL_DRV_BONDING_ENABLED && DSL_DRV_LINES_PER_DEVICE == 2)
+      nErrCode = DSL_DRV_VRX_SendMsgModemStateSet(
+                pContext, CMD_ModemFSM_StateSet_LINKRES);
+      if( nErrCode != DSL_SUCCESS )
       {
-         nErrCode = DSL_DRV_VRX_SendMsgModemStateSet(
-                   pContext, CMD_ModemFSM_StateSet_LINKRES);
-         if( nErrCode != DSL_SUCCESS )
-         {
-            DSL_DEBUG( DSL_DBG_ERR,
-               (pContext, SYS_DBG_ERR"DSL[%02d]: ERROR - FSM state set failed!"
-               DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+         DSL_DEBUG( DSL_DBG_ERR,
+            (pContext, SYS_DBG_ERR"DSL[%02d]: ERROR - FSM state set failed!"
+            DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
 
-            return DSL_ERROR;
-         }
+         return DSL_ERROR;
       }
-#endif /* FW_R9 */
 
        /* Poll for the modem RESET state at least 4 sec*/
       nErrCode = DSL_DRV_VRX_PollDrvForModemResetState(pContext);
@@ -5264,39 +5255,6 @@ DSL_Error_t DSL_DRV_DEV_LinkTerminate(
 
    return nErrCode;
 }
-
-/*
-   For a detailed description of the function, its arguments and return value
-   please refer to the description in the header file 'drv_dsl_cpe_device.h'
-*/
-#if defined(DSL_VRX_DEVICE_VR11)
-DSL_Error_t DSL_DRV_DEV_LinkPowerDown(
-   DSL_Context_t *pContext)
-{
-   DSL_Error_t nErrCode = DSL_SUCCESS;
-
-   DSL_DEBUG( DSL_DBG_MSG,
-      (pContext, SYS_DBG_MSG"DSL[%02d]: IN - DSL_DRV_DEV_LinkPowerDown"
-      DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
-
-   nErrCode = DSL_DRV_VRX_SendMsgModemStateSet(
-                pContext, CMD_ModemFSM_StateSet_POWERDOWN);
-   if( nErrCode != DSL_SUCCESS )
-   {
-      DSL_DEBUG( DSL_DBG_ERR,
-         (pContext, SYS_DBG_ERR"DSL[%02d]: ERROR - FSM state set failed!"
-         DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
-
-      return DSL_ERROR;
-   }
-
-   DSL_DEBUG( DSL_DBG_MSG,
-      (pContext, SYS_DBG_MSG"DSL[%02d]: OUT - DSL_DRV_DEV_LinkPowerDown"
-      DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
-
-   return nErrCode;
-}
-#endif /* DSL_VRX_DEVICE_VR11 */
 
 /*
    For a detailed description of the function, its arguments and return value
@@ -5671,6 +5629,7 @@ DSL_Error_t DSL_DRV_DEV_ShowtimeStatusUpdate(
    DSL_uint32_t nEapsTimeout = 0, nEapsTimeoutId;
    DSL_DEV_CamStates_t nCamCurrentState;
    IFX_int32_t nMeiErrCode;
+   DSL_Error_t nErrChReadMessage;
 
    DSL_CHECK_CTX_POINTER(pContext);
    DSL_CHECK_ERR_CODE();
@@ -5906,7 +5865,7 @@ DSL_Error_t DSL_DRV_DEV_ShowtimeStatusUpdate(
       }
 
       /* Handle VRX driver autonomous messages*/
-      nErrCode = DSL_DRV_VRX_HandleMessage(pContext);
+      nErrCode = DSL_DRV_VRX_HandleMessage(pContext, &nErrChReadMessage);
 
       if (DSL_DRV_VRX_FirmwareXdslModeCheck(pContext, DSL_VRX_FW_VDSL2))
       {
@@ -7969,8 +7928,7 @@ DSL_Error_t DSL_DRV_DEV_LineStateGet(
 
       if(bFwEventActivation && pEvt == DSL_NULL)
       {
-         DSL_DRV_VRX_HandleMessage(pContext);
-         DSL_CTX_READ_SCALAR(pContext, nErrCode, nFwEventLineState, *pnLineState);
+         DSL_CTX_READ_SCALAR(pContext, nErrCode, nLineState, *pnLineState);
 
          return nErrCode;
       }
@@ -8058,11 +8016,6 @@ DSL_Error_t DSL_DRV_DEV_LineStateGet(
          *pnLineState = DSL_LINESTATE_TEST_FILTERDETECTION_COMPLETE;
          break;
 #endif /* INCLUDE_DSL_FILTER_DETECTION */
-#ifdef DSL_VRX_DEVICE_VR11
-      case ACK_ModemFSM_StateGet_DSL_POWER_DOWN_STATE:
-         *pnLineState = DSL_LINESTATE_POWER_DOWN;
-         break;
-#endif /* DSL_VRX_DEVICE_VR11 */
       default:
          DSL_DEBUG( DSL_DBG_MSG,
          (pContext, SYS_DBG_MSG"DSL[%02d]: DSL_DEV_LineStateGet: "

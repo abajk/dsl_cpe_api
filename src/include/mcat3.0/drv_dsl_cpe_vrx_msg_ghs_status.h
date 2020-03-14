@@ -1583,7 +1583,7 @@ struct ACK_HS_StandardInfoFE_VDSL2Get
    DSL_uint16_t C_US0PsdSup0 : 1;
    /** Reserved */
    DSL_uint16_t Res7 : 7;
-   /** G.998.4 Anx D Supported Bit 8 (VDSL only) */
+   /** G.998.4 Anx DSupported Bit 8 (VDSL only) */
    DSL_uint16_t RtxExtMemSup8 : 1;
    /** Reserved */
    DSL_uint16_t Res8 : 2;
@@ -1716,7 +1716,7 @@ struct ACK_HS_StandardInfoFE_VDSL2Get
    DSL_uint16_t OpVect1FlagTonesSup5 : 1;
    /** Reserved */
    DSL_uint16_t Res8 : 2;
-   /** G.998.4 Anx D Supported Bit 8 (VDSL only) */
+   /** G.998.4 Anx DSupported Bit 8 (VDSL only) */
    DSL_uint16_t RtxExtMemSup8 : 1;
    /** Reserved */
    DSL_uint16_t Res7 : 7;

@@ -196,7 +196,7 @@ typedef struct CMD_CRC_StatsNE_Get CMD_CRC_StatsNE_Get_t;
    Returns near-end CRC counter values. (Section 7.2.2.1.1 of G.997.1). These
    are wrap-around counters which are not affected by the TR1-period.The
    "LP1/Fast Path" parameters are fed only in ADSL1 and ADSL1 Lite mode with
-   selected fast path and in VDSL/ADSL with RTX mode.
+   selected fast path.
 */
 typedef struct ACK_CRC_StatsNE_Get ACK_CRC_StatsNE_Get_t;
 
@@ -215,8 +215,8 @@ typedef struct CMD_CRC_StatsFE_Get CMD_CRC_StatsFE_Get_t;
 /**
    Returns far-end CRC counter values. (Section 7.2.2.2.1 of G.997.1). These are
    wrap-around counters which are not affected by the TR1-period.The "LP1/Fast
-   Path" parameters are fed in ADSL1 and ADSL1 Lite mode with selected fast path
-   and in VDSL with RTX mode.
+   Path" parameters are fed only in ADSL1 and ADSL1 Lite mode with selected fast
+   path.
 */
 typedef struct ACK_CRC_StatsFE_Get ACK_CRC_StatsFE_Get_t;
 
@@ -236,7 +236,7 @@ typedef struct CMD_FEC_StatsNE_Get CMD_FEC_StatsNE_Get_t;
    Returns near-end FEC counter values (Section 7.2.2.1.2 of G.997.1). These are
    wrap-around counters which are not affected by the TR1-period.The "LP1/Fast
    Path" parameters are fed only in ADSL1 and ADSL1 Lite mode with selected fast
-   path and in VDSL/ADSL with RTX mode.
+   path.
 */
 typedef struct ACK_FEC_StatsNE_Get ACK_FEC_StatsNE_Get_t;
 
@@ -255,8 +255,8 @@ typedef struct CMD_FEC_StatsFE_Get CMD_FEC_StatsFE_Get_t;
 /**
    Returns far-end FEC counter values (Section 7.2.2.2.2 of G.997.1). These are
    wrap-around counters which are not affected by the TR1-period.The "LP1/Fast
-   Path" parameters are fed in ADSL1 and ADSL1 Lite mode with selected fast path
-   and in VDSL with RTX mode.
+   Path" parameters are fed only in ADSL1 and ADSL1 Lite mode with selected fast
+   path.
 */
 typedef struct ACK_FEC_StatsFE_Get ACK_FEC_StatsFE_Get_t;
 
@@ -956,7 +956,7 @@ struct CMD_CRC_StatsNE_Get
    Returns near-end CRC counter values. (Section 7.2.2.1.1 of G.997.1). These
    are wrap-around counters which are not affected by the TR1-period.The
    "LP1/Fast Path" parameters are fed only in ADSL1 and ADSL1 Lite mode with
-   selected fast path and in VDSL/ADSL with RTX mode.
+   selected fast path.
 */
 struct ACK_CRC_StatsNE_Get
 {
@@ -1013,8 +1013,8 @@ struct CMD_CRC_StatsFE_Get
 /**
    Returns far-end CRC counter values. (Section 7.2.2.2.1 of G.997.1). These are
    wrap-around counters which are not affected by the TR1-period.The "LP1/Fast
-   Path" parameters are fed in ADSL1 and ADSL1 Lite mode with selected fast path
-   and in VDSL with RTX mode.
+   Path" parameters are fed only in ADSL1 and ADSL1 Lite mode with selected fast
+   path.
 */
 struct ACK_CRC_StatsFE_Get
 {
@@ -1072,7 +1072,7 @@ struct CMD_FEC_StatsNE_Get
    Returns near-end FEC counter values (Section 7.2.2.1.2 of G.997.1). These are
    wrap-around counters which are not affected by the TR1-period.The "LP1/Fast
    Path" parameters are fed only in ADSL1 and ADSL1 Lite mode with selected fast
-   path and in VDSL/ADSL with RTX mode.
+   path.
 */
 struct ACK_FEC_StatsNE_Get
 {
@@ -1161,8 +1161,8 @@ struct CMD_FEC_StatsFE_Get
 /**
    Returns far-end FEC counter values (Section 7.2.2.2.2 of G.997.1). These are
    wrap-around counters which are not affected by the TR1-period.The "LP1/Fast
-   Path" parameters are fed in ADSL1 and ADSL1 Lite mode with selected fast path
-   and in VDSL with RTX mode.
+   Path" parameters are fed only in ADSL1 and ADSL1 Lite mode with selected fast
+   path.
 */
 struct ACK_FEC_StatsFE_Get
 {

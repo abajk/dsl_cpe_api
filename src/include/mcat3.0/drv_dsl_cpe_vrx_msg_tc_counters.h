@@ -298,7 +298,7 @@ typedef struct ACK_ATM_BC0_TxStatsNE_Get ACK_ATM_BC0_TxStatsNE_Get_t;
 
 /**
    Writes the transmit data-path counters for BC0 of an ATM-TC link.For "Why
-   writing performance counters" see Page 669.
+   writing performance counters" see Page 662.
 */
 typedef struct CMD_ATM_BC0_TxStatsNE_Set CMD_ATM_BC0_TxStatsNE_Set_t;
 
@@ -323,58 +323,26 @@ typedef struct CMD_VersionInfoGet CMD_VersionInfoGet_t;
 
 /**
    Provides version information about hardware and firmware. The FW version
-   numbering scheme has a long and a short form (Table 368).
+   numbering scheme has a long and a short form (Table 362).
 */
 typedef struct ACK_VersionInfoGet ACK_VersionInfoGet_t;
 
 /** Message ID for CMD_PPA_FwVersionSet */
-#define CMD_PPA_FWVERSIONSET 0x2362
+#define CMD_PPA_FWVERSIONSET 0x2162
 
 /**
-   Writes the PPA subsystem version to the DSL FW.
+   Writes the PPA FW version ("PPA subsystem version") to the DSL FW. This is
+   only to inform about the PPA FW version,
 */
 typedef struct CMD_PPA_FwVersionSet CMD_PPA_FwVersionSet_t;
 
 /** Message ID for ACK_PPA_FwVersionSet */
-#define ACK_PPA_FWVERSIONSET 0x2362
+#define ACK_PPA_FWVERSIONSET 0x2162
 
 /**
    Acknowledgement for message CMD_PPA_FwVersionSet.
 */
 typedef struct ACK_PPA_FwVersionSet ACK_PPA_FwVersionSet_t;
-
-/** Message ID for CMD_PPA_FwVersionGet */
-#define CMD_PPA_FWVERSIONGET 0x2322
-
-/**
-   Requests the PPA Subsystem Version number (Read-back).
-*/
-typedef struct CMD_PPA_FwVersionGet CMD_PPA_FwVersionGet_t;
-
-/** Message ID for ACK_PPA_FwVersionGet */
-#define ACK_PPA_FWVERSIONGET 0x2322
-
-/**
-   Provides the PPA subsystem version. Read back of the value previously written
-   by CMD_PPA_FwVersionSet.
-*/
-typedef struct ACK_PPA_FwVersionGet ACK_PPA_FwVersionGet_t;
-
-/** Message ID for CMD_PPE_FwVersionGet */
-#define CMD_PPE_FWVERSIONGET 0x2422
-
-/**
-   Requests the PPE FW Version number.
-*/
-typedef struct CMD_PPE_FwVersionGet CMD_PPE_FwVersionGet_t;
-
-/** Message ID for ACK_PPE_FwVersionGet */
-#define ACK_PPE_FWVERSIONGET 0x2422
-
-/**
-   Provides the PPE FW version number.
-*/
-typedef struct ACK_PPE_FwVersionGet ACK_PPE_FwVersionGet_t;
 
 /** Message ID for CMD_ADSL_FeatureMapGet */
 #define CMD_ADSL_FEATUREMAPGET 0x1322
@@ -1399,7 +1367,7 @@ struct ACK_ATM_BC0_TxStatsNE_Get
 
 /**
    Writes the transmit data-path counters for BC0 of an ATM-TC link.For "Why
-   writing performance counters" see Page 669.
+   writing performance counters" see Page 662.
 */
 struct CMD_ATM_BC0_TxStatsNE_Set
 {
@@ -1473,7 +1441,7 @@ struct CMD_VersionInfoGet
 
 /**
    Provides version information about hardware and firmware. The FW version
-   numbering scheme has a long and a short form (Table 368).
+   numbering scheme has a long and a short form (Table 362).
 */
 struct ACK_VersionInfoGet
 {
@@ -1504,7 +1472,8 @@ struct ACK_VersionInfoGet
 
 
 /**
-   Writes the PPA subsystem version to the DSL FW.
+   Writes the PPA FW version ("PPA subsystem version") to the DSL FW. This is
+   only to inform about the PPA FW version,
 */
 struct CMD_PPA_FwVersionSet
 {
@@ -1558,115 +1527,6 @@ struct ACK_PPA_FwVersionSet
 
 
 /**
-   Requests the PPA Subsystem Version number (Read-back).
-*/
-struct CMD_PPA_FwVersionGet
-{
-#if DSL_BYTE_ORDER == DSL_BIG_ENDIAN
-   /** Index */
-   DSL_uint16_t Index;
-   /** Length */
-   DSL_uint16_t Length;
-#else
-   /** Index */
-   DSL_uint16_t Index;
-   /** Length */
-   DSL_uint16_t Length;
-#endif
-} __PACKED__ ;
-
-
-/**
-   Provides the PPA subsystem version. Read back of the value previously written
-   by CMD_PPA_FwVersionSet.
-*/
-struct ACK_PPA_FwVersionGet
-{
-#if DSL_BYTE_ORDER == DSL_BIG_ENDIAN
-   /** Index */
-   DSL_uint16_t Index;
-   /** Length */
-   DSL_uint16_t Length;
-   /** PPA Subsystem Version Number, LSW, 3. Digit */
-   DSL_uint16_t SubSysVer3 : 8;
-   /** PPA Subsystem Version Number, LSW, 4. Digit */
-   DSL_uint16_t SubSysVer4 : 8;
-   /** PPA Subsystem Version Number, MSW, 1. Digit */
-   DSL_uint16_t SubSysVer1 : 8;
-   /** PPA Subsystem Version Number, MSW, 2. Digit */
-   DSL_uint16_t SubSysVer2 : 8;
-#else
-   /** Index */
-   DSL_uint16_t Index;
-   /** Length */
-   DSL_uint16_t Length;
-   /** PPA Subsystem Version Number, LSW, 4. Digit */
-   DSL_uint16_t SubSysVer4 : 8;
-   /** PPA Subsystem Version Number, LSW, 3. Digit */
-   DSL_uint16_t SubSysVer3 : 8;
-   /** PPA Subsystem Version Number, MSW, 2. Digit */
-   DSL_uint16_t SubSysVer2 : 8;
-   /** PPA Subsystem Version Number, MSW, 1. Digit */
-   DSL_uint16_t SubSysVer1 : 8;
-#endif
-} __PACKED__ ;
-
-
-/**
-   Requests the PPE FW Version number.
-*/
-struct CMD_PPE_FwVersionGet
-{
-#if DSL_BYTE_ORDER == DSL_BIG_ENDIAN
-   /** Index */
-   DSL_uint16_t Index;
-   /** Length */
-   DSL_uint16_t Length;
-#else
-   /** Index */
-   DSL_uint16_t Index;
-   /** Length */
-   DSL_uint16_t Length;
-#endif
-} __PACKED__ ;
-
-
-/**
-   Provides the PPE FW version number.
-*/
-struct ACK_PPE_FwVersionGet
-{
-#if DSL_BYTE_ORDER == DSL_BIG_ENDIAN
-   /** Index */
-   DSL_uint16_t Index;
-   /** Length */
-   DSL_uint16_t Length;
-   /** Reserved */
-   DSL_uint16_t Res0 : 8;
-   /** PPE FW Version Number, 1. Digit */
-   DSL_uint16_t PpeFwVer1 : 8;
-   /** PPE FW Version Number, 2. Digit */
-   DSL_uint16_t PpeFwVer2 : 8;
-   /** PPE FW Version Number, 3. Digit */
-   DSL_uint16_t PpeFwVer3 : 8;
-#else
-   /** Index */
-   DSL_uint16_t Index;
-   /** Length */
-   DSL_uint16_t Length;
-   /** PPE FW Version Number, 1. Digit */
-   DSL_uint16_t PpeFwVer1 : 8;
-   /** Reserved */
-   DSL_uint16_t Res0 : 8;
-   /** PPE FW Version Number, 3. Digit */
-   DSL_uint16_t PpeFwVer3 : 8;
-   /** PPE FW Version Number, 2. Digit */
-   DSL_uint16_t PpeFwVer2 : 8;
-#endif
-} __PACKED__ ;
-
-
-/**
    Requests the feature map indicating the ADSL FW features supported by this
    binary.
 */
@@ -1697,75 +1557,147 @@ struct ACK_ADSL_FeatureMapGet
    DSL_uint16_t Index;
    /** Length */
    DSL_uint16_t Length;
-   /** Feature Map Length */
-   DSL_uint16_t FeatMapLen;
-   /** Reserved */
-   DSL_uint16_t Res0 : 3;
-   /** Feature-Bit12  */
-   DSL_uint16_t W0F12 : 1;
-   /** Feature-Bit11 of Word 0: NTR */
+   /** Feature-Bits 15:12 of Word 0: Not used in ADSL */
+   DSL_uint16_t Res0 : 4;
+   /** Feature-Bit11 of Word 0: PTM Off-chip bonding (GHS-based) */
    DSL_uint16_t W0F11 : 1;
-   /** Feature-Bit10 of Word 0:  CIPolicy */
+   /** Feature-Bit10 of Word 0: PTM Off-chip Bonding BACP */
    DSL_uint16_t W0F10 : 1;
-   /** Feature-Bit9 of Word 0:  Pre-emption & Short Packets  */
+   /** Reserved */
    DSL_uint16_t W0F09 : 1;
-   /** Feature-Bit8 of Word 0:  Counter Inhibiting */
+   /** Feature-Bit8 of Word 0: PTM-TC for ADSL2x  */
    DSL_uint16_t W0F08 : 1;
-   /** Feature-Bit7 of Word 0: Short Init */
+   /** Feature-Bit7 of Word 0: AnnexM/J US PSD Shaping (ADSL only) */
    DSL_uint16_t W0F07 : 1;
+   /** Feature-Bit6 of Word 0: AnnexM/J US Mask Selection (ADSL only) */
+   DSL_uint16_t W0F06 : 1;
+   /** Feature-Bit5 of Word 0: Annex M (ADSL only) */
+   DSL_uint16_t W0F05 : 1;
+   /** Feature-Bit4 of Word 0: Annex J (ADSL only) */
+   DSL_uint16_t W0F04 : 1;
+   /** Feature-Bit3 of Word 0: Annex I (ADSL only) */
+   DSL_uint16_t W0F03 : 1;
+   /** Feature-Bit2 of Word 0: Annex B (ADSL only) */
+   DSL_uint16_t W0F02 : 1;
+   /** Feature-Bit1 of Word 0: T1.413 (ADSL only) */
+   DSL_uint16_t W0F01 : 1;
+   /** Feature-Bit0 of Word 0: Annex A (incl. Annex L) (ADSL only) */
+   DSL_uint16_t W0F00 : 1;
+   /** Feature-Bit15 of Word 1: NTR */
+   DSL_uint16_t W1F15 : 1;
+   /** Feature-Bit14 of Word 1: CIPolicy */
+   DSL_uint16_t W1F14 : 1;
+   /** Feature-Bit13 of Word 1: Pre-emption & Short Packets  */
+   DSL_uint16_t W1F13 : 1;
    /** Reserved */
    DSL_uint16_t Res1 : 1;
-   /** Feature-Bit5 of Word 0:  G.INP Retransmission DS + SRA */
-   DSL_uint16_t W0F05 : 1;
-   /** Feature-Bit4 of Word 0:  G.INP Retransmission DS + Bonding (EFM) */
-   DSL_uint16_t W0F04 : 1;
-   /** Feature-Bit3 of Word 0:PTM Off-chip Bonding BACP */
-   DSL_uint16_t W0F03 : 1;
+   /** Feature-Bit10 of Word 1: Short init (ADSL only) */
+   DSL_uint16_t W1F10 : 1;
    /** Reserved */
-   DSL_uint16_t Res2 : 2;
-   /** Feature-Bit0 of Word 0: Annex I */
-   DSL_uint16_t W0F00 : 1;
+   DSL_uint16_t Res2 : 1;
+   /** Feature-Bit8 of Word 1: Erasure Decoding /FORCEINP */
+   DSL_uint16_t W1F08 : 1;
+   /** Feature-Bit7 of Word 1: L2 (ADSL only) */
+   DSL_uint16_t W1F07 : 1;
+   /** Feature-Bit6 of Word 1: Not used in ADSL */
+   DSL_uint16_t W1F06 : 1;
+   /** Feature-Bit5 of Word 1: G.INP Retransmission DS + SRA */
+   DSL_uint16_t W1F05 : 1;
+   /** Feature-Bit4 of Word 1: Not used in ADSL */
+   DSL_uint16_t W1F04 : 1;
+   /** Feature-Bit3 of Word 1: G.INP Retransmission DS + Bonding (EFM) */
+   DSL_uint16_t W1F03 : 1;
+   /** Feature-Bit2 of Word 1: Not used in ADSL */
+   DSL_uint16_t W1F02 : 1;
    /** Reserved */
-   DSL_uint16_t Res3 : 16;
-   /** Reserved  */
-   DSL_uint16_t Res4 : 16;
+   DSL_uint16_t Res3 : 2;
+   /** Reserved */
+   DSL_uint16_t Res4 : 12;
+   /** Reserved */
+   DSL_uint16_t Res5 : 1;
+   /** Feature-Bit2 of Word 2: Microfilter Detection and Hybrid Data */
+   DSL_uint16_t W2F02 : 1;
+   /** Reserved */
+   DSL_uint16_t Res6 : 2;
+   /** Reserved */
+   DSL_uint16_t Res7 : 16;
+   /** Reserved */
+   DSL_uint16_t Res8 : 16;
+   /** Reserved */
+   DSL_uint16_t Res9 : 16;
 #else
    /** Index */
    DSL_uint16_t Index;
    /** Length */
    DSL_uint16_t Length;
-   /** Feature Map Length */
-   DSL_uint16_t FeatMapLen;
-   /** Feature-Bit0 of Word 0: Annex I */
+   /** Feature-Bit0 of Word 0: Annex A (incl. Annex L) (ADSL only) */
    DSL_uint16_t W0F00 : 1;
-   /** Reserved */
-   DSL_uint16_t Res2 : 2;
-   /** Feature-Bit3 of Word 0:PTM Off-chip Bonding BACP */
+   /** Feature-Bit1 of Word 0: T1.413 (ADSL only) */
+   DSL_uint16_t W0F01 : 1;
+   /** Feature-Bit2 of Word 0: Annex B (ADSL only) */
+   DSL_uint16_t W0F02 : 1;
+   /** Feature-Bit3 of Word 0: Annex I (ADSL only) */
    DSL_uint16_t W0F03 : 1;
-   /** Feature-Bit4 of Word 0:  G.INP Retransmission DS + Bonding (EFM) */
+   /** Feature-Bit4 of Word 0: Annex J (ADSL only) */
    DSL_uint16_t W0F04 : 1;
-   /** Feature-Bit5 of Word 0:  G.INP Retransmission DS + SRA */
+   /** Feature-Bit5 of Word 0: Annex M (ADSL only) */
    DSL_uint16_t W0F05 : 1;
+   /** Feature-Bit6 of Word 0: AnnexM/J US Mask Selection (ADSL only) */
+   DSL_uint16_t W0F06 : 1;
+   /** Feature-Bit7 of Word 0: AnnexM/J US PSD Shaping (ADSL only) */
+   DSL_uint16_t W0F07 : 1;
+   /** Feature-Bit8 of Word 0: PTM-TC for ADSL2x  */
+   DSL_uint16_t W0F08 : 1;
+   /** Reserved */
+   DSL_uint16_t W0F09 : 1;
+   /** Feature-Bit10 of Word 0: PTM Off-chip Bonding BACP */
+   DSL_uint16_t W0F10 : 1;
+   /** Feature-Bit11 of Word 0: PTM Off-chip bonding (GHS-based) */
+   DSL_uint16_t W0F11 : 1;
+   /** Feature-Bits 15:12 of Word 0: Not used in ADSL */
+   DSL_uint16_t Res0 : 4;
+   /** Reserved */
+   DSL_uint16_t Res4 : 12;
+   /** Reserved */
+   DSL_uint16_t Res3 : 2;
+   /** Feature-Bit2 of Word 1: Not used in ADSL */
+   DSL_uint16_t W1F02 : 1;
+   /** Feature-Bit3 of Word 1: G.INP Retransmission DS + Bonding (EFM) */
+   DSL_uint16_t W1F03 : 1;
+   /** Feature-Bit4 of Word 1: Not used in ADSL */
+   DSL_uint16_t W1F04 : 1;
+   /** Feature-Bit5 of Word 1: G.INP Retransmission DS + SRA */
+   DSL_uint16_t W1F05 : 1;
+   /** Feature-Bit6 of Word 1: Not used in ADSL */
+   DSL_uint16_t W1F06 : 1;
+   /** Feature-Bit7 of Word 1: L2 (ADSL only) */
+   DSL_uint16_t W1F07 : 1;
+   /** Feature-Bit8 of Word 1: Erasure Decoding /FORCEINP */
+   DSL_uint16_t W1F08 : 1;
+   /** Reserved */
+   DSL_uint16_t Res2 : 1;
+   /** Feature-Bit10 of Word 1: Short init (ADSL only) */
+   DSL_uint16_t W1F10 : 1;
    /** Reserved */
    DSL_uint16_t Res1 : 1;
-   /** Feature-Bit7 of Word 0: Short Init */
-   DSL_uint16_t W0F07 : 1;
-   /** Feature-Bit8 of Word 0:  Counter Inhibiting */
-   DSL_uint16_t W0F08 : 1;
-   /** Feature-Bit9 of Word 0:  Pre-emption & Short Packets  */
-   DSL_uint16_t W0F09 : 1;
-   /** Feature-Bit10 of Word 0:  CIPolicy */
-   DSL_uint16_t W0F10 : 1;
-   /** Feature-Bit11 of Word 0: NTR */
-   DSL_uint16_t W0F11 : 1;
-   /** Feature-Bit12  */
-   DSL_uint16_t W0F12 : 1;
+   /** Feature-Bit13 of Word 1: Pre-emption & Short Packets  */
+   DSL_uint16_t W1F13 : 1;
+   /** Feature-Bit14 of Word 1: CIPolicy */
+   DSL_uint16_t W1F14 : 1;
+   /** Feature-Bit15 of Word 1: NTR */
+   DSL_uint16_t W1F15 : 1;
    /** Reserved */
-   DSL_uint16_t Res0 : 3;
+   DSL_uint16_t Res7 : 16;
    /** Reserved */
-   DSL_uint16_t Res3 : 16;
-   /** Reserved  */
-   DSL_uint16_t Res4 : 16;
+   DSL_uint16_t Res6 : 2;
+   /** Feature-Bit2 of Word 2: Microfilter Detection and Hybrid Data */
+   DSL_uint16_t W2F02 : 1;
+   /** Reserved */
+   DSL_uint16_t Res5 : 1;
+   /** Reserved */
+   DSL_uint16_t Res8 : 16;
+   /** Reserved */
+   DSL_uint16_t Res9 : 16;
 #endif
 } __PACKED__ ;
 
@@ -1801,75 +1733,139 @@ struct ACK_VDSL_FeatureMapGet
    DSL_uint16_t Index;
    /** Length */
    DSL_uint16_t Length;
-   /** Feature Map Length */
-   DSL_uint16_t FeatMapLen;
+   /** Feature-Bit15 of Word 0: Profile 35b (VDSL only) */
+   DSL_uint16_t W0F15 : 1;
+   /** Feature-Bit14 of Word 0: Profile 30 (VDSL only) */
+   DSL_uint16_t W0F14 : 1;
+   /** Feature-Bit13 of Word 0: Profiles 8x to 17a (VDSL only) */
+   DSL_uint16_t W0F13 : 1;
    /** Reserved */
-   DSL_uint16_t Res0 : 3;
-   /** Feature-Bit12  */
    DSL_uint16_t W0F12 : 1;
-   /** Feature-Bit11 of Word 0: NTR */
+   /** Feature-Bit11 of Word 0: PTM Off-chip bonding (GHS-based) */
    DSL_uint16_t W0F11 : 1;
+   /** Feature-Bit10 of Word 0: PTM Off-chip Bonding BACP */
+   DSL_uint16_t W0F10 : 1;
+   /** Reserved */
+   DSL_uint16_t W0F09 : 1;
+   /** Feature-Bits 8:0 of Word 0: Not used in VDSL */
+   DSL_uint16_t Res0 : 9;
+   /** Feature-Bit15 of Word 1: NTR */
+   DSL_uint16_t W1F15 : 1;
+   /** Feature-Bit14 of Word 1: CIPolicy */
+   DSL_uint16_t W1F14 : 1;
+   /** Feature-Bit13 of Word 1: Pre-emption & Short Packets  */
+   DSL_uint16_t W1F13 : 1;
    /** Reserved */
    DSL_uint16_t Res1 : 1;
-   /** Feature-Bit9 of Word 0: Pre-emption & Short Packets  */
-   DSL_uint16_t W0F09 : 1;
-   /** Feature-Bit8 of Word 0: Erasure Decoding /FORCEINP */
-   DSL_uint16_t W0F08 : 1;
    /** Reserved */
    DSL_uint16_t Res2 : 1;
-   /** Feature-Bit6 of Word 0: Intra DTU Interleaving US */
-   DSL_uint16_t W0F06 : 1;
-   /** Feature-Bit5 of Word 0: Intra DTU Interleaving DS */
-   DSL_uint16_t W0F05 : 1;
-   /** Feature-Bit4 of Word 0: G.INP Retransmission US + DS + PAF (VDSL only) */
-   DSL_uint16_t W0F04 : 1;
-   /** Feature-Bit3 of Word 0: PTM Off-chip Bonding BACP */
-   DSL_uint16_t W0F03 : 1;
+   /** Feature-Bit10 of Word 1: Not used in VDSL */
+   DSL_uint16_t Res3 : 1;
+   /** Reserved */
+   DSL_uint16_t Res4 : 1;
+   /** Feature-Bit8 of Word 1: Erasure Decoding /FORCEINP */
+   DSL_uint16_t W1F08 : 1;
+   /** Feature-Bit7 of Word 1: Not used in VDSL */
+   DSL_uint16_t Res5 : 1;
+   /** Feature-Bit6 of Word 1: G.INP Retransmission US + DS + SRA (VDSL only) */
+   DSL_uint16_t W1F06 : 1;
+   /** Feature-Bit5 of Word 1: G.INP Retransmission DS + SRA */
+   DSL_uint16_t W1F05 : 1;
+   /** Feature-Bit4 of Word 1: G.INP Retransmission US + DS + PAF (VDSL only) */
+   DSL_uint16_t W1F04 : 1;
+   /** Feature-Bit3 of Word 1: G.INP Retransmission DS + Bonding (EFM) */
+   DSL_uint16_t W1F03 : 1;
+   /** Reserved */
+   DSL_uint16_t Res6 : 3;
+   /** Reserved */
+   DSL_uint16_t Res7 : 12;
+   /** Feature-Bit3 of Word 2: AEC/2nd DAC */
+   DSL_uint16_t W2F03 : 1;
    /** Feature-Bit2 of Word 2: Microfilter Detection and Hybrid Data */
    DSL_uint16_t W2F02 : 1;
    /** Reserved */
-   DSL_uint16_t Res3 : 2;
+   DSL_uint16_t Res8 : 2;
    /** Reserved */
-   DSL_uint16_t Res4 : 16;
-   /** Reserved  */
-   DSL_uint16_t Res5 : 16;
+   DSL_uint16_t Res9 : 13;
+   /** Feature-Bit2 of Word 3: Vectoring together with Bonding (EFM) */
+   DSL_uint16_t W3F02 : 1;
+   /** Feature-Bit1 of Word 3: Exchange of Transceiver IDs */
+   DSL_uint16_t W3F01 : 1;
+   /** Feature-Bit0 of Word 3: Vectoring (fully standard compliant) */
+   DSL_uint16_t W3F00 : 1;
+   /** Reserved */
+   DSL_uint16_t Res10 : 16;
+   /** Reserved */
+   DSL_uint16_t Res11 : 16;
 #else
    /** Index */
    DSL_uint16_t Index;
    /** Length */
    DSL_uint16_t Length;
-   /** Feature Map Length */
-   DSL_uint16_t FeatMapLen;
+   /** Feature-Bits 8:0 of Word 0: Not used in VDSL */
+   DSL_uint16_t Res0 : 9;
    /** Reserved */
-   DSL_uint16_t Res3 : 2;
-   /** Feature-Bit2 of Word 2: Microfilter Detection and Hybrid Data */
-   DSL_uint16_t W2F02 : 1;
-   /** Feature-Bit3 of Word 0: PTM Off-chip Bonding BACP */
-   DSL_uint16_t W0F03 : 1;
-   /** Feature-Bit4 of Word 0: G.INP Retransmission US + DS + PAF (VDSL only) */
-   DSL_uint16_t W0F04 : 1;
-   /** Feature-Bit5 of Word 0: Intra DTU Interleaving DS */
-   DSL_uint16_t W0F05 : 1;
-   /** Feature-Bit6 of Word 0: Intra DTU Interleaving US */
-   DSL_uint16_t W0F06 : 1;
+   DSL_uint16_t W0F09 : 1;
+   /** Feature-Bit10 of Word 0: PTM Off-chip Bonding BACP */
+   DSL_uint16_t W0F10 : 1;
+   /** Feature-Bit11 of Word 0: PTM Off-chip bonding (GHS-based) */
+   DSL_uint16_t W0F11 : 1;
+   /** Reserved */
+   DSL_uint16_t W0F12 : 1;
+   /** Feature-Bit13 of Word 0: Profiles 8x to 17a (VDSL only) */
+   DSL_uint16_t W0F13 : 1;
+   /** Feature-Bit14 of Word 0: Profile 30 (VDSL only) */
+   DSL_uint16_t W0F14 : 1;
+   /** Feature-Bit15 of Word 0: Profile 35b (VDSL only) */
+   DSL_uint16_t W0F15 : 1;
+   /** Reserved */
+   DSL_uint16_t Res6 : 3;
+   /** Feature-Bit3 of Word 1: G.INP Retransmission DS + Bonding (EFM) */
+   DSL_uint16_t W1F03 : 1;
+   /** Feature-Bit4 of Word 1: G.INP Retransmission US + DS + PAF (VDSL only) */
+   DSL_uint16_t W1F04 : 1;
+   /** Feature-Bit5 of Word 1: G.INP Retransmission DS + SRA */
+   DSL_uint16_t W1F05 : 1;
+   /** Feature-Bit6 of Word 1: G.INP Retransmission US + DS + SRA (VDSL only) */
+   DSL_uint16_t W1F06 : 1;
+   /** Feature-Bit7 of Word 1: Not used in VDSL */
+   DSL_uint16_t Res5 : 1;
+   /** Feature-Bit8 of Word 1: Erasure Decoding /FORCEINP */
+   DSL_uint16_t W1F08 : 1;
+   /** Reserved */
+   DSL_uint16_t Res4 : 1;
+   /** Feature-Bit10 of Word 1: Not used in VDSL */
+   DSL_uint16_t Res3 : 1;
    /** Reserved */
    DSL_uint16_t Res2 : 1;
-   /** Feature-Bit8 of Word 0: Erasure Decoding /FORCEINP */
-   DSL_uint16_t W0F08 : 1;
-   /** Feature-Bit9 of Word 0: Pre-emption & Short Packets  */
-   DSL_uint16_t W0F09 : 1;
    /** Reserved */
    DSL_uint16_t Res1 : 1;
-   /** Feature-Bit11 of Word 0: NTR */
-   DSL_uint16_t W0F11 : 1;
-   /** Feature-Bit12  */
-   DSL_uint16_t W0F12 : 1;
+   /** Feature-Bit13 of Word 1: Pre-emption & Short Packets  */
+   DSL_uint16_t W1F13 : 1;
+   /** Feature-Bit14 of Word 1: CIPolicy */
+   DSL_uint16_t W1F14 : 1;
+   /** Feature-Bit15 of Word 1: NTR */
+   DSL_uint16_t W1F15 : 1;
    /** Reserved */
-   DSL_uint16_t Res0 : 3;
+   DSL_uint16_t Res8 : 2;
+   /** Feature-Bit2 of Word 2: Microfilter Detection and Hybrid Data */
+   DSL_uint16_t W2F02 : 1;
+   /** Feature-Bit3 of Word 2: AEC/2nd DAC */
+   DSL_uint16_t W2F03 : 1;
    /** Reserved */
-   DSL_uint16_t Res4 : 16;
-   /** Reserved  */
-   DSL_uint16_t Res5 : 16;
+   DSL_uint16_t Res7 : 12;
+   /** Feature-Bit0 of Word 3: Vectoring (fully standard compliant) */
+   DSL_uint16_t W3F00 : 1;
+   /** Feature-Bit1 of Word 3: Exchange of Transceiver IDs */
+   DSL_uint16_t W3F01 : 1;
+   /** Feature-Bit2 of Word 3: Vectoring together with Bonding (EFM) */
+   DSL_uint16_t W3F02 : 1;
+   /** Reserved */
+   DSL_uint16_t Res9 : 13;
+   /** Reserved */
+   DSL_uint16_t Res10 : 16;
+   /** Reserved */
+   DSL_uint16_t Res11 : 16;
 #endif
 } __PACKED__ ;
 
