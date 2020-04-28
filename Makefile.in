@@ -96,7 +96,7 @@ DIST_COMMON = $(srcdir)/Makefile.am $(top_srcdir)/configure \
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = $(top_builddir)/src/dsl_cpe_config.h
+CONFIG_HEADER = $(top_builddir)/src/include/drv_dsl_cpe_api_config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 AM_V_P = $(am__v_P_@AM_V@)
@@ -153,8 +153,8 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(dsl_cpe_control_docdir)"
-DATA = $(dsl_cpe_control_doc_DATA)
+am__installdirs = "$(DESTDIR)$(drv_dsl_cpe_api_docdir)"
+DATA = $(drv_dsl_cpe_api_doc_DATA)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 am__recursive_targets = \
@@ -184,9 +184,10 @@ ETAGS = etags
 CTAGS = ctags
 CSCOPE = cscope
 DIST_SUBDIRS = $(SUBDIRS)
-am__DIST_COMMON = $(srcdir)/Makefile.in ABOUT-NLS AUTHORS COPYING \
-	ChangeLog NEWS README TODO compile config.rpath depcomp \
-	install-sh missing
+am__DIST_COMMON = $(srcdir)/Makefile.in \
+	$(top_srcdir)/src/include/drv_dsl_cpe_api_config.h.in \
+	ABOUT-NLS AUTHORS COPYING ChangeLog NEWS README TODO compile \
+	config.rpath depcomp install-sh missing
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -230,8 +231,7 @@ am__distuninstallcheck_listfiles = $(distuninstallcheck_listfiles) \
   | sed 's|^\./|$(prefix)/|' | grep -v '$(infodir)/dir$$'
 distcleancheck_listfiles = find . -type f -print
 ACLOCAL = @ACLOCAL@
-ADD_APPL_CFLAGS = @ADD_APPL_CFLAGS@
-ADD_APPL_LDFLAGS = @ADD_APPL_LDFLAGS@
+ADD_DRV_CFLAGS = @ADD_DRV_CFLAGS@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 AUTOCONF = @AUTOCONF@
@@ -242,47 +242,35 @@ CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 CONFIGURE_OPTIONS = @CONFIGURE_OPTIONS@
-CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
 DISTCHECK_CONFIGURE_PARAMS = @DISTCHECK_CONFIGURE_PARAMS@
-DSL_ADD_EXT_APPL_CFLAGS = @DSL_ADD_EXT_APPL_CFLAGS@
-DSL_CCA_DBG_MAX_LEVEL_PRE = @DSL_CCA_DBG_MAX_LEVEL_PRE@
-DSL_CCA_DBG_MAX_LEVEL_SET = @DSL_CCA_DBG_MAX_LEVEL_SET@
+DSL_ADD_EXT_DRV_CFLAGS = @DSL_ADD_EXT_DRV_CFLAGS@
 DSL_CONFIG_MODEL_TYPE = @DSL_CONFIG_MODEL_TYPE@
-DSL_CPE_DEBUG_DISABLE = @DSL_CPE_DEBUG_DISABLE@
+DSL_CPE_API_LIBRARY_BUILD_2_6 = @DSL_CPE_API_LIBRARY_BUILD_2_6@
+DSL_CPE_STATIC_DELT_DATA = @DSL_CPE_STATIC_DELT_DATA@
+DSL_DBG_MAX_LEVEL_PRE = @DSL_DBG_MAX_LEVEL_PRE@
+DSL_DBG_MAX_LEVEL_SET = @DSL_DBG_MAX_LEVEL_SET@
 DSL_DBG_MSG_NETLINK_ID = @DSL_DBG_MSG_NETLINK_ID@
-DSL_DEBUG_TOOL_INTERFACE = @DSL_DEBUG_TOOL_INTERFACE@
-DSL_DEVICE_DRIVER_INCL_PATH = @DSL_DEVICE_DRIVER_INCL_PATH@
+DSL_DEBUG_DISABLE = @DSL_DEBUG_DISABLE@
 DSL_DEVICE_NAME = @DSL_DEVICE_NAME@
 DSL_DRIVER_INCL_PATH = @DSL_DRIVER_INCL_PATH@
 DSL_VRX_DEVICE_NAME = @DSL_VRX_DEVICE_NAME@
-DTI_INCL_PATH = @DTI_INCL_PATH@
-DTI_LIBRARY_PATH = @DTI_LIBRARY_PATH@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
-EGREP = @EGREP@
 EXEEXT = @EXEEXT@
-EXTRA_APP_CFLAGS = @EXTRA_APP_CFLAGS@
-GREP = @GREP@
+EXTRA_DRV_CFLAGS = @EXTRA_DRV_CFLAGS@
 IFXOS_INCLUDE_PATH = @IFXOS_INCLUDE_PATH@
-IFXOS_LIBRARY_PATH = @IFXOS_LIBRARY_PATH@
 INCLUDE_DEPRECATED = @INCLUDE_DEPRECATED@
 INCLUDE_DEVICE_EXCEPTION_CODES = @INCLUDE_DEVICE_EXCEPTION_CODES@
 INCLUDE_DSL_ADSL_MIB = @INCLUDE_DSL_ADSL_MIB@
 INCLUDE_DSL_CEOC = @INCLUDE_DSL_CEOC@
 INCLUDE_DSL_CONFIG_GET = @INCLUDE_DSL_CONFIG_GET@
-INCLUDE_DSL_CPE_CLI_AUTOGEN_SUPPORT = @INCLUDE_DSL_CPE_CLI_AUTOGEN_SUPPORT@
-INCLUDE_DSL_CPE_CLI_SUPPORT = @INCLUDE_DSL_CPE_CLI_SUPPORT@
-INCLUDE_DSL_CPE_CMV_SCRIPTS_MATH = @INCLUDE_DSL_CPE_CMV_SCRIPTS_MATH@
-INCLUDE_DSL_CPE_CMV_SCRIPTS_SUPPORT = @INCLUDE_DSL_CPE_CMV_SCRIPTS_SUPPORT@
+INCLUDE_DSL_CPE_API_IFXOS_SUPPORT = @INCLUDE_DSL_CPE_API_IFXOS_SUPPORT@
 INCLUDE_DSL_CPE_DEBUG_LOGGER_SUPPORT = @INCLUDE_DSL_CPE_DEBUG_LOGGER_SUPPORT@
-INCLUDE_DSL_CPE_DTI_SUPPORT = @INCLUDE_DSL_CPE_DTI_SUPPORT@
-INCLUDE_DSL_CPE_FILESYSTEM_SUPPORT = @INCLUDE_DSL_CPE_FILESYSTEM_SUPPORT@
-INCLUDE_DSL_CPE_IFXOS_SUPPORT = @INCLUDE_DSL_CPE_IFXOS_SUPPORT@
 INCLUDE_DSL_CPE_MISC_LINE_STATUS = @INCLUDE_DSL_CPE_MISC_LINE_STATUS@
 INCLUDE_DSL_CPE_PM_CHANNEL_COUNTERS = @INCLUDE_DSL_CPE_PM_CHANNEL_COUNTERS@
 INCLUDE_DSL_CPE_PM_CHANNEL_EXT_COUNTERS = @INCLUDE_DSL_CPE_PM_CHANNEL_EXT_COUNTERS@
@@ -302,31 +290,29 @@ INCLUDE_DSL_CPE_PM_SHOWTIME_COUNTERS = @INCLUDE_DSL_CPE_PM_SHOWTIME_COUNTERS@
 INCLUDE_DSL_CPE_PM_TOTAL_COUNTERS = @INCLUDE_DSL_CPE_PM_TOTAL_COUNTERS@
 INCLUDE_DSL_CPE_TRACE_BUFFER = @INCLUDE_DSL_CPE_TRACE_BUFFER@
 INCLUDE_DSL_DELT = @INCLUDE_DSL_DELT@
-INCLUDE_DSL_EVENT_POLLING = @INCLUDE_DSL_EVENT_POLLING@
 INCLUDE_DSL_FILTER_DETECTION = @INCLUDE_DSL_FILTER_DETECTION@
+INCLUDE_DSL_FIRMWARE_MEMORY_FREE = @INCLUDE_DSL_FIRMWARE_MEMORY_FREE@
 INCLUDE_DSL_FRAMING_PARAMETERS = @INCLUDE_DSL_FRAMING_PARAMETERS@
 INCLUDE_DSL_G997_ALARM = @INCLUDE_DSL_G997_ALARM@
 INCLUDE_DSL_G997_FRAMING_PARAMETERS = @INCLUDE_DSL_G997_FRAMING_PARAMETERS@
 INCLUDE_DSL_G997_LINE_INVENTORY = @INCLUDE_DSL_G997_LINE_INVENTORY@
 INCLUDE_DSL_G997_PER_TONE = @INCLUDE_DSL_G997_PER_TONE@
 INCLUDE_DSL_G997_STATUS = @INCLUDE_DSL_G997_STATUS@
-INCLUDE_DSL_JSON_PARSING = @INCLUDE_DSL_JSON_PARSING@
 INCLUDE_DSL_PM = @INCLUDE_DSL_PM@
 INCLUDE_DSL_RESOURCE_STATISTICS = @INCLUDE_DSL_RESOURCE_STATISTICS@
 INCLUDE_DSL_SYSTEM_INTERFACE = @INCLUDE_DSL_SYSTEM_INTERFACE@
-INCLUDE_DTI_AGENT_STANDALONE_SUPPORT = @INCLUDE_DTI_AGENT_STANDALONE_SUPPORT@
 INCLUDE_FW_REQUEST_SUPPORT = @INCLUDE_FW_REQUEST_SUPPORT@
 INCLUDE_PILOT_TONES_STATUS = @INCLUDE_PILOT_TONES_STATUS@
 INCLUDE_REAL_TIME_TRACE = @INCLUDE_REAL_TIME_TRACE@
-INCLUDE_SCRIPT_NOTIFICATION = @INCLUDE_SCRIPT_NOTIFICATION@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
+KERNEL_ARCH = @KERNEL_ARCH@
+KERNEL_BUILD_PATH = @KERNEL_BUILD_PATH@
+KERNEL_INCL_PATH = @KERNEL_INCL_PATH@
 LDFLAGS = @LDFLAGS@
-LIBJSON_C_INCL_PATH = @LIBJSON_C_INCL_PATH@
-LIBJSON_C_LIBRARY_PATH = @LIBJSON_C_LIBRARY_PATH@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LTLIBOBJS = @LTLIBOBJS@
@@ -341,10 +327,7 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
-SAFEC_INCL_PATH = @SAFEC_INCL_PATH@
-SAFEC_LIB_NAME = @SAFEC_LIB_NAME@
-SAFEC_LIB_PATH = @SAFEC_LIB_PATH@
-SAFEC_SUPPORT = @SAFEC_SUPPORT@
+RANLIB = @RANLIB@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -392,21 +375,31 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign 1.9 nostdinc
-SUBDIRS = src tools/pipe
+SUBDIRS = src
 DISTCHECK_CONFIGURE_FLAGS = @CONFIGURE_OPTIONS@
-dsl_cpe_control_docdir = ${prefix}/doc/dsl_cpe_control
-dsl_cpe_control_doc_DATA = \
-	ChangeLog
+drv_dsl_cpe_api_docdir = ${prefix}/doc/drv_dsl_cpe_api
+drv_dsl_cpe_api_doc_DATA = \
+    ChangeLog
 
-EXTRA_DIST = $(dsl_cpe_control_doc_DATA) \
-	build_vxworks/control_dsl_cpe_api.wpj \
-	build_win32/dsl_cpe_control_version.h \
-	build_win32/vc7/dsl_cpe_control.sln \
-	build_win32/vc7/dsl_cpe_control.vcproj \
-	README\
-	AUTHORS\
-	NEWS\
-	TODO
+drv_dsl_cpe_api_doc_DEVICE = \
+    doc/doxyconfig.danube \
+    doc/doxyconfig.vrx
+
+EXTRA_DIST = $(drv_dsl_cpe_api_doc_DATA) \
+    $(drv_dsl_cpe_api_doc_DEVICE) \
+    build_vxworks/drv_dsl_cpe_api.wpj \
+    README \
+    AUTHORS \
+    NEWS \
+    TODO \
+    LICENSE\
+    doc/footer.html \
+    doc/header.html \
+    doc/dsl_cpe_api.h \
+    doc/api_sw_structure_overview.jpg \
+    doc/html/logo.gif \
+    doc/html/spacer.gif \
+    doc/html/stylesheet.css
 
 all: all-recursive
 
@@ -444,27 +437,42 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	$(am__cd) $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 $(am__aclocal_m4_deps):
-install-dsl_cpe_control_docDATA: $(dsl_cpe_control_doc_DATA)
+
+src/include/drv_dsl_cpe_api_config.h: src/include/stamp-h1
+	@test -f $@ || rm -f src/include/stamp-h1
+	@test -f $@ || $(MAKE) $(AM_MAKEFLAGS) src/include/stamp-h1
+
+src/include/stamp-h1: $(top_srcdir)/src/include/drv_dsl_cpe_api_config.h.in $(top_builddir)/config.status
+	@rm -f src/include/stamp-h1
+	cd $(top_builddir) && $(SHELL) ./config.status src/include/drv_dsl_cpe_api_config.h
+$(top_srcdir)/src/include/drv_dsl_cpe_api_config.h.in:  $(am__configure_deps) 
+	($(am__cd) $(top_srcdir) && $(AUTOHEADER))
+	rm -f src/include/stamp-h1
+	touch $@
+
+distclean-hdr:
+	-rm -f src/include/drv_dsl_cpe_api_config.h src/include/stamp-h1
+install-drv_dsl_cpe_api_docDATA: $(drv_dsl_cpe_api_doc_DATA)
 	@$(NORMAL_INSTALL)
-	@list='$(dsl_cpe_control_doc_DATA)'; test -n "$(dsl_cpe_control_docdir)" || list=; \
+	@list='$(drv_dsl_cpe_api_doc_DATA)'; test -n "$(drv_dsl_cpe_api_docdir)" || list=; \
 	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(dsl_cpe_control_docdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(dsl_cpe_control_docdir)" || exit 1; \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(drv_dsl_cpe_api_docdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(drv_dsl_cpe_api_docdir)" || exit 1; \
 	fi; \
 	for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  echo "$$d$$p"; \
 	done | $(am__base_list) | \
 	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(dsl_cpe_control_docdir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(dsl_cpe_control_docdir)" || exit $$?; \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(drv_dsl_cpe_api_docdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(drv_dsl_cpe_api_docdir)" || exit $$?; \
 	done
 
-uninstall-dsl_cpe_control_docDATA:
+uninstall-drv_dsl_cpe_api_docDATA:
 	@$(NORMAL_UNINSTALL)
-	@list='$(dsl_cpe_control_doc_DATA)'; test -n "$(dsl_cpe_control_docdir)" || list=; \
+	@list='$(drv_dsl_cpe_api_doc_DATA)'; test -n "$(drv_dsl_cpe_api_docdir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(dsl_cpe_control_docdir)'; $(am__uninstall_files_from_dir)
+	dir='$(DESTDIR)$(drv_dsl_cpe_api_docdir)'; $(am__uninstall_files_from_dir)
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run 'make' without going through this Makefile.
@@ -769,7 +777,7 @@ check: check-recursive
 all-am: Makefile $(DATA)
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(dsl_cpe_control_docdir)"; do \
+	for dir in "$(DESTDIR)$(drv_dsl_cpe_api_docdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-recursive
@@ -809,7 +817,7 @@ clean-am: clean-generic mostlyclean-am
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -f Makefile
-distclean-am: clean-am distclean-generic distclean-tags
+distclean-am: clean-am distclean-generic distclean-hdr distclean-tags
 
 dvi: dvi-recursive
 
@@ -823,7 +831,7 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-dsl_cpe_control_docDATA
+install-data-am: install-drv_dsl_cpe_api_docDATA
 
 install-dvi: install-dvi-recursive
 
@@ -869,7 +877,7 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-dsl_cpe_control_docDATA
+uninstall-am: uninstall-drv_dsl_cpe_api_docDATA
 
 .MAKE: $(am__recursive_targets) install-am install-strip
 
@@ -877,18 +885,18 @@ uninstall-am: uninstall-dsl_cpe_control_docDATA
 	am--refresh check check-am clean clean-cscope clean-generic \
 	cscope cscopelist-am ctags ctags-am dist dist-all dist-bzip2 \
 	dist-gzip dist-hook dist-lzip dist-shar dist-tarZ dist-xz \
-	dist-zip distcheck distclean distclean-generic distclean-tags \
-	distcleancheck distdir distuninstallcheck dvi dvi-am html \
-	html-am info info-am install install-am install-data \
-	install-data-am install-dsl_cpe_control_docDATA install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am install-man \
-	install-pdf install-pdf-am install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	installdirs-am maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-generic pdf pdf-am ps ps-am tags \
-	tags-am uninstall uninstall-am \
-	uninstall-dsl_cpe_control_docDATA
+	dist-zip distcheck distclean distclean-generic distclean-hdr \
+	distclean-tags distcleancheck distdir distuninstallcheck dvi \
+	dvi-am html html-am info info-am install install-am \
+	install-data install-data-am install-drv_dsl_cpe_api_docDATA \
+	install-dvi install-dvi-am install-exec install-exec-am \
+	install-html install-html-am install-info install-info-am \
+	install-man install-pdf install-pdf-am install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs installdirs-am maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-generic pdf \
+	pdf-am ps ps-am tags tags-am uninstall uninstall-am \
+	uninstall-drv_dsl_cpe_api_docDATA
 
 .PRECIOUS: Makefile
 
@@ -901,12 +909,24 @@ dist-hook:
 		fi \
 	done
 
-# Check for correct line ends (reduce scope to 'src' because Win32 files can have CRLF)
+# Check for correct line ends
 distcheck-hook:
 	chmod a+w $(distdir)
 	echo "Checking line ends ...!!!"; \
-	find $(distdir)/src -type f -exec file {} \; | grep -e "CRLF" -e "Non-ISO" && exit 1; \
+	find $(distdir) -type f -exec file {} \; | grep -e "CRLF" -e "Non-ISO" && exit 1; \
 	echo "Checking line ends ... done."
+
+generate-doc-danube:
+	( cd @srcdir@/doc;  \
+	doxygen doxyconfig.danube; )
+
+generate-xml:
+	( cd @srcdir@/doc/xml;  \
+	echo generate complete.xml ...; \
+	xsltproc --timing -o complete.xml combine.xslt index.xml; \
+	echo generate API reference ...; \
+	xsltproc doxy2wg.xsl complete.xml | sed 's/^ *//g' > @srcdir@/doc/api/fm/lib_dsl_api_reference.xml; \
+    )
 
 lint:
 	@target=lint; \

@@ -30,7 +30,7 @@ For more details please also refer to chapter "3. Getting Started" within
 
 1.2 SOURCE TREE STRUCTURE
 
-Source tree structure for the DSL CPE Control application.
+Source tree structure for the DSL CPE API driver.
 
 Please note that
 a) the following tree does not include ALL files, it is just to get an easier
@@ -41,64 +41,90 @@ b) the usage of "<device>" indicates that a device specific file will be
    - "danube": Danube Family (includes Danube, Amazon-SE and ARX100)
    - "vrx": VRX200 Family
 
-dsl_cpe_control\
-M:.
-¦   AUTHORS
+drv_dsl_cpe_api\
 ¦   ChangeLog
-¦   Makefile.am
-¦   NEWS
-¦   TODO
 ¦   configure.in
-¦   dsl_cpe_control.pjt
 ¦   LICENSE
+¦   Makefile.am
 ¦   README
 ¦
-+---src                                     // ALL sources including header files
-¦   ¦   Makefile.am
-¦   ¦   dsl_cpe_control.c
-¦   ¦   dsl_cpe_control.h
-¦   ¦   dsl_cpe_init_cfg.c
-¦   ¦   dsl_cpe_init_cfg.h
-¦   ¦   dsl_cpe_cli_<device>.c
-¦   ¦   dsl_cpe_os.h                        \
-¦   ¦   dsl_cpe_linux.c                     |
-¦   ¦   dsl_cpe_linux.h                     |
-¦   ¦   dsl_cpe_win32.c                     |  API internal OS abstraction for
-¦   ¦   dsl_cpe_win32.h                     +  different OS in case of not using
-¦   ¦   dsl_cpe_rtems.c                     |  ifx_os
-¦   ¦   dsl_cpe_rtems.h                     |
-¦   ¦   dsl_cpe_vxworks.c                   |
-¦   ¦   dsl_cpe_vxworks.h                   /
-
-¦   ¦   dsl_cpe_simulator.c
-¦   ¦   dsl_cpe_simulator.h
-¦   ¦   dsl_cpe_cli.c
-¦   ¦   dsl_cpe_cli.h
-¦   ¦   dsl_cpe_cli_access.c
-¦   ¦   dsl_cpe_cli_console.c
-¦   ¦   dsl_cpe_cli_console.h
-¦   ¦   dsl_cpe_debug.c
-¦   ¦   dsl_cpe_debug.h
-¦   ¦   dsl_cpe_cli_pipe.c
-¦   ¦   dsl_cpe_debug_<device>.c
-¦   ¦   dsl_cpe_debug_<device>.h
-¦   ¦   dsl_cpe_os_lint_map.h
-¦   ¦   dsl_cpe_cli_mib.c
-¦   ¦   LLCfg.txt
-¦   ¦   Makefile.in
++---build_vxworks
+¦       drv_dsl_cpe_api.wpj
+¦
++---doc                                     // to generate doxygen help files
+¦   ¦   doxyconfig.<device>
+¦   ¦   footer.html
+¦   ¦   header.html
+¦   ¦   stylesheet.css
 ¦   ¦
-+---build_win32
-¦   ¦   dsl_cpe_control_version.h
-¦   ¦   drv_danube_api_intern.h
-¦   ¦   dsl_cpe_simulator_config.h
-¦   ¦
-¦   +---vc7
-¦   ¦
-¦   +---vc6
+¦   +---html
+¦           logo.gif
 ¦
 +---scripts
-¦       dsl_cpe_pipe.sh
-¦       alias_dsl_cpe.sh
+¦       inst_drv_dsl_cpe_api_<device>.sh
 ¦
-+---build_vxworks
-        control_dsl_cpe_api.wpj
++---src
+    ¦   Makefile.am
+    ¦   Makefile.in
+    ¦
+    +---ceoc                                // Implementation for Clear EOC interface
+    ¦       drv_dsl_cpe_ceoc.c
+    ¦       drv_dsl_cpe_intern_ceoc.c
+    ¦       drv_dsl_cpe_<device>_ceoc.c
+    ¦
+    +---common                              // Common source files
+    ¦       drv_dsl_cpe_api.c
+    ¦       drv_dsl_cpe_autoboot.c
+    ¦       drv_dsl_cpe_debug.c
+    ¦       drv_dsl_cpe_fifo.c
+    ¦       drv_dsl_cpe_os_linux.c          \  API internal OS abstraction for
+    ¦       drv_dsl_cpe_os_rtems.c          +- different OS in case of not using
+    ¦       drv_dsl_cpe_os_vxworks.c        /  ifx_os
+    ¦       drv_dsl_cpe_timeout.c
+    ¦
+    +---device                              // Device specific implementation
+    ¦       drv_dsl_cpe_device_<device>.c
+    ¦
+    +---g997                                // Implementation of G.997 driver interface
+    ¦       drv_dsl_cpe_api_g997.c
+    ¦       drv_dsl_cpe_api_g997_<device>.c
+    ¦
+    +---include                             // All include files
+    ¦       drv_dsl_cpe_api.h
+    ¦       drv_dsl_cpe_api_adslmib.h
+    ¦       drv_dsl_cpe_api_adslmib_ioctl.h
+    ¦       drv_dsl_cpe_api_ceoc.h
+    ¦       drv_dsl_cpe_api_ceoc_intern.h
+    ¦       drv_dsl_cpe_api_config.h.in
+    ¦       drv_dsl_cpe_api_error.h
+    ¦       drv_dsl_cpe_api_g997.h
+    ¦       drv_dsl_cpe_api_ioctl.h
+    ¦       drv_dsl_cpe_api_pm.h
+    ¦       drv_dsl_cpe_api_sar.h
+    ¦       drv_dsl_cpe_api_types.h
+    ¦       drv_dsl_cpe_autoboot.h
+    ¦       drv_dsl_cpe_debug.h
+    ¦       drv_dsl_cpe_device.h
+    ¦       drv_dsl_cpe_device_ceoc.h
+    ¦       drv_dsl_cpe_device_g997.h
+    ¦       drv_dsl_cpe_device_pm.h
+    ¦       drv_dsl_cpe_device_<device>.h
+    ¦       <...>
+    ¦
+    ¦       // Firmware message interface definitions
+    ¦
+    ¦       // Danube Family only files as follows
+    ¦       drv_dsl_cpe_cmv_danube.h
+    ¦
+    ¦
+    +---mib                                 // Implementation for SNMP (RFC2662/3440)
+    ¦       drv_dsl_cpe_adslmib.c           // Only for Danube Family
+    ¦
+    +---pm                                  // Implementation of Performance Monitoring
+    ¦       drv_dsl_cpe_api_pm.c
+    ¦       drv_dsl_cpe_api_pm_<device>.c
+    ¦       drv_dsl_cpe_pm_core.c
+    ¦
+    +---sar                                 // Segmentation and Reassembley
+            drv_dsl_cpe_sar.c
+
