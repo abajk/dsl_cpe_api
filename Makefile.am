@@ -2,24 +2,35 @@
 
 AUTOMAKE_OPTIONS = foreign 1.9 nostdinc
 
-SUBDIRS = src tools/pipe
+SUBDIRS = src
 
 DISTCHECK_CONFIGURE_FLAGS=@CONFIGURE_OPTIONS@
 
-dsl_cpe_control_docdir = ${prefix}/doc/dsl_cpe_control
+drv_dsl_cpe_api_docdir = ${prefix}/doc/drv_dsl_cpe_api
 
-dsl_cpe_control_doc_DATA = \
-	ChangeLog
-   
-EXTRA_DIST = $(dsl_cpe_control_doc_DATA) \
-	build_vxworks/control_dsl_cpe_api.wpj \
-	build_win32/dsl_cpe_control_version.h \
-	build_win32/vc7/dsl_cpe_control.sln \
-	build_win32/vc7/dsl_cpe_control.vcproj \
-	README\
-	AUTHORS\
-	NEWS\
-	TODO
+drv_dsl_cpe_api_doc_DATA = \
+    ChangeLog
+
+drv_dsl_cpe_api_doc_DEVICE = \
+    doc/doxyconfig.danube \
+    doc/doxyconfig.vrx
+
+EXTRA_DIST = $(drv_dsl_cpe_api_doc_DATA) \
+    $(drv_dsl_cpe_api_doc_DEVICE) \
+    build_vxworks/drv_dsl_cpe_api.wpj \
+    README \
+    AUTHORS \
+    NEWS \
+    TODO \
+    LICENSE\
+    doc/footer.html \
+    doc/header.html \
+    doc/dsl_cpe_api.h \
+    doc/api_sw_structure_overview.jpg \
+    doc/html/logo.gif \
+    doc/html/spacer.gif \
+    doc/html/stylesheet.css
+
 
 # Copy all the spec files. Of cource, only one is actually used.
 dist-hook:
@@ -29,12 +40,25 @@ dist-hook:
 		fi \
 	done
 
-# Check for correct line ends (reduce scope to 'src' because Win32 files can have CRLF)
+# Check for correct line ends
 distcheck-hook:
 	chmod a+w $(distdir)
 	echo "Checking line ends ...!!!"; \
-	find $(distdir)/src -type f -exec file {} \; | grep -e "CRLF" -e "Non-ISO" && exit 1; \
+	find $(distdir) -type f -exec file {} \; | grep -e "CRLF" -e "Non-ISO" && exit 1; \
 	echo "Checking line ends ... done."
+
+generate-doc-danube:
+	( cd @srcdir@/doc;  \
+	doxygen doxyconfig.danube; )
+
+
+generate-xml:
+	( cd @srcdir@/doc/xml;  \
+	echo generate complete.xml ...; \
+	xsltproc --timing -o complete.xml combine.xslt index.xml; \
+	echo generate API reference ...; \
+	xsltproc doxy2wg.xsl complete.xml | sed 's/^ *//g' > @srcdir@/doc/api/fm/lib_dsl_api_reference.xml; \
+    )
 
 lint:
 	@target=lint; \
@@ -50,3 +74,4 @@ lint:
 		(cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) $$local_target) \
 		|| eval $$failcom; \
 	done;
+
