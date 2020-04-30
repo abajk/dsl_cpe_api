@@ -1,245 +1,341 @@
 ## Process this file with automake to produce Makefile.in
 
-bin_PROGRAMS = dsl_cpe_control
-
-AM_CPPFLAGS = -I@srcdir@ @DSL_DRIVER_INCL_PATH@ @DSL_DEVICE_DRIVER_INCL_PATH@ @IFXOS_INCLUDE_PATH@ @DTI_INCL_PATH@
-
-
-if DSL_CPE_STATIC_LINKING
-dsl_cpe_control_common_ldflags = -static
+# Target definition depending on kernel version:
+if KERNEL_2_6
+bin_PROGRAMS = drv_dsl_cpe_api.ko
+if DSL_CPE_API_LIBRARY_BUILD_2_6
+noinst_LIBRARIES = lib_dsl_cpe_api.a
+endif
 else
-dsl_cpe_control_common_ldflags =
+bin_PROGRAMS = drv_dsl_cpe_api
+noinst_LIBRARIES = lib_dsl_cpe_api.a
 endif
 
-dsl_cpe_control_LDADD = -lpthread -lrt
-
-if INCLUDE_DSL_CPE_DTI_SUPPORT
-    dsl_cpe_control_LDADD += -ldti_agent
-    dsl_cpe_control_LDADD += -lifxos
-endif
-
-if INCLUDE_DSL_CPE_IFXOS_SUPPORT
-    dsl_cpe_control_LDADD += -lifxos
-endif
-
-if SAFEC_SUPPORT
-AM_CPPFLAGS += @SAFEC_INCL_PATH@
-dsl_cpe_control_LDADD += -l@SAFEC_LIB_NAME@
-endif
-
-if INCLUDE_DSL_JSON_PARSING
-AM_CPPFLAGS += @LIBJSON_C_INCL_PATH@
-dsl_cpe_control_LDADD += -ljson-c
-endif
-
-bin_SCRIPTS = ../scripts/alias_dsl_cpe.sh
-
-if DEVICE_VRX
-dsl_cpe_control_bnd_sources = \
-   dsl_cpe_bnd_vrx.c
-endif
-
-dsl_cpe_control_cli_sources = \
-	dsl_cpe_cli.c \
-	dsl_cpe_cli_pipe.c \
-	dsl_cpe_cli_access.c \
-	dsl_cpe_cli_console.c
-
-if INCLUDE_DSL_JSON_PARSING
-dsl_cpe_configuration_parser_sources = \
-	dsl_cpe_configuration_parser.c
-dsl_cpe_status_parser_sources = \
-	dsl_cpe_status_parser.c
-else
-dsl_cpe_configuration_parser_sources =
-dsl_cpe_status_parser_sources =
-endif
-
-dsl_cpe_control_cli_autogen_sources = \
-	dsl_cpe_cli_access2.c \
-	dsl_cpe_cli_autogen.c
-
-dsl_cpe_control_cli_danube_sources = \
-	dsl_cpe_cli_danube.c \
-	dsl_cpe_cli_mib.c
-
-dsl_cpe_control_cli_vrx_sources = \
-	dsl_cpe_cli_vrx.c
-
-dsl_cpe_control_debug_danube_sources = \
-	dsl_cpe_debug_danube.c
-
-dsl_cpe_control_debug_vrx_sources = \
-	dsl_cpe_debug_vrx.c
-
-if INCLUDE_DSL_CPE_DTI_SUPPORT
-dsl_cpe_control_dti_sources = \
-	dsl_cpe_dti.c \
- 	dsl_cpe_dti_vrx.c
-else
-dsl_cpe_control_dti_sources =
-endif
-
-dsl_cpe_control_SOURCES = \
-	dsl_cpe_control.c \
-	dsl_cpe_init_cfg.c \
-	dsl_cpe_linux.c \
-	dsl_cpe_debug.c
-
-dsl_cpe_control_SOURCES += \
-	$(dsl_cpe_control_dti_sources)
 
 if DEVICE_DANUBE
-dsl_cpe_control_SOURCES += \
-	$(dsl_cpe_control_debug_danube_sources)
+bin_SCRIPTS = ../scripts/inst_drv_dsl_cpe_api_danube.sh
 endif
 
-if DEVICE_VRX_LAYER
-dsl_cpe_control_SOURCES += \
-	$(dsl_cpe_control_debug_vrx_sources)
+if FW_R9
+VRX_HEADER_DIR = include/mcat2.7
+else
+VRX_HEADER_DIR = include/mcat3.2
 endif
 
-dsl_cpe_control_SOURCES += \
-	$(dsl_cpe_control_bnd_sources)
 
-if INCLUDE_DSL_CPE_CLI_SUPPORT
-dsl_cpe_control_SOURCES += \
-	$(dsl_cpe_control_cli_sources)
+## listed files are to be distributed
+drv_dsl_cpe_api_includedir = $(includedir)
+drv_dsl_cpe_api_include_HEADERS = include/drv_dsl_cpe*.h
 
-if INCLUDE_DSL_CPE_CLI_AUTOGEN_SUPPORT
-dsl_cpe_control_SOURCES += \
-	$(dsl_cpe_control_cli_autogen_sources)
+## sources for BND module
+drv_bnd_sources = \
+	bnd/drv_dsl_cpe_api_bnd.c
+
+## extra for BND
+drv_bnd_extra = \
+	include/drv_dsl_cpe_api_bnd.h \
+   include/drv_dsl_cpe_api_bnd_vrx.h
+
+## sources for PM module
+drv_pm_sources = \
+	pm/drv_dsl_cpe_api_pm.c \
+	pm/drv_dsl_cpe_pm_core.c
+
+## extra for PM
+drv_pm_extra = \
+	include/drv_dsl_cpe_api_pm.h \
+	include/drv_dsl_cpe_intern_pm.h \
+	include/drv_dsl_cpe_device_pm.h \
+	include/drv_dsl_cpe_pm_core.h
+
+## sources for CEOC module
+drv_ceoc_sources = \
+	ceoc/drv_dsl_cpe_ceoc.c \
+	ceoc/drv_dsl_cpe_intern_ceoc.c
+
+## extra for CEOC
+drv_ceoc_extra = \
+	include/drv_dsl_cpe_api_ceoc_intern.h \
+	include/drv_dsl_cpe_api_ceoc.h \
+	include/drv_dsl_cpe_intern_ceoc.h \
+	include/drv_dsl_cpe_device_ceoc.h
+
+## sources for ADSL MIB module
+drv_adsl_mib_sources = \
+	mib/drv_dsl_cpe_adslmib.c
+
+## extra for ADSL MIB
+drv_adsl_mib_extra= \
+	include/drv_dsl_cpe_api_adslmib.h \
+	include/drv_dsl_cpe_api_adslmib_ioctl.h
+
+## common driver sources always needed for build
+drv_common_sources = \
+	common/drv_dsl_cpe_api.c \
+	common/drv_dsl_cpe_fifo.c \
+	common/drv_dsl_cpe_autoboot.c \
+	common/drv_dsl_cpe_debug.c \
+	common/drv_dsl_cpe_os_linux.c \
+	common/drv_dsl_cpe_timeout.c \
+	g997/drv_dsl_cpe_api_g997.c
+
+## common driver sources always included additionally in the distribution
+drv_common_extra = \
+	include/drv_dsl_cpe_api.h \
+	include/drv_dsl_cpe_fifo.h \
+	include/drv_dsl_cpe_api_error.h \
+	include/drv_dsl_cpe_api_g997.h \
+	include/drv_dsl_cpe_api_ioctl.h \
+	include/drv_dsl_cpe_api_types.h \
+	include/drv_dsl_cpe_autoboot.h \
+	include/drv_dsl_cpe_debug.h \
+	include/drv_dsl_cpe_device.h \
+	include/drv_dsl_cpe_timeout.h \
+	include/drv_dsl_cpe_intern.h \
+	include/drv_dsl_cpe_intern_g997.h \
+	include/drv_dsl_cpe_device_g997.h \
+	include/drv_dsl_cpe_intern_mib.h \
+	include/drv_dsl_cpe_os_lint_map.h \
+	include/drv_dsl_cpe_os.h \
+	include/drv_dsl_cpe_os_linux.h \
+	common/drv_dsl_cpe_os_vxworks.c \
+	include/drv_dsl_cpe_os_vxworks.h \
+	common/drv_dsl_cpe_os_rtems.c \
+	include/drv_dsl_cpe_os_rtems.h \
+	include/drv_dsl_cpe_api_config.h.in
+
+## Files specific for the Danube
+## driver sources
+drv_danube_specific_sources = \
+	device/drv_dsl_cpe_device_danube.c \
+	g997/drv_dsl_cpe_api_g997_danube.c
+
+if INCLUDE_DSL_PM
+drv_pm_danube_specific_sources = \
+	pm/drv_dsl_cpe_api_pm_danube.c
 endif
+
+if INCLUDE_DSL_CEOC
+drv_ceoc_danube_specific_sources = \
+	ceoc/drv_dsl_cpe_danube_ceoc.c
+endif
+
+## extra distribution for Danube
+drv_danube_specific_extra = \
+	include/drv_dsl_cpe_device_danube.h \
+	include/drv_dsl_cpe_danube.h \
+	include/drv_dsl_cpe_cmv_danube.h \
+	include/drv_dsl_cpe_danube_ctx.h \
+	../scripts/inst_drv_dsl_cpe_api_danube.sh
+
+## Files specific for the VRx
+## driver sources
+drv_vrx_specific_sources = \
+	device/drv_dsl_cpe_device_vrx.c \
+	device/drv_dsl_cpe_msg_vrx.c \
+	g997/drv_dsl_cpe_api_g997_vrx.c
+
+if INCLUDE_DSL_PM
+drv_pm_vrx_specific_sources = \
+	pm/drv_dsl_cpe_api_pm_vrx.c
+endif
+
+drv_bnd_vrx_specific_sources = \
+	bnd/drv_dsl_cpe_api_bnd_vrx.c
+
+if INCLUDE_DSL_CEOC
+drv_ceoc_vrx_specific_sources = \
+	ceoc/drv_dsl_cpe_vrx_ceoc.c
+endif
+
+## extra distribution for VRx
+drv_vrx_specific_extra = \
+	include/drv_dsl_cpe_msg_vrx.h \
+	include/drv_dsl_cpe_device_vrx.h \
+	include/mcat2.7/drv_dsl_cpe_vrx_msg_config_pmd.h \
+	include/mcat2.7/drv_dsl_cpe_vrx_msg_const.h \
+	include/mcat2.7/drv_dsl_cpe_vrx_msg_dmt_scope.h \
+	include/mcat2.7/drv_dsl_cpe_vrx_msg_ghs_status.h \
+	include/mcat2.7/drv_dsl_cpe_vrx_msg_olr.h \
+	include/mcat2.7/drv_dsl_cpe_vrx_msg_perf_pmd.h \
+	include/mcat2.7/drv_dsl_cpe_vrx_msg_tc_counters.h \
+	include/mcat3.2/drv_dsl_cpe_vrx_msg_config_pmd.h \
+	include/mcat3.2/drv_dsl_cpe_vrx_msg_const.h \
+	include/mcat3.2/drv_dsl_cpe_vrx_msg_dmt_scope.h \
+	include/mcat3.2/drv_dsl_cpe_vrx_msg_ghs_status.h \
+	include/mcat3.2/drv_dsl_cpe_vrx_msg_olr.h \
+	include/mcat3.2/drv_dsl_cpe_vrx_msg_perf_pmd.h \
+	include/mcat3.2/drv_dsl_cpe_vrx_msg_tc_counters.h \
+	include/drv_dsl_cpe_vrx_ctx.h \
+	../scripts/inst_drv_dsl_cpe_api_vrx.sh
+
+if INCLUDE_DSL_PM
+drv_pm_specific = $(drv_pm_sources)
+endif
+
+drv_bnd_specific = $(drv_bnd_sources)
+
+if INCLUDE_DSL_CEOC
+drv_ceoc_specific = $(drv_ceoc_sources)
+endif
+
+if INCLUDE_DSL_ADSL_MIB
+drv_mib_specific = $(drv_adsl_mib_sources)
+endif
+
+## all sources for the current driver build
+drv_dsl_cpe_api_SOURCES = \
+	$(drv_common_sources) \
+	$(drv_pm_specific) \
+	$(drv_bnd_specific) \
+	$(drv_ceoc_specific) \
+	$(drv_mib_specific) \
+	$(drv_specific_sources)
 
 if DEVICE_DANUBE
-dsl_cpe_control_SOURCES += \
-	$(dsl_cpe_control_cli_danube_sources)
-endif
-
-if INCLUDE_DSL_JSON_PARSING
-dsl_cpe_control_SOURCES += \
-	$(dsl_cpe_configuration_parser_sources) \
-	$(dsl_cpe_status_parser_sources)
+drv_dsl_cpe_api_SOURCES += \
+	$(drv_danube_specific_sources) \
+	$(drv_pm_danube_specific_sources) \
+	$(drv_ceoc_danube_specific_sources)
 endif
 
 if DEVICE_VRX
-dsl_cpe_control_SOURCES += \
-	$(dsl_cpe_control_cli_vrx_sources)
-endif
+drv_dsl_cpe_api_SOURCES += \
+	$(drv_vrx_specific_sources) \
+	$(drv_pm_vrx_specific_sources) \
+	$(drv_bnd_vrx_specific_sources) \
+	$(drv_ceoc_vrx_specific_sources)
 endif
 
+lib_dsl_cpe_api_a_SOURCES = \
+	$(drv_common_sources) \
+	$(drv_pm_specific) \
+	$(drv_ceoc_specific) \
+	$(drv_mib_specific) \
+	$(drv_specific_sources)
 
+if DEVICE_DANUBE
+lib_dsl_cpe_api_a_SOURCES += \
+	$(drv_danube_specific_sources) \
+	$(drv_pm_danube_specific_sources) \
+	$(drv_ceoc_danube_specific_sources)
+endif
+
+if DEVICE_VRX
+lib_dsl_cpe_api_a_SOURCES += \
+	$(drv_vrx_specific_sources) \
+	$(drv_pm_vrx_specific_sources) \
+	$(drv_bnd_vrx_specific_sources) \
+	$(drv_ceoc_vrx_specific_sources)
+endif
+
+## all extra sources for the current library distribution
 EXTRA_DIST = \
 	../LICENSE \
-	$(dsl_cpe_control_bnd_sources) \
-	$(dsl_cpe_control_cli_sources) \
-	$(dsl_cpe_control_dti_sources) \
-	$(dsl_cpe_control_cli_danube_sources) \
-	$(dsl_cpe_control_cli_vrx_sources) \
-	$(dsl_cpe_control_debug_danube_sources) \
-	$(dsl_cpe_control_debug_vrx_sources) \
-	$(dsl_cpe_configuration_parser_sources) \
-	$(dsl_cpe_status_parser_sources) \
-	dsl_cpe_control.h \
-	dsl_cpe_init_cfg.h \
-	dsl_cpe_cli.h \
-	dsl_cpe_dti.h \
-	dsl_cpe_dti_vrx_ctx.h \
-	dsl_cpe_bnd_vrx.h \
-	dsl_cpe_cli_console.h \
-	dsl_cpe_simulator.c \
-	dsl_cpe_simulator.h \
-	dsl_cpe_win32.c \
-	dsl_cpe_win32.h \
-	dsl_cpe_os.h \
-	dsl_cpe_os_lint_map.h \
-	dsl_cpe_linux.h \
-	dsl_cpe_vxworks.c \
-	dsl_cpe_vxworks.h \
-	dsl_cpe_rtems.c \
-	dsl_cpe_rtems.h \
-	dsl_cpe_debug.h \
-	dsl_cpe_debug_danube.h \
-	dsl_cpe_debug_vrx.h \
-	../scripts/alias_dsl_cpe.sh \
-	../scripts/dsl_cpe_pipe.sh \
-	../tools/pipe/dsl_pipe_client.h \
-	dsl_cpe_safec_wrapper.h
+	$(drv_danube_specific_sources) \
+	$(drv_pm_danube_specific_sources) \
+	$(drv_ceoc_danube_specific_sources) \
+	$(drv_bnd_vrx_specific_sources) \
+	$(drv_vrx_specific_sources) \
+	$(drv_pm_vrx_specific_sources) \
+	$(drv_ceoc_vrx_specific_sources) \
+	$(drv_common_extra) \
+	$(drv_pm_extra) \
+	$(drv_bnd_extra) \
+	$(drv_ceoc_extra) \
+	$(drv_adsl_mib_extra) \
+	$(drv_danube_specific_extra) \
+   $(drv_vrx_specific_extra)
 
-if INCLUDE_DSL_JSON_PARSING
-EXTRA_DIST += \
-   dsl_cpe_configuration_parser.h \
-   dsl_cpe_status_parser.h
-endif
-
-if ADD_APPL_CFLAGS_SET
-dsl_cpe_control_cflags = $(ADD_APPL_CFLAGS)
+# common driver cflags
+if DSL_CPE_API_LIBRARY_BUILD_2_6
+drv_dsl_cpe_api_common_mod_cflags = -D"KBUILD_STR(s)=\#s" -D"KBUILD_MODNAME=KBUILD_STR($(subst .o,,$(subst lib_dsl_cpe_api_a-,,$@)))"
 else
-dsl_cpe_control_cflags =
+drv_dsl_cpe_api_common_mod_cflags =
 endif
 
-if ADD_APPL_LDFLAGS_SET
-dsl_cpe_control_ldflags = $(ADD_APPL_LDFLAGS)
-else
-dsl_cpe_control_ldflags =
+drv_dsl_cpe_api_common_cflags = -DLINUX -D__LINUX__ -D__KERNEL__ -DEXPORT_SYMTAB \
+    -pipe -Wall -Wformat -Wimplicit -Wunused -Wswitch -Wcomment -Winline \
+    -Wuninitialized -Wparentheses -Wreturn-type \
+    -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing -fno-common
+
+if DSL_DBG_MAX_LEVEL_SET
+drv_dsl_cpe_api_common_cflags += -DDSL_DBG_MAX_LEVEL=$(DSL_DBG_MAX_LEVEL_PRE)
 endif
 
-if INCLUDE_DSL_CPE_IFXOS_SUPPORT
-dsl_cpe_control_ifxos_ldflags = @IFXOS_LIBRARY_PATH@
-else
-dsl_cpe_control_ifxos_ldflags =
-endif
-
-if INCLUDE_DSL_CPE_DTI_SUPPORT
-dsl_cpe_control_dti_ldflags = @DTI_LIBRARY_PATH@
-else
-dsl_cpe_control_dti_ldflags =
-endif
-
-if SAFEC_SUPPORT
-dsl_cpe_control_safec_ldflags = @SAFEC_LIB_PATH@
-else
-dsl_cpe_control_safec_ldflags =
-endif
-
-if INCLUDE_DSL_JSON_PARSING
-dsl_cpe_control_json_parsing_cflags = -DINCLUDE_DSL_JSON_PARSING=1
-dsl_cpe_control_json_c_ldflags = @LIBJSON_C_LIBRARY_PATH@
-else
-dsl_cpe_control_json_parsing_cflags = 
-dsl_cpe_control_json_c_ldflags =
-endif
-
-dsl_cpe_control_common_cflags = -Wall -Wimplicit -Wreturn-type -Wunused -Wundef \
-	-Wswitch -Wno-format -Wcomment -Wuninitialized -DLINUX -g3 
+# target cflags, specified by configure options
+drv_dsl_cpe_api_target_cflags = $(ADD_DRV_CFLAGS)
 
 # compile cflags
-dsl_cpe_control_compile_cflags = $(EXTRA_APP_CFLAGS)
+drv_dsl_cpe_api_compile_cflags = $(EXTRA_DRV_CFLAGS)
 
-if DSL_CCA_DBG_MAX_LEVEL_SET
-dsl_cpe_control_common_cflags += -DDSL_CCA_DBG_MAX_LEVEL=$(DSL_CCA_DBG_MAX_LEVEL_PRE)
+if !KERNEL_2_6
+# the headerfile of linux kernels 2.6.x contain to much arithmetic
+# with void pointers (which is allowed for gcc!)
+drv_dsl_cpe_api_common_cflags += -Wpointer-arith
 endif
 
-if CONFIG_USE_DSL_ADD_EXT_APPL_CFLAGS
-dsl_cpe_control_external_cflags= $(DSL_ADD_EXT_APPL_CFLAGS)
+if CONFIG_USE_DSL_ADD_EXT_DRV_CFLAGS
+drv_dsl_cpe_api_external_cflags= $(DSL_ADD_EXT_DRV_CFLAGS)
 endif
 
-dsl_cpe_control_CFLAGS = $(dsl_cpe_control_common_cflags) \
-                         $(dsl_cpe_control_cflags) \
-                         $(dsl_cpe_control_compile_cflags) \
-                         $(dsl_cpe_control_external_cflags) \
-                         $(dsl_cpe_control_json_parsing_cflags)
+drv_dsl_cpe_api_CFLAGS =  $(drv_dsl_cpe_api_common_cflags) \
+                          $(drv_dsl_cpe_api_target_cflags) \
+                          $(drv_dsl_cpe_api_device_flags) \
+                          $(drv_dsl_cpe_api_compile_cflags) \
+                          $(drv_dsl_cpe_api_external_cflags)
 
-dsl_cpe_control_LDFLAGS = $(dsl_cpe_control_common_ldflags) \
-                          $(dsl_cpe_control_ldflags) \
-                          $(dsl_cpe_control_compile_cflags) \
-                          $(dsl_cpe_control_ifxos_ldflags) \
-                          $(dsl_cpe_control_dti_ldflags) \
-                          $(dsl_cpe_control_safec_ldflags) \
-                          $(dsl_cpe_control_json_c_ldflags)
+lib_dsl_cpe_api_a_CFLAGS = $(drv_dsl_cpe_api_common_mod_cflags) \
+                           $(drv_dsl_cpe_api_common_cflags) \
+                           $(drv_dsl_cpe_api_target_cflags) \
+                           $(drv_dsl_cpe_api_device_flags) \
+                           $(drv_dsl_cpe_api_compile_cflags) \
+                           $(drv_dsl_cpe_api_external_cflags)
+
+AM_CPPFLAGS= \
+    -I@srcdir@ -I@srcdir@/include \
+    -I@srcdir@/$(VRX_HEADER_DIR) \
+    $(DSL_DRIVER_INCL_PATH) \
+    $(IFXOS_INCLUDE_PATH) \
+    -I@KERNEL_BUILD_PATH@/include \
+    -I@KERNEL_INCL_PATH@
+
+
+drv_dsl_cpe_api_LDFLAGS = -r -nostdlib
+
+# linux 2.6 kernel object
+drv_dsl_cpe_api_ko_SOURCES = ../README
+
+if KERNEL_2_6
+
+drv_dsl_cpe_api_OBJS = "$(subst .c,.o,$(filter %.c,$(drv_dsl_cpe_api_SOURCES)))"
+
+drv_dsl_cpe_api.ko: $(drv_dsl_cpe_api_SOURCES)
+	@echo -e "drv_dsl_cpe_api: Making Linux 2.6.x kernel object"
+	if test ! -e common/drv_dsl_cpe_api.c ; then \
+		echo "copy source files (as links only!)"; \
+		for f in $(filter %.c,$(drv_dsl_cpe_api_SOURCES)); do \
+			mkdir -p $(PWD)/`dirname $$f`/ ; \
+			cp -s $(addprefix @abs_srcdir@/,$$f) $(PWD)/`dirname $$f`/ ; \
+		done \
+	fi
+	@echo -e "# drv_dsl_cpe_api: Generated to build Linux 2.6.x kernel object" > $(PWD)/Kbuild
+	@echo -e "obj-m := $(subst .ko,.o,$@)"			>> $(PWD)/Kbuild
+	@echo -e "$(subst .ko,,$@)-y := $(drv_dsl_cpe_api_OBJS)"	>> $(PWD)/Kbuild
+	@echo -e "EXTRA_CFLAGS := -DHAVE_CONFIG_H $(drv_dsl_cpe_api_CFLAGS) $(DSL_DRIVER_INCL_PATH) $(IFXOS_INCLUDE_PATH) -I@abs_srcdir@/$(VRX_HEADER_DIR) -I@abs_srcdir@/include -I$(PWD)/include"	>> $(PWD)/Kbuild
+	$(MAKE) ARCH=@KERNEL_ARCH@ -C @KERNEL_BUILD_PATH@ O=@KERNEL_BUILD_PATH@ M=$(PWD) modules
+
+clean-generic:
+	@echo "drv_dsl_cpe_api: Cleanup Linux 2.6.x kernel object build"
+	@- find . -name ".*.cmd" | xargs rm -f
+	@- find . -name "*.o" | xargs rm -f
+	@- rm -f Module.symvers Kbuild
+	@- rm -rf .tmp_versions *.mod.c *.order
+
+endif
 
 lint:
-	@flint +b -vm \
-	-i$(shell dirname `$(CC) -print-file-name=include`)/include \
-	-i@top_srcdir@ std_lx.lnt env-cw6.lnt -i@srcdir@ \
-	$(DEFS) $(AM_CPPFLAGS) $(CFLAGS) -D__LINUX__ -DLINUX $(dsl_cpe_control_SOURCES)
+		@flint -vm \
+		-i$(shell dirname `$(CC) -print-file-name=include`)/include \
+		-i@top_srcdir@ std_lx.lnt env-cw6.lnt $(AM_CPPFLAGS) -I$(PWD)/include\
+		$(AM_CFLAGS) -DDSL_INTERN  -DHAVE_CONFIG_H -D__KERNEL__ -D__LINUX__ -DMODULE $(drv_dsl_cpe_api_SOURCES)
