@@ -179,6 +179,9 @@ DSL_Error_t DSL_DRV_AutobootHandleDeviceEvt(
 /** firmware wait timeout in sec */
 #define DSL_AUTOBOOT_FW_WAIT_TIMEOUT 10
 
+/** Link terminate processing time inside FW in msec */
+#define DSL_AUTOBOOT_LINK_TERMINATE_WAIT_TIMEOUT 100
+
 /** Waitnig for orderly shutdown ready timeout in sec */
 #define DSL_AUTOBOOT_ORDERLY_SHUTDOWN_TIMEOUT 12
 

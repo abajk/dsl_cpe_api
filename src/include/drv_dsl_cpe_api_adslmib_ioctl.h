@@ -1,7 +1,9 @@
 /******************************************************************************
 
-                          Copyright (c) 2007-2015
-                     Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2016 - 2020 Intel Corporation
+         Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2009 - 2014 Lantiq Deutschland GmbH
+         Copyright 2007 - 2008 Infineon Technologies AG
 
   For licensing information, see the file 'LICENSE' in the root folder of
   this software module.
@@ -85,7 +87,7 @@ typedef union
       The parameter points to a \ref adslLineTableEntry_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
 
    \code
       adslLineTableEntry_t nData = { 0 };
@@ -134,7 +136,7 @@ typedef union
       The parameter points to a \ref adslAtucPhysEntry_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
 
    \code
       adslAtucPhysEntry_t nData = { 0 };
@@ -186,7 +188,7 @@ typedef union
       The parameter points to a \ref adslAturPhysEntry_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
 
    \remarks
       Name:             adslAturPhysTable\n
@@ -238,7 +240,7 @@ typedef union
       The parameter points to a \ref adslAtucChanInfo_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
 
    \code
       adslAtucChanInfo_t nData = { 0 };
@@ -286,7 +288,7 @@ typedef union
       The parameter points to a \ref adslAturChanInfo_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
 
    \code
       adslAturChanInfo_t nData = { 0 };
@@ -333,7 +335,7 @@ typedef union
       The parameter points to a \ref atucPerfDataEntry_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
 
    \code
       atucPerfDataEntry_t nData = { 0 };
@@ -405,7 +407,7 @@ typedef union
       The parameter points to a \ref aturPerfDataEntry_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
 
    \code
       aturPerfDataEntry_t nData = { 0 };
@@ -470,7 +472,7 @@ typedef union
       The parameter points to a \ref adslAtucIntvlInfo_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
 
    \code
       adslAtucIntvlInfo_t nData = { 0 };
@@ -522,7 +524,7 @@ typedef union
       The parameter points to a \ref adslAturIntvlInfo_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
 
    \code
       adslAturIntvlInfo_t nData = { 0 };
@@ -572,7 +574,7 @@ typedef union
       The parameter points to a \ref atucChannelPerfDataEntry_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
 
    \code
       atucChannelPerfDataEntry_t nData = { 0 };
@@ -637,7 +639,7 @@ typedef union
       The parameter points to a \ref aturChannelPerfDataEntry_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
 
    \code
       aturChannelPerfDataEntry_t nData = { 0 };
@@ -702,7 +704,7 @@ typedef union
       The parameter points to a \ref adslAtucChanIntvlInfo_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
 
    \code
       adslAtucChanIntvlInfo_t nData = { 0 };
@@ -752,7 +754,7 @@ typedef union
       The parameter points to a \ref adslAturChanIntvlInfo_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
 
    \code
       adslAturChanIntvlInfo_t nData = { 0 };
@@ -802,7 +804,7 @@ typedef union
       The parameter points to a \ref adslLineAlarmConfProfileEntry_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
 
    \code
       adslLineAlarmConfProfileEntry_t nData = { 0 };
@@ -873,7 +875,7 @@ typedef union
       The meaning of the single bits is defined by \ref adslAturTrapsFlags_t
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
 
    \code
       unsigned log nData = 0;
@@ -914,7 +916,7 @@ typedef union
       The parameter points to a \ref adslLineExtTableEntry_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
 
    \code
       adslLineExtTableEntry_t nData = 0;
@@ -969,7 +971,7 @@ typedef union
       The parameter points to a \ref atucPerfDataExtEntry_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
 
    \code
       atucPerfDataExtEntry_t nData = 0;
@@ -1016,7 +1018,7 @@ typedef union
       The parameter points to a \ref aturPerfDataExtEntry_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
 
    \code
       aturPerfDataExtEntry_t nData = 0;
@@ -1068,7 +1070,7 @@ typedef union
       The parameter points to a \ref adslAtucInvtlExtInfo_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
 
    \code
       adslAtucInvtlExtInfo_t nData = 0;
@@ -1116,7 +1118,7 @@ typedef union
       The parameter points to a \ref aturPerfDataExtEntry_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
 
    \code
       aturPerfDataExtEntry_t nData = 0;
@@ -1161,7 +1163,7 @@ typedef union
       The parameter points to a \ref adslLineAlarmConfProfileExtEntry_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
 
    \code
       adslLineAlarmConfProfileExtEntry_t nData = 0;
@@ -1213,7 +1215,7 @@ typedef union
       The meaning of the single bits is defined by \ref adslAturExtTrapsFlags_t
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
 
    \code
       unsigned log nData = 0;

@@ -1,7 +1,9 @@
 /******************************************************************************
 
-                          Copyright (c) 2007-2015
-                     Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2016 - 2020 Intel Corporation
+         Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2009 - 2014 Lantiq Deutschland GmbH
+         Copyright 2007 - 2008 Infineon Technologies AG
 
   For licensing information, see the file 'LICENSE' in the root folder of
   this software module.
@@ -189,14 +191,18 @@ typedef struct
          handshake tone group selection (\ref DSL_DEV_HS_TONE_GROUP_MODE_MANUAL) */
    DSL_DEV_HsToneGroup_t nHsToneGroup_V;
    /**
-   This parameter is not used anymopre, means it is ignored.
+   This parameter is not used anymore, means it is ignored.
    It is reserved for future usage. */
    DSL_DEV_HsToneGroup_t nHsToneGroup_AV;
    /**
-   Base Address of the VRX device */
+   Base Address of the VRX device.
+   \note This parameter is not used anymore and is only included for backward
+         compatibility on VRX200 Families. */
    DSL_uint32_t nBaseAddr;
    /**
-   IRQ of the VRX device */
+   IRQ of the VRX device.
+   \note This parameter is not used anymore and is only included for backward
+         compatibility on VRX200 Families. */
    DSL_int8_t nIrqNum;
    /**
    Network Timing Reference Control */

@@ -1,6 +1,6 @@
 /******************************************************************************
 
-         Copyright 2016 - 2019 Intel Corporation
+         Copyright 2016 - 2020 Intel Corporation
          Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
          Copyright 2009 - 2014 Lantiq Deutschland GmbH
          Copyright 2007 - 2008 Infineon Technologies AG
@@ -6665,6 +6665,66 @@ DSL_Error_t DSL_DRV_VRX_ShowtimeMeasurementCompleted(DSL_Context_t *pContext)
 
    return nErrCode;
 }
+
+DSL_Error_t DSL_DRV_VRX_ShowtimeBasicMFDMeasurementUpdate(DSL_Context_t *pContext)
+{
+   DSL_Error_t nErrCode = DSL_SUCCESS;
+   ACK_MFD_InitResultsGet_t sInitResultAck = { 0 };
+   ACK_ADSL_FeatureMapGet_t nFeatureMapGetAck = { 0 };
+   DSL_FilterDetectionBasicData_t filterDetectionBasicData = { 0 };
+
+   DSL_DEBUG(DSL_DBG_MSG,
+      (pContext, SYS_DBG_MSG "DSL[%02d]: IN - "
+       "DSL_DRV_VRX_ShowtimeBasicMFDMeasurementUpdate" DSL_DRV_CRLF,
+       DSL_DEV_NUM(pContext)));
+
+   if (!DSL_DRV_VRX_FirmwareXdslModeCheck(pContext, DSL_VRX_FW_ADSL))
+   {
+      DSL_DEBUG(DSL_DBG_WRN,
+         (pContext, SYS_DBG_WRN "DSL[%02d]: WARNING - "
+         "Filter statistics supported only in ADSL mode!" DSL_DRV_CRLF,
+         DSL_DEV_NUM(pContext)));
+
+      return DSL_ERROR;
+   }
+
+   nErrCode = DSL_DRV_VRX_SendMsgFeatureMapGet(pContext,
+                  (DSL_uint8_t *) &nFeatureMapGetAck);
+
+   if (nErrCode == DSL_SUCCESS && nFeatureMapGetAck.W0F13 == VRX_ENABLE)
+   {
+      if ((nErrCode = DSL_DRV_VRX_SendMsgMfdInitResultsGet(pContext,
+            (DSL_uint8_t*)&sInitResultAck)) == DSL_SUCCESS)
+      {
+         filterDetectionBasicData.nInitResult =
+            (DSL_int16_t)(sInitResultAck.FilterDetected);
+         filterDetectionBasicData.nMetric3 =
+            (DSL_int16_t)(sInitResultAck.M3Metric);
+
+         DSL_CTX_WRITE(pContext, nErrCode,
+            showtimeMeasurement.filterDetectionBasicData,
+            filterDetectionBasicData);
+
+         DSL_CTX_WRITE_SCALAR(pContext, nErrCode,
+            showtimeMeasurement.bFilterDetectionBasicCompleted, DSL_TRUE);
+      }
+   }
+   else if (nFeatureMapGetAck.W0F13 == VRX_DISABLE)
+   {
+      DSL_DEBUG( DSL_DBG_WRN,
+         (pContext, SYS_DBG_WRN "DSL[%02d]: WARNING - Feature-Bit13 is disabled!"
+         DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+
+      nErrCode = DSL_ERR_NOT_SUPPORTED_BY_FIRMWARE;
+   }
+
+   DSL_DEBUG(DSL_DBG_MSG,
+      (pContext, SYS_DBG_MSG "DSL[%02d]: OUT - "
+       "DSL_DRV_VRX_ShowtimeBasicMFDMeasurementUpdate, retCode=%d" DSL_DRV_CRLF,
+      DSL_DEV_NUM(pContext), nErrCode));
+
+   return nErrCode;
+}
 #endif /* INCLUDE_DSL_FILTER_DETECTION */
 
 /*
@@ -8547,6 +8607,17 @@ DSL_Error_t DSL_DRV_DEV_AutobootHandleTraining(
                   DSL_DEV_NUM(pContext)));
          }
 #endif /* INCLUDE_DSL_CPE_API_VRX */
+
+#if defined(INCLUDE_DSL_FILTER_DETECTION) && defined(INCLUDE_DSL_CPE_API_VRX)
+         if (DSL_DRV_VRX_ShowtimeBasicMFDMeasurementUpdate(pContext)
+             != DSL_SUCCESS)
+         {
+            DSL_DEBUG(DSL_DBG_WRN,
+               (pContext, SYS_DBG_WRN "DSL[%02d]: WARNING - "
+               "Could not complete basic filter detection measurement!" DSL_DRV_CRLF,
+               DSL_DEV_NUM(pContext)));
+         }
+#endif /* INCLUDE_DSL_FILTER_DETECTION && INCLUDE_DSL_CPE_API_VRX */
 
 #ifdef INCLUDE_DSL_G997_LINE_INVENTORY
          /* Add FE Inventory Status timeout event. FE inventory information is available

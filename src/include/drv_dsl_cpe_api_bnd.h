@@ -403,7 +403,7 @@ DSL_Error_t DSL_DRV_BND_PortModeSyncSet(
    DSL_OUT DSL_BND_PortModeSync_t *pData);
 #endif
 
-/** @} DRV_DSL_CPE_BND */
+/** @} */ /*DRV_DSL_CPE_BND */
 
 #ifdef __cplusplus
 }

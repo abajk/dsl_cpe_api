@@ -1,7 +1,9 @@
 /******************************************************************************
 
-                          Copyright (c) 2007-2015
-                     Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2016 - 2020 Intel Corporation
+         Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2009 - 2014 Lantiq Deutschland GmbH
+         Copyright 2007 - 2008 Infineon Technologies AG
 
   For licensing information, see the file 'LICENSE' in the root folder of
   this software module.
@@ -1035,7 +1037,7 @@ DSL_Error_t DSL_DRV_PM_DirectionMutexControl(
          if(down_interruptible(&(DSL_DRV_PM_CONTEXT(pContext)->pmNeMutex)))
          {
             DSL_DEBUG( DSL_DBG_ERR,
-               (pContext, SYS_DBG_ERR"DSL[%02d]: ERROR - Couldn't lock PM NE mutex!"
+               (pContext, SYS_DBG_ERR"DSL[%02d]: ERROR - Couldn't lock PM NE direction mutex!"
                DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
 
             nErrCode = DSL_ERR_SEMAPHORE_GET;
@@ -1054,7 +1056,7 @@ DSL_Error_t DSL_DRV_PM_DirectionMutexControl(
          if(down_interruptible(&(DSL_DRV_PM_CONTEXT(pContext)->pmFeMutex)))
          {
             DSL_DEBUG( DSL_DBG_ERR,
-               (pContext, SYS_DBG_ERR"DSL[%02d]: ERROR - Couldn't lock PM FE mutex!"
+               (pContext, SYS_DBG_ERR"DSL[%02d]: ERROR - Couldn't lock PM FE direction mutex!"
                DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
 
             nErrCode = DSL_ERR_SEMAPHORE_GET;
@@ -1063,7 +1065,7 @@ DSL_Error_t DSL_DRV_PM_DirectionMutexControl(
       else
       {
          /* Unlock PM module FE Mutex*/
-    	  up(&(DSL_DRV_PM_CONTEXT(pContext)->pmFeMutex));
+         up(&(DSL_DRV_PM_CONTEXT(pContext)->pmFeMutex));
       }
    }
 
@@ -1152,16 +1154,19 @@ DSL_Error_t DSL_DRV_PM_Lock(DSL_Context_t *pContext)
       if(down_interruptible(&(DSL_DRV_PM_CONTEXT(pContext)->pmNeMutex)))
       {
          DSL_DEBUG( DSL_DBG_ERR,
-            (pContext, SYS_DBG_ERR"DSL[%02d]: ERROR - Couldn't lock PM NE mutex!"
+            (pContext, SYS_DBG_ERR"DSL[%02d]: ERROR - Couldn't lock PM NE!"
             DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
 
          return DSL_ERR_SEMAPHORE_GET;
       }
-      /* Lock PM module Near-End Mutex*/
+      /* Lock PM module Far-End Mutex*/
       if( down_interruptible(&(DSL_DRV_PM_CONTEXT(pContext)->pmFeMutex)) )
       {
+         /* Unlock PM module NE Mutex */
+         up(&(DSL_DRV_PM_CONTEXT(pContext)->pmNeMutex));
+
          DSL_DEBUG( DSL_DBG_ERR,
-            (pContext, SYS_DBG_ERR"DSL[%02d]: ERROR - Couldn't lock PM FE mutex!"
+            (pContext, SYS_DBG_ERR"DSL[%02d]: ERROR - Couldn't lock PM FE!"
             DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
 
          return DSL_ERR_SEMAPHORE_GET;

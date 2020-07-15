@@ -737,6 +737,10 @@ DSL_Error_t DSL_DRV_DEV_OlrStatisticsGet(
 DSL_Error_t DSL_DRV_FilterDetectionInit(
    DSL_Context_t *pContext
 );
+
+DSL_Error_t DSL_DRV_FilterDetectionBasicInit(
+   DSL_Context_t *pContext
+);
 #endif /* INCLUDE_DSL_FILTER_DETECTION */
 
 DSL_Error_t DSL_DRV_HybridSelectionInit(

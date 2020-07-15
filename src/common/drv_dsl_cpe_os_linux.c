@@ -1,7 +1,9 @@
 /******************************************************************************
 
-           Copyright (c) 2018      Intel Corporation
-           Copyright (c) 2007-2015 Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2016 - 2020 Intel Corporation
+         Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2009 - 2014 Lantiq Deutschland GmbH
+         Copyright 2007 - 2008 Infineon Technologies AG
 
   For licensing information, see the file 'LICENSE' in the root folder of
   this software module.
@@ -257,7 +259,7 @@ static DSL_long_t DSL_DRV_Ioctls(DSL_DRV_file_t * pFile,
          (DSL_NULL, SYS_DBG_ERR"DSL: Ioctl call for file which was not opened"
          DSL_DRV_CRLF));
 
-      return -EFAULT;
+      return -EIO;
    }
    else
    {
@@ -345,7 +347,7 @@ static DSL_long_t DSL_DRV_Ioctls(DSL_DRV_file_t * pFile,
 
 static DSL_uint_t DSL_DRV_Poll(DSL_DRV_file_t *pFile, DSL_DRV_Poll_Table_t *wait)
 {
-   DSL_int_t nRet = 0;
+   DSL_uint_t nRet = 0;
    DSL_OpenContext_t *pOpenCtx;
 
    DSL_DEBUG(DSL_DBG_MSG, (DSL_NULL, SYS_DBG_MSG"IN - DSL_DRV_Poll" DSL_DRV_CRLF));
@@ -356,14 +358,14 @@ static DSL_uint_t DSL_DRV_Poll(DSL_DRV_file_t *pFile, DSL_DRV_Poll_Table_t *wait
       DSL_DEBUG(DSL_DBG_ERR, (DSL_NULL, SYS_DBG_ERR"!!! Ioctl call for file which "
          "was not opened" DSL_DRV_CRLF));
 
-      return (DSL_uint_t)(-EFAULT);
+      return POLLERR;
    }
    poll_wait(pFile, &pOpenCtx->eventWaitQueue, wait);
 
    if(DSL_DRV_MUTEX_LOCK(pOpenCtx->eventMutex))
    {
       DSL_DEBUG( DSL_DBG_ERR, (DSL_NULL, SYS_DBG_ERR"Couldn't lock event mutex"DSL_DRV_CRLF));
-      return (DSL_uint_t)DSL_ERROR;
+      return POLLERR;
    }
 
    if (pOpenCtx->eventFifo == DSL_NULL
@@ -384,9 +386,11 @@ static DSL_uint_t DSL_DRV_Poll(DSL_DRV_file_t *pFile, DSL_DRV_Poll_Table_t *wait
 
    DSL_DRV_MUTEX_UNLOCK(pOpenCtx->eventMutex);
 
-   DSL_DEBUG(DSL_DBG_MSG, (DSL_NULL, SYS_DBG_MSG"OUT - DSL_DRV_Poll" DSL_DRV_CRLF));
+   DSL_DEBUG(DSL_DBG_MSG, (DSL_NULL, SYS_DBG_MSG
+      "OUT - DSL_DRV_Poll (%d)" DSL_DRV_CRLF,
+      nRet));
 
-   return (DSL_uint_t)nRet;
+   return nRet;
 }
 
 static int DSL_DRV_DevNodeInit(DSL_void_t)

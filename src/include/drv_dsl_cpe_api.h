@@ -1,7 +1,9 @@
 /******************************************************************************
 
-                          Copyright (c) 2007-2015
-                     Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2016 - 2020 Intel Corporation
+         Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2009 - 2014 Lantiq Deutschland GmbH
+         Copyright 2007 - 2008 Infineon Technologies AG
 
   For licensing information, see the file 'LICENSE' in the root folder of
   this software module.
@@ -85,9 +87,8 @@
 */
 
 /**
-   \defgroup DRV_DSL_CPE_PM Implementation of Performance Monitoring of ITU standard
-   G.997.1.
-   This module implements the Performance Monitoring specification G.PLOAM .
+   \defgroup DRV_DSL_CPE_PM Implementation of Performance Monitoring of ITU Standard G.997.1.
+   This module implements the Performance Monitoring specification G.PLOAM.
    \ingroup DRV_DSL_CPE_API
 */
 
@@ -138,7 +139,7 @@
 
 /**
    \defgroup DRV_DSL_CPE_DEBUG Debug Code
-   Includes all debug related coding
+   Includes all debug related coding.
    \ingroup DRV_DSL_CPE_API
 */
 
@@ -857,7 +858,7 @@ typedef struct
 } DSL_VersionInformation_t;
 
 /**
-   Defines the the possible types of firmware requests.
+   Defines the possible types of firmware requests.
 */
 typedef enum
 {
@@ -890,7 +891,7 @@ typedef enum
 } DSL_FirmwareRequestType_t;
 
 /**
-   Defines the the possible types of the downloaded firmware.
+   Defines the possible types of the downloaded firmware.
 */
 typedef enum
 {
@@ -914,7 +915,7 @@ typedef enum
 } DSL_FirmwareStatusType_t;
 
 /**
-   Defines the the possible types of the firmware download status.
+   Defines the possible types of the firmware download status.
    Used within startup script to trigger firmware ready.
 */
 typedef enum
@@ -965,7 +966,7 @@ typedef struct
 } DSL_FirmwareDownloadStatus_t;
 
 /**
-   Defines the the possible DSL firmware operation types for VDSL capable
+   Defines the possible DSL firmware operation types for VDSL capable
    platforms.
 */
 typedef enum
@@ -1513,7 +1514,7 @@ typedef struct
    for the loop length calculation.
    This values are updated within the API
    - directly after showtime entry
-   - in exception state after failed training and in case of availibility
+   - in exception state after failed training and in case of availability
      within firmware.
 */
 typedef struct
@@ -4442,8 +4443,7 @@ typedef struct
      This is the first digit of the firmware version which will be
      extracted from the (first) what string within currently used firmware
      binary.
-   - firmware features
-     features that are supported by the currently used firmware binary.
+   - firmware features that are supported by the currently used firmware binary.
    \note The firmware feature information is mandatory in case of ADSL/VDSL
          multimode and/or bonding handling and informal in case of all other
          devices. */
@@ -4499,14 +4499,15 @@ typedef struct
 typedef enum
 {
    /**
-   Stops the autoboot handling.
-   This command will terminate the autoboot state machine handler. It will stop
-   according threads and also free up related memory.
-   \note This functionality should be used alone only for debug/test cases
-   \note This command will terminate the autoboot handling without any
-         dedicated synchronization of the current line state. This means that
-         the line will further operate in "free running" FW controlled mode (as
-         long as there is no interaction by the SW/API required. */
+   Stops the autoboot handling (preparation for shutdown).
+   This command will prepare the DSL CPE API for shutdown by performing the
+   following sequence
+   - tear down the link by performing a local orderly shutdown sequence
+   - disable the communication of DSL PHY Firmware with the host system
+     (via X-bar)
+   - stop all driver related running threads in sequence of Performance
+     Monitoring (both NE and FE) and autoboot handling
+   - free up related memory */
    DSL_AUTOBOOT_CTRL_STOP = 0,
    /**
    Starts the autoboot handling. */
@@ -5102,6 +5103,12 @@ typedef struct
 /** @} DRV_DSL_CPE_DEBUG */
 
 #ifdef INCLUDE_DSL_FILTER_DETECTION
+
+/** Definition for special value of Basic MFD's metric3
+    if measurement has not be done.
+    \remarks Metric3 definition in API functions is always DSL_uint16_t */
+#define DSL_MFD_METRIC3_UNDONE   0x7FFF
+
 /**
    Bridge Tap Flag (rough length Indication).
 */
@@ -5185,6 +5192,64 @@ typedef struct
    Structure that contains filter detection data */
    DSL_IN_OUT DSL_FilterDetectionData_t data;
 } DSL_FilterDetection_t;
+
+/**
+   Micro filter detection result from last initialization.
+*/
+typedef enum
+{
+   /**
+   Detection not possible */
+   DSL_MFD_INIT_RESULT_UNKNOWN,
+   /**
+   No microfilter detected */
+   DSL_MFD_INIT_RESULT_FILTER_NO,
+   /**
+   Microfilter detected */
+   DSL_MFD_INIT_RESULT_FILTER_YES,
+   /**
+   Measurement not done yet */
+   DSL_MFD_INIT_RESULT_UNDONE,
+   /**
+   delimeter only*/
+   DSL_MFD_INIT_RESULT_LAST
+} DSL_FilterDetectionInitResult_t;
+
+/**
+   Filter Detection Basic Data.
+   This is about basic microfilter detection info
+   collected during each DSL initialization.
+   All values are updated within API on SHOWTIME
+   (\ref DSL_LINESTATE_SHOWTIME_NO_SYNC  = 0x00000800 or
+   \ref DSL_LINESTATE_SHOWTIME_TC_SYNC  = 0x00000801) only.
+   This structure has to be used for ioctl
+   - \ref DSL_FIO_FILTER_DETECTION_BASIC_DATA_GET
+*/
+typedef struct
+{
+   /**
+   Micro filter detection result from last initialization. */
+   DSL_OUT DSL_FilterDetectionInitResult_t nInitResult;
+   /**
+   Metric3 used (amongst further parameters) to conclude on
+   if microfilters are present or not. */
+   DSL_OUT DSL_int16_t nMetric3;
+} DSL_FilterDetectionBasicData_t;
+
+/**
+   Structure used for getting Filter Detection Basic Data
+   This structure has to be used for ioctl
+   - \ref DSL_FIO_FILTER_DETECTION_BASIC_DATA_GET
+*/
+typedef struct
+{
+   /**
+   Driver control/status structure */
+   DSL_IN_OUT DSL_AccessCtl_t accessCtl;
+   /**
+   Structure that contains filter detection basic data */
+   DSL_IN_OUT DSL_FilterDetectionBasicData_t data;
+} DSL_FilterDetectionBasic_t;
 #endif /* INCLUDE_DSL_FILTER_DETECTION */
 
 /**
@@ -5194,16 +5259,16 @@ typedef struct
 typedef struct
 {
    /**
-   Count of requested bitswaps
+   Count of requested bitswaps.
    Returns the number of requested bitswaps during showtime. */
    DSL_OUT DSL_uint16_t nBitswapRequested;
    /**
-   Count of requested extended bitswaps
+   Count of requested extended bitswaps.
    Returns the number of requested extended bitswaps during showtime.
    \note This counter is only used (incremented) in ADSL1 (G.992.1) mode. */
    DSL_OUT DSL_uint16_t nExtBitswapRequested;
    /**
-   Count of executed bitswaps
+   Count of executed bitswaps.
    Returns the number of executed bitswaps during showtime. */
    DSL_OUT DSL_uint16_t nBitswapExecuted;
    /**
@@ -5211,47 +5276,47 @@ typedef struct
    Returns the number of rejected bitswaps during showtime. */
    DSL_OUT DSL_uint16_t nBitswapRejected;
    /**
-   Count of timeouts for bitswaps
+   Count of timeouts for bitswaps.
    Returns the number of timeouts (no response) for bitswap requests. Counted at
    CPE only as the downstream OLR initiating side.
    \note This counter is only valid for the downstream direction. */
    DSL_OUT DSL_uint16_t nBitswapTimeout;
    /**
-   Count of requested SRAs
+   Count of requested SRAs.
    Returns the number of requested Seamless Rate Adaptions during showtime. */
    DSL_OUT DSL_uint16_t nSraRequested;
    /**
-   Count of executed SRAs
+   Count of executed SRAs.
    Returns the number of executed Seamless Rate Adaptions during showtime. */
    DSL_OUT DSL_uint16_t nSraExecuted;
    /**
-   Count of rejected SRAs
+   Count of rejected SRAs.
    Returns the number of rejected Seamless Rate Adaptions during showtime. */
    DSL_OUT DSL_uint16_t nSraRejected;
    /**
-   Count of timeouts for SRA
+   Count of timeouts for SRA.
    Returns the number of timeouts (no response) for Seamless Rate Adaption
    requests during showtime. Counted at CPE only as the downstream OLR
    initiating side.
    \note This counter is only valid for the downstream direction. */
    DSL_OUT DSL_uint16_t nSraTimeout;
    /**
-   Count of requested SOSs
+   Count of requested SOSs.
    Returns the number of requested SOS procedures during showtime.
    \note This counter is currently not used (incremented). */
    DSL_OUT DSL_uint16_t nSosRequested;
    /**
-   Count of executed SOSs
+   Count of executed SOSs.
    Returns the number of executed SOS procedures during showtime.
    \note This counter is currently not used (incremented). */
    DSL_OUT DSL_uint16_t nSosExecuted;
    /**
-   Count of rejected SOSs
+   Count of rejected SOSs.
    Returns the number of rejected SOS procedures during showtime.
    \note This counter is currently not used (incremented). */
    DSL_OUT DSL_uint16_t nSosRejected;
    /**
-   Count of timeouts for SOSs
+   Count of timeouts for SOSs.
    Returns the number of timeouts (no response) for SOS procedures during
    showtime. Counted at CPE only as the downstream OLR initiating side.
    \note This counter is currently not used (incremented). */
@@ -5314,7 +5379,7 @@ typedef struct
    within firmware.
    This values are updated within the API
    - directly after showtime entry
-   - in exception state after failed training and in case of availibility
+   - in exception state after failed training and in case of availability
      within firmware. */
    DSL_OUT DSL_HybridMetricData_t actualSelection;
    /**
@@ -5322,7 +5387,7 @@ typedef struct
    for selection within firmware.
    This values are updated within the API
    - directly after showtime entry
-   - in exception state after failed training and in case of availibility
+   - in exception state after failed training and in case of availability
      within firmware. */
    DSL_OUT DSL_HybridMetricData_t secondBestSelection;
    /**

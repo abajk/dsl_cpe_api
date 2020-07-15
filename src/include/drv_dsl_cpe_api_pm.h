@@ -1,7 +1,9 @@
 /******************************************************************************
 
-                          Copyright (c) 2007-2015
-                     Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2016 - 2020 Intel Corporation
+         Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2009 - 2014 Lantiq Deutschland GmbH
+         Copyright 2007 - 2008 Infineon Technologies AG
 
   For licensing information, see the file 'LICENSE' in the root folder of
   this software module.
@@ -1587,7 +1589,7 @@ typedef enum
    /**
    External synchronization.
    PM will be synchronized to the external time network time.
-   The host application should call the the function DSL_PM_15MinElapsedExtTrigger
+   The host application should call the function DSL_PM_15MinElapsedExtTrigger
    each 15 minutes. In addition the bOneDayElapsed parameter should be set
    accordingly. */
    DSL_PM_SYNC_MODE_EXTERNAL = 2

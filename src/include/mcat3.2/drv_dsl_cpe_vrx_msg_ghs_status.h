@@ -1,6 +1,6 @@
 /******************************************************************************
 
-         Copyright 2016 - 2018 Intel Corporation
+         Copyright 2016 - 2020 Intel Corporation
          Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
          Copyright 2009 - 2014 Lantiq Deutschland GmbH
          Copyright 2007 - 2008 Infineon Technologies AG
@@ -683,7 +683,7 @@ typedef struct ACK_AttndrStatusGet ACK_AttndrStatusGet_t;
 /**
    Requests the breakpoints of the actual PSD for the downstream direction. PSDs
    consisting of more than 42 PSD breakpoints must be read with 2 messages due
-   to the the mailbox size. (The first parameter in the retrieved data structure
+   to the mailbox size. (The first parameter in the retrieved data structure
    contains the "Number of Breakpoints" parameter.)
 */
 typedef struct CMD_PSD_BreakpointsDS_Get CMD_PSD_BreakpointsDS_Get_t;
@@ -1090,6 +1090,26 @@ typedef struct CMD_MFD_HybridInfoGet CMD_MFD_HybridInfoGet_t;
    Reports the hybrid information used by the microfilter detection function.
 */
 typedef struct ACK_MFD_HybridInfoGet ACK_MFD_HybridInfoGet_t;
+
+/** Message ID for CMD_MFD_InitResultsGet */
+#define CMD_MFD_INITRESULTSGET 0x0822
+
+/**
+   Requests basic micro filter detection (MFD) results from (normal)
+   initialization. This is about basic microfilter detection info collected
+   during each DSL initialization. For more detailed results a special
+   microfilter detection test mode can be run (see description at Chapter 5.13.5
+*/
+typedef struct CMD_MFD_InitResultsGet CMD_MFD_InitResultsGet_t;
+
+/** Message ID for ACK_MFD_InitResultsGet */
+#define ACK_MFD_INITRESULTSGET 0x0822
+
+/**
+   Reports the results of the micro filter detection (MFD) from last
+   initialization.
+*/
+typedef struct ACK_MFD_InitResultsGet ACK_MFD_InitResultsGet_t;
 
 /**
    Selects one or more groups of tones to be used during the handshake phase.
@@ -3683,7 +3703,7 @@ struct ACK_AttndrStatusGet
 /**
    Requests the breakpoints of the actual PSD for the downstream direction. PSDs
    consisting of more than 42 PSD breakpoints must be read with 2 messages due
-   to the the mailbox size. (The first parameter in the retrieved data structure
+   to the mailbox size. (The first parameter in the retrieved data structure
    contains the "Number of Breakpoints" parameter.)
 */
 struct CMD_PSD_BreakpointsDS_Get
@@ -5434,6 +5454,58 @@ struct ACK_MFD_HybridInfoGet
 } __PACKED__ ;
 
 
+/**
+   Requests basic micro filter detection (MFD) results from (normal)
+   initialization. This is about basic microfilter detection info collected
+   during each DSL initialization. For more detailed results a special
+   microfilter detection test mode can be run (see description at Chapter 5.13.9
+*/
+struct CMD_MFD_InitResultsGet
+{
+#if DSL_BYTE_ORDER == DSL_BIG_ENDIAN
+   /** Index */
+   DSL_uint16_t Index;
+   /** Length */
+   DSL_uint16_t Length;
+#else
+   /** Index */
+   DSL_uint16_t Index;
+   /** Length */
+   DSL_uint16_t Length;
+#endif
+} __PACKED__ ;
+
+
+/**
+   Reports the results of the micro filter detection (MFD) from last
+   initialization.
+*/
+struct ACK_MFD_InitResultsGet
+{
+#if DSL_BYTE_ORDER == DSL_BIG_ENDIAN
+   /** Index */
+   DSL_uint16_t Index;
+   /** Length */
+   DSL_uint16_t Length;
+   /** Reserved */
+   DSL_uint16_t Res0 : 14;
+   /** Micro Filter Detection */
+   DSL_uint16_t FilterDetected : 2;
+   /** Metric3 */
+   DSL_int16_t M3Metric;
+#else
+   /** Index */
+   DSL_uint16_t Index;
+   /** Length */
+   DSL_uint16_t Length;
+   /** Micro Filter Detection */
+   DSL_uint16_t FilterDetected : 2;
+   /** Reserved */
+   DSL_uint16_t Res0 : 14;
+   /** Metric3 */
+   DSL_int16_t M3Metric;
+#endif
+} __PACKED__ ;
 
 
 #ifdef __cplusplus

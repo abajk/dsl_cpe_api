@@ -1,7 +1,9 @@
 /******************************************************************************
 
-                          Copyright (c) 2007-2015
-                     Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2016 - 2020 Intel Corporation
+         Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2009 - 2014 Lantiq Deutschland GmbH
+         Copyright 2007 - 2008 Infineon Technologies AG
 
   For licensing information, see the file 'LICENSE' in the root folder of
   this software module.
@@ -224,7 +226,7 @@ typedef struct ACK_SysVendorSerialNum_R_Set ACK_SysVendorSerialNum_R_Set_t;
 #define CMD_AUXINVENTORYINFO_R_SET 0x4343
 
 /**
-   Sets auxiliary inventory information at the VTU-R (¤11.2.3.2.4 of G993.2
+   Sets auxiliary inventory information at the VTU-R (ï¿½11.2.3.2.4 of G993.2
    [5]).
 */
 typedef struct CMD_AuxInventoryInfo_R_Set CMD_AuxInventoryInfo_R_Set_t;
@@ -377,7 +379,7 @@ typedef struct ACK_SysVendorSerialNum_R_Get ACK_SysVendorSerialNum_R_Get_t;
 #define CMD_AUXINVENTORYINFO_O_GET 0x4203
 
 /**
-   Requests VTU-O auxiliary inventory information (¤11.2.3.2.4 of G993.2 [5]).
+   Requests VTU-O auxiliary inventory information (ï¿½11.2.3.2.4 of G993.2 [5]).
 */
 typedef struct CMD_AuxInventoryInfo_O_Get CMD_AuxInventoryInfo_O_Get_t;
 
@@ -394,7 +396,7 @@ typedef struct ACK_AuxInventoryInfo_O_Get ACK_AuxInventoryInfo_O_Get_t;
 #define CMD_AUXINVENTORYINFO_R_GET 0x4303
 
 /**
-   Requests VTU-R auxiliary inventory information (¤11.2.3.2.4 of G993.2 [5]).
+   Requests VTU-R auxiliary inventory information (ï¿½11.2.3.2.4 of G993.2 [5]).
 */
 typedef struct CMD_AuxInventoryInfo_R_Get CMD_AuxInventoryInfo_R_Get_t;
 
@@ -411,7 +413,7 @@ typedef struct ACK_AuxInventoryInfo_R_Get ACK_AuxInventoryInfo_R_Get_t;
 #define CMD_T1413_VENDORID_O_GET 0x7C03
 
 /**
-   Requests the ATU-CÕs T1.413 Vendor identification. (Section 9.6.4.2 of ANSI
+   Requests the ATU-Cï¿½s T1.413 Vendor identification. (Section 9.6.4.2 of ANSI
    T1.413 [16])
 */
 typedef struct CMD_T1413_VendorID_O_Get CMD_T1413_VendorID_O_Get_t;
@@ -420,7 +422,7 @@ typedef struct CMD_T1413_VendorID_O_Get CMD_T1413_VendorID_O_Get_t;
 #define ACK_T1413_VENDORID_O_GET 0x7C03
 
 /**
-   Delivers the ATU-CÕs T1.413 vendor identification number.
+   Delivers the ATU-Cï¿½s T1.413 vendor identification number.
 */
 typedef struct ACK_T1413_VendorID_O_Get ACK_T1413_VendorID_O_Get_t;
 
@@ -428,7 +430,7 @@ typedef struct ACK_T1413_VendorID_O_Get ACK_T1413_VendorID_O_Get_t;
 #define CMD_T1413_VENDORID_R_GET 0x7D03
 
 /**
-   Requests the ATU-RÕs T1.413 Vendor identification. (Section 9.6.4.2 of ANSI
+   Requests the ATU-Rï¿½s T1.413 Vendor identification. (Section 9.6.4.2 of ANSI
    T1.413 [16])
 */
 typedef struct CMD_T1413_VendorID_R_Get CMD_T1413_VendorID_R_Get_t;
@@ -437,7 +439,7 @@ typedef struct CMD_T1413_VendorID_R_Get CMD_T1413_VendorID_R_Get_t;
 #define ACK_T1413_VENDORID_R_GET 0x7D03
 
 /**
-   Reports the ATU-RÕs T1.413 vendor identification number.
+   Reports the ATU-Rï¿½s T1.413 vendor identification number.
 */
 typedef struct ACK_T1413_VendorID_R_Get ACK_T1413_VendorID_R_Get_t;
 
@@ -445,7 +447,7 @@ typedef struct ACK_T1413_VendorID_R_Get ACK_T1413_VendorID_R_Get_t;
 #define CMD_T1413_REVNO_O_GET 0x7E03
 
 /**
-   Requests the xTU-OÕs T1.413 revision number. (Section 9.6.4.3 of ANSI T1.413
+   Requests the xTU-Oï¿½s T1.413 revision number. (Section 9.6.4.3 of ANSI T1.413
    [16])
 */
 typedef struct CMD_T1413_RevNo_O_Get CMD_T1413_RevNo_O_Get_t;
@@ -454,7 +456,7 @@ typedef struct CMD_T1413_RevNo_O_Get CMD_T1413_RevNo_O_Get_t;
 #define ACK_T1413_REVNO_O_GET 0x7E03
 
 /**
-   Delivers the xTU-OÕs T1.413 revision number.
+   Delivers the xTU-Oï¿½s T1.413 revision number.
 */
 typedef struct ACK_T1413_RevNo_O_Get ACK_T1413_RevNo_O_Get_t;
 
@@ -462,7 +464,7 @@ typedef struct ACK_T1413_RevNo_O_Get ACK_T1413_RevNo_O_Get_t;
 #define CMD_T1413_REVNO_R_GET 0x7F03
 
 /**
-   Requests the xTU-RÕs T1.413 revision number. (Section 9.7.6.2 of ANSI T1.413
+   Requests the xTU-Rï¿½s T1.413 revision number. (Section 9.7.6.2 of ANSI T1.413
    [16])
 */
 typedef struct CMD_T1413_RevNo_R_Get CMD_T1413_RevNo_R_Get_t;
@@ -471,7 +473,7 @@ typedef struct CMD_T1413_RevNo_R_Get CMD_T1413_RevNo_R_Get_t;
 #define ACK_T1413_REVNO_R_GET 0x7F03
 
 /**
-   Delivers the xTU-RÕs T1.413 revision number.
+   Delivers the xTU-Rï¿½s T1.413 revision number.
 */
 typedef struct ACK_T1413_RevNo_R_Get ACK_T1413_RevNo_R_Get_t;
 
@@ -479,7 +481,7 @@ typedef struct ACK_T1413_RevNo_R_Get ACK_T1413_RevNo_R_Get_t;
 #define CMD_T1413_VENDORREVNO_O_GET 0x8003
 
 /**
-   Requests the xTU-OÕs T1.413 vendor revision number. (Section 9.6.4.4 of ANSI
+   Requests the xTU-Oï¿½s T1.413 vendor revision number. (Section 9.6.4.4 of ANSI
    T1.413 [16])
 */
 typedef struct CMD_T1413_VendorRevNo_O_Get CMD_T1413_VendorRevNo_O_Get_t;
@@ -488,7 +490,7 @@ typedef struct CMD_T1413_VendorRevNo_O_Get CMD_T1413_VendorRevNo_O_Get_t;
 #define ACK_T1413_VENDORREVNO_O_GET 0x8003
 
 /**
-   Delivers the xTU-OÕs T1.413 vendor revision number.
+   Delivers the xTU-Oï¿½s T1.413 vendor revision number.
 */
 typedef struct ACK_T1413_VendorRevNo_O_Get ACK_T1413_VendorRevNo_O_Get_t;
 
@@ -496,7 +498,7 @@ typedef struct ACK_T1413_VendorRevNo_O_Get ACK_T1413_VendorRevNo_O_Get_t;
 #define CMD_T1413_VENDORREVNO_R_GET 0x8103
 
 /**
-   Requests the xTU-RÕs T1.413 vendor revision number. (Section 9.7.6.3 of ANSI
+   Requests the xTU-Rï¿½s T1.413 vendor revision number. (Section 9.7.6.3 of ANSI
    T1.413 [16])
 */
 typedef struct CMD_T1413_VendorRevNo_R_Get CMD_T1413_VendorRevNo_R_Get_t;
@@ -505,7 +507,7 @@ typedef struct CMD_T1413_VendorRevNo_R_Get CMD_T1413_VendorRevNo_R_Get_t;
 #define ACK_T1413_VENDORREVNO_R_GET 0x8103
 
 /**
-   Delivers the xTU-RÕs T1.413 vendor revision number.
+   Delivers the xTU-Rï¿½s T1.413 vendor revision number.
 */
 typedef struct ACK_T1413_VendorRevNo_R_Get ACK_T1413_VendorRevNo_R_Get_t;
 
@@ -712,7 +714,7 @@ typedef struct ACK_DBG_AttndrControl ACK_DBG_AttndrControl_t;
 /**
    Requests the breakpoints of the actual PSD for the downstream direction. PSDs
    consisting of more than 42 PSD breakpoints must be read with 2 messages due
-   to the the mailbox size. (The first parameter in the retrieved data structure
+   to the mailbox size. (The first parameter in the retrieved data structure
    contains the "Number of Breakpoints" parameter.)
 */
 typedef struct CMD_PSD_BreakpointsDS_Get CMD_PSD_BreakpointsDS_Get_t;
@@ -2318,7 +2320,7 @@ struct ACK_SysVendorSerialNum_R_Set
 
 
 /**
-   Sets auxiliary inventory information at the VTU-R (¤11.2.3.2.4 of G993.2
+   Sets auxiliary inventory information at the VTU-R (ï¿½11.2.3.2.4 of G993.2
    [5]).
 */
 struct CMD_AuxInventoryInfo_R_Set
@@ -2705,7 +2707,7 @@ struct ACK_SysVendorSerialNum_R_Get
 
 
 /**
-   Requests VTU-O auxiliary inventory information (¤11.2.3.2.4 of G993.2 [5]).
+   Requests VTU-O auxiliary inventory information (ï¿½11.2.3.2.4 of G993.2 [5]).
 */
 struct CMD_AuxInventoryInfo_O_Get
 {
@@ -2748,7 +2750,7 @@ struct ACK_AuxInventoryInfo_O_Get
 
 
 /**
-   Requests VTU-R auxiliary inventory information (¤11.2.3.2.4 of G993.2 [5]).
+   Requests VTU-R auxiliary inventory information (ï¿½11.2.3.2.4 of G993.2 [5]).
 */
 struct CMD_AuxInventoryInfo_R_Get
 {
@@ -2791,7 +2793,7 @@ struct ACK_AuxInventoryInfo_R_Get
 
 
 /**
-   Requests the ATU-CÕs T1.413 Vendor identification. (Section 9.6.4.2 of ANSI
+   Requests the ATU-Cï¿½s T1.413 Vendor identification. (Section 9.6.4.2 of ANSI
    T1.413 [16])
 */
 struct CMD_T1413_VendorID_O_Get
@@ -2811,7 +2813,7 @@ struct CMD_T1413_VendorID_O_Get
 
 
 /**
-   Delivers the ATU-CÕs T1.413 vendor identification number.
+   Delivers the ATU-Cï¿½s T1.413 vendor identification number.
 */
 struct ACK_T1413_VendorID_O_Get
 {
@@ -2834,7 +2836,7 @@ struct ACK_T1413_VendorID_O_Get
 
 
 /**
-   Requests the ATU-RÕs T1.413 Vendor identification. (Section 9.6.4.2 of ANSI
+   Requests the ATU-Rï¿½s T1.413 Vendor identification. (Section 9.6.4.2 of ANSI
    T1.413 [16])
 */
 struct CMD_T1413_VendorID_R_Get
@@ -2854,7 +2856,7 @@ struct CMD_T1413_VendorID_R_Get
 
 
 /**
-   Reports the ATU-RÕs T1.413 vendor identification number.
+   Reports the ATU-Rï¿½s T1.413 vendor identification number.
 */
 struct ACK_T1413_VendorID_R_Get
 {
@@ -2877,7 +2879,7 @@ struct ACK_T1413_VendorID_R_Get
 
 
 /**
-   Requests the xTU-OÕs T1.413 revision number. (Section 9.6.4.3 of ANSI T1.413
+   Requests the xTU-Oï¿½s T1.413 revision number. (Section 9.6.4.3 of ANSI T1.413
    [16])
 */
 struct CMD_T1413_RevNo_O_Get
@@ -2897,7 +2899,7 @@ struct CMD_T1413_RevNo_O_Get
 
 
 /**
-   Delivers the xTU-OÕs T1.413 revision number.
+   Delivers the xTU-Oï¿½s T1.413 revision number.
 */
 struct ACK_T1413_RevNo_O_Get
 {
@@ -2920,7 +2922,7 @@ struct ACK_T1413_RevNo_O_Get
 
 
 /**
-   Requests the xTU-RÕs T1.413 revision number. (Section 9.7.6.2 of ANSI T1.413
+   Requests the xTU-Rï¿½s T1.413 revision number. (Section 9.7.6.2 of ANSI T1.413
    [16])
 */
 struct CMD_T1413_RevNo_R_Get
@@ -2940,7 +2942,7 @@ struct CMD_T1413_RevNo_R_Get
 
 
 /**
-   Delivers the xTU-RÕs T1.413 revision number.
+   Delivers the xTU-Rï¿½s T1.413 revision number.
 */
 struct ACK_T1413_RevNo_R_Get
 {
@@ -2963,7 +2965,7 @@ struct ACK_T1413_RevNo_R_Get
 
 
 /**
-   Requests the xTU-OÕs T1.413 vendor revision number. (Section 9.6.4.4 of ANSI
+   Requests the xTU-Oï¿½s T1.413 vendor revision number. (Section 9.6.4.4 of ANSI
    T1.413 [16])
 */
 struct CMD_T1413_VendorRevNo_O_Get
@@ -2983,7 +2985,7 @@ struct CMD_T1413_VendorRevNo_O_Get
 
 
 /**
-   Delivers the xTU-OÕs T1.413 vendor revision number.
+   Delivers the xTU-Oï¿½s T1.413 vendor revision number.
 */
 struct ACK_T1413_VendorRevNo_O_Get
 {
@@ -3006,7 +3008,7 @@ struct ACK_T1413_VendorRevNo_O_Get
 
 
 /**
-   Requests the xTU-RÕs T1.413 vendor revision number. (Section 9.7.6.3 of ANSI
+   Requests the xTU-Rï¿½s T1.413 vendor revision number. (Section 9.7.6.3 of ANSI
    T1.413 [16])
 */
 struct CMD_T1413_VendorRevNo_R_Get
@@ -3026,7 +3028,7 @@ struct CMD_T1413_VendorRevNo_R_Get
 
 
 /**
-   Delivers the xTU-RÕs T1.413 vendor revision number.
+   Delivers the xTU-Rï¿½s T1.413 vendor revision number.
 */
 struct ACK_T1413_VendorRevNo_R_Get
 {
@@ -3724,7 +3726,7 @@ struct ACK_DBG_AttndrControl
 /**
    Requests the breakpoints of the actual PSD for the downstream direction. PSDs
    consisting of more than 42 PSD breakpoints must be read with 2 messages due
-   to the the mailbox size. (The first parameter in the retrieved data structure
+   to the mailbox size. (The first parameter in the retrieved data structure
    contains the "Number of Breakpoints" parameter.)
 */
 struct CMD_PSD_BreakpointsDS_Get

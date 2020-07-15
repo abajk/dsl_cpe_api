@@ -1706,8 +1706,8 @@ struct ACK_ADSL_FeatureMapGet
    DSL_uint16_t Res0 : 1;
    /** Feature-Bit14 of Word 0: OHC Error Counters */
    DSL_uint16_t W0F14 : 1;
-   /** Reserved */
-   DSL_uint16_t Res1 : 1;
+   /** Feature-Bit13 of Word 0: Microfilter Detection during Training */
+   DSL_uint16_t W0F13 : 1;
    /** Feature-Bit12 of Word 0: Power Down */
    DSL_uint16_t W0F12 : 1;
    /** Feature-Bit11 of Word 0: NTR */
@@ -1721,7 +1721,7 @@ struct ACK_ADSL_FeatureMapGet
    /** Feature-Bit7 of Word 0: Short Init */
    DSL_uint16_t W0F07 : 1;
    /** Reserved */
-   DSL_uint16_t Res2 : 1;
+   DSL_uint16_t Res1 : 1;
    /** Feature-Bit5 of Word 0:  G.INP Retransmission DS + SRA */
    DSL_uint16_t W0F05 : 1;
    /** Feature-Bit4 of Word 0:  G.INP Retransmission DS + Bonding (EFM) */
@@ -1729,13 +1729,13 @@ struct ACK_ADSL_FeatureMapGet
    /** Feature-Bit3 of Word 0:PTM Off-chip Bonding BACP */
    DSL_uint16_t W0F03 : 1;
    /** Reserved */
-   DSL_uint16_t Res3 : 2;
+   DSL_uint16_t Res2 : 2;
    /** Feature-Bit0 of Word 0: Annex I */
    DSL_uint16_t W0F00 : 1;
    /** Reserved */
+   DSL_uint16_t Res3 : 16;
+   /** Reserved for internal Features */
    DSL_uint16_t Res4 : 16;
-   /** Reserved  */
-   DSL_uint16_t Res5 : 16;
 #else
    /** Index */
    DSL_uint16_t Index;
@@ -1746,7 +1746,7 @@ struct ACK_ADSL_FeatureMapGet
    /** Feature-Bit0 of Word 0: Annex I */
    DSL_uint16_t W0F00 : 1;
    /** Reserved */
-   DSL_uint16_t Res3 : 2;
+   DSL_uint16_t Res2 : 2;
    /** Feature-Bit3 of Word 0:PTM Off-chip Bonding BACP */
    DSL_uint16_t W0F03 : 1;
    /** Feature-Bit4 of Word 0:  G.INP Retransmission DS + Bonding (EFM) */
@@ -1754,7 +1754,7 @@ struct ACK_ADSL_FeatureMapGet
    /** Feature-Bit5 of Word 0:  G.INP Retransmission DS + SRA */
    DSL_uint16_t W0F05 : 1;
    /** Reserved */
-   DSL_uint16_t Res2 : 1;
+   DSL_uint16_t Res1 : 1;
    /** Feature-Bit7 of Word 0: Short Init */
    DSL_uint16_t W0F07 : 1;
    /** Feature-Bit8 of Word 0:  Counter Inhibiting */
@@ -1767,16 +1767,16 @@ struct ACK_ADSL_FeatureMapGet
    DSL_uint16_t W0F11 : 1;
    /** Feature-Bit12 of Word 0: Power Down */
    DSL_uint16_t W0F12 : 1;
-   /** Reserved */
-   DSL_uint16_t Res1 : 1;
+   /** Feature-Bit13 of Word 0: Microfilter Detection during Training */
+   DSL_uint16_t W0F13 : 1;
    /** Feature-Bit14 of Word 0: OHC Error Counters */
    DSL_uint16_t W0F14 : 1;
    /** Reserved */
    DSL_uint16_t Res0 : 1;
    /** Reserved */
+   DSL_uint16_t Res3 : 16;
+   /** Reserved for internal Features */
    DSL_uint16_t Res4 : 16;
-   /** Reserved  */
-   DSL_uint16_t Res5 : 16;
 #endif
 } __PACKED__ ;
 

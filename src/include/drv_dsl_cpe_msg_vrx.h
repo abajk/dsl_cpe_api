@@ -1,7 +1,9 @@
 /******************************************************************************
 
-                          Copyright (c) 2007-2015
-                     Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2016 - 2020 Intel Corporation
+         Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2009 - 2014 Lantiq Deutschland GmbH
+         Copyright 2007 - 2008 Infineon Technologies AG
 
   For licensing information, see the file 'LICENSE' in the root folder of
   this software module.
@@ -1076,6 +1078,12 @@ DSL_Error_t DSL_DRV_VRX_SendMsgHybridTypeGet(
 DSL_Error_t DSL_DRV_VRX_SendMsgMfdResultsGet(
    DSL_Context_t *pContext,
    DSL_uint8_t *pAck);
+
+#ifdef INCLUDE_DSL_FILTER_DETECTION
+DSL_Error_t DSL_DRV_VRX_SendMsgMfdInitResultsGet(
+   DSL_Context_t *pContext,
+   DSL_uint8_t *pAck);
+#endif /* INCLUDE_DSL_FILTER_DETECTION */
 
 DSL_Error_t DSL_DRV_VRX_SendMsgLoopLengthGet(
    DSL_Context_t *pContext,

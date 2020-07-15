@@ -153,6 +153,7 @@ static DSL_uint16_t g_VRxMsgWhitelist[] =
    CMD_PAF_HS_CONTINUE,             /*     +     :      +      :      -/+     */
    CMD_OPERATIONOPTIONSSET,         /*     +     :      +      :      +       */
    CMD_MFD_RESULTSGET,              /*     +     :      +      :      +/-     */
+   CMD_MFD_INITRESULTSGET,          /*     +     :      +      :      +/-     */
    CMD_MFD_LOOPLENGTHGET,           /*     +     :      +      :      +/-     */
    CMD_MFD_HYBRIDINFOGET,           /*     +     :      +      :      +/-     */
    CMD_MISC_CONFIGSET,              /*     +     :      +      :      +       */
@@ -6231,6 +6232,43 @@ DSL_Error_t DSL_DRV_VRX_SendMsgMfdResultsGet(
 
    return (nErrCode);
 }
+
+#ifdef INCLUDE_DSL_FILTER_DETECTION
+DSL_Error_t DSL_DRV_VRX_SendMsgMfdInitResultsGet(
+   DSL_Context_t *pContext,
+   DSL_uint8_t *pAck)
+{
+   DSL_Error_t nErrCode = DSL_SUCCESS;
+   CMD_MFD_InitResultsGet_t sCmd;
+   ACK_MFD_InitResultsGet_t sAck;
+
+   /* fill up the message to be sent */
+   memset(&sCmd, 0, sizeof(sCmd));
+   sCmd.Length = DSL_VRX_16BIT_RD_MSG_LEN_GET(sAck);
+
+   /* clear buf for ack */
+   memset(&sAck, 0, sizeof(sAck));
+
+   /* Read necessary msg that includes filter detection results */
+   nErrCode =  DSL_DRV_VRX_SendMessage(pContext, CMD_MFD_INITRESULTSGET,
+                                       sizeof(sCmd), (DSL_uint8_t*)&sCmd,
+                                       sizeof(sAck), (DSL_uint8_t*)&sAck);
+   /* Copy data only if successful */
+   if (nErrCode >= 0)
+   {
+      memcpy(pAck, &(sAck), sizeof(sAck));
+   }
+   else
+   {
+      DSL_DEBUG( DSL_DBG_ERR, (pContext,
+         "DSL[%02d]: ERROR - ACK_MFD_InitResultsGet read failed!" DSL_DRV_CRLF,
+         DSL_DEV_NUM(pContext)));
+      return nErrCode;
+   }
+
+   return (nErrCode);
+}
+#endif /* INCLUDE_DSL_FILTER_DETECTION */
 
 DSL_Error_t DSL_DRV_VRX_SendMsgLoopLengthGet(
    DSL_Context_t *pContext,

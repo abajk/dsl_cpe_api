@@ -1,7 +1,9 @@
 /******************************************************************************
 
-                          Copyright (c) 2007-2015
-                     Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2016 - 2020 Intel Corporation
+         Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2009 - 2014 Lantiq Deutschland GmbH
+         Copyright 2007 - 2008 Infineon Technologies AG
 
   For licensing information, see the file 'LICENSE' in the root folder of
   this software module.
@@ -217,6 +219,7 @@ DSL_Error_t DSL_DRV_PM_Start(
    if (DSL_DRV_PM_CONTEXT(pContext)->pCounters == DSL_NULL)
    {
       DSL_DRV_MemFree(pContext->PM);
+      pContext->PM = DSL_NULL;
 
       DSL_DEBUG(DSL_DBG_ERR,
          (pContext, SYS_DBG_ERR"DSL[%02d]: PM_Start: no memory for PM counters!"
@@ -231,7 +234,9 @@ DSL_Error_t DSL_DRV_PM_Start(
    if (DSL_DRV_PM_CONTEXT(pContext)->pCountersDump == DSL_NULL)
    {
       DSL_DRV_MemFree(DSL_DRV_PM_CONTEXT(pContext)->pCounters);
+      DSL_DRV_PM_CONTEXT(pContext)->pCounters = DSL_NULL;
       DSL_DRV_MemFree(pContext->PM);
+      pContext->PM = DSL_NULL;
 
       DSL_DEBUG(DSL_DBG_ERR,
          (pContext, SYS_DBG_ERR"DSL[%02d]: PM_Start: no memory for PM dump counters!"
@@ -530,8 +535,11 @@ DSL_Error_t DSL_DRV_PM_Start(
    if( DSL_DRV_PM_DEV_Start(pContext) != DSL_SUCCESS )
    {
       DSL_DRV_MemFree(DSL_DRV_PM_CONTEXT(pContext)->pCounters);
+      DSL_DRV_PM_CONTEXT(pContext)->pCounters = DSL_NULL;
       DSL_DRV_MemFree(DSL_DRV_PM_CONTEXT(pContext)->pCountersDump);
+      DSL_DRV_PM_CONTEXT(pContext)->pCountersDump = DSL_NULL;
       DSL_DRV_MemFree(pContext->PM);
+      pContext->PM = DSL_NULL;
 
       DSL_DEBUG(DSL_DBG_ERR,
          (pContext, SYS_DBG_ERR"DSL[%02d]: ERROR - PM module device specific init failed!"
@@ -639,14 +647,14 @@ DSL_Error_t DSL_DRV_PM_Stop(
          DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
       return DSL_SUCCESS;
    }
-   
+
    /* Check bPmLock flag*/
    if( DSL_DRV_PM_CONTEXT(pContext)->bPmLock )
    {
    /*... Unlock if locked to allow PM module stop*/
       DSL_DRV_PM_UnLock(pContext);
    }
-   
+
    /* Check the PM module Far-End thread active flag*/
    if( DSL_DRV_PM_CONTEXT(pContext)->pmThreadFe.bRun != DSL_TRUE )
    {
@@ -690,15 +698,18 @@ DSL_Error_t DSL_DRV_PM_Stop(
    if (DSL_DRV_PM_CONTEXT(pContext)->pCounters != DSL_NULL)
    {
       DSL_DRV_MemFree(DSL_DRV_PM_CONTEXT(pContext)->pCounters);
+      DSL_DRV_PM_CONTEXT(pContext)->pCounters = DSL_NULL;
    }
 
    if (DSL_DRV_PM_CONTEXT(pContext)->pCountersDump != DSL_NULL)
    {
       DSL_DRV_MemFree(DSL_DRV_PM_CONTEXT(pContext)->pCountersDump);
+      DSL_DRV_PM_CONTEXT(pContext)->pCountersDump = DSL_NULL;
    }
 
    /* Free PM Module resources*/
    DSL_DRV_MemFree(pContext->PM);
+   pContext->PM = DSL_NULL;
 
    DSL_DEBUG(DSL_DBG_MSG,
       (pContext, SYS_DBG_MSG"DSL[%02d]: PM module has stopped... (%lu)"

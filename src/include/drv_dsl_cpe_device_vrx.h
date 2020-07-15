@@ -1,6 +1,6 @@
 /******************************************************************************
 
-         Copyright 2016 - 2018 Intel Corporation
+         Copyright 2016 - 2020 Intel Corporation
          Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
          Copyright 2009 - 2014 Lantiq Deutschland GmbH
          Copyright 2007 - 2008 Infineon Technologies AG
@@ -787,7 +787,7 @@ DSL_Error_t DSL_DRV_VRX_ChannelStatusGet(
 
    \param pContext   Pointer to dsl library context structure, [I]
    \param nLine      Specifies on which line the message was received, [I]
-   \param pData      Includes the the new power management mode, [I]
+   \param pData      Includes the new power management mode, [I]
 
    \return
    Return values are defined within the DSL_Error_t definition

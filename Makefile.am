@@ -11,9 +11,15 @@ drv_dsl_cpe_api_docdir = ${prefix}/doc/drv_dsl_cpe_api
 drv_dsl_cpe_api_doc_DATA = \
     ChangeLog
 
+if DEVICE_DANUBE
 drv_dsl_cpe_api_doc_DEVICE = \
-    doc/doxyconfig.danube \
+    doc/doxyconfig.danube
+endif
+
+if DEVICE_VRX
+drv_dsl_cpe_api_doc_DEVICE = \
     doc/doxyconfig.vrx
+endif
 
 EXTRA_DIST = $(drv_dsl_cpe_api_doc_DATA) \
     $(drv_dsl_cpe_api_doc_DEVICE) \

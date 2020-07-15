@@ -22,10 +22,39 @@ else
 VRX_HEADER_DIR = include/mcat3.2
 endif
 
-
 ## listed files are to be distributed
 drv_dsl_cpe_api_includedir = $(includedir)
-drv_dsl_cpe_api_include_HEADERS = include/drv_dsl_cpe*.h
+drv_dsl_cpe_api_include_HEADERS = \
+	include/drv_dsl_cpe_api_bnd.h \
+	include/drv_dsl_cpe_api_error.h \
+	include/drv_dsl_cpe_api_g997.h \
+	include/drv_dsl_cpe_api.h \
+	include/drv_dsl_cpe_api_ioctl.h \
+	include/drv_dsl_cpe_api_types.h \
+	include/drv_dsl_cpe_debug.h \
+	include/drv_dsl_cpe_os_win32.h
+
+if INCLUDE_DSL_ADSL_MIB
+drv_dsl_cpe_api_include_HEADERS += \
+	include/drv_dsl_cpe_api_adslmib.h \
+	include/drv_dsl_cpe_api_adslmib_ioctl.h
+endif
+
+if DEVICE_VRX
+drv_dsl_cpe_api_include_HEADERS += \
+	include/drv_dsl_cpe_vrx_ctx.h
+endif
+
+if INCLUDE_DSL_PM
+drv_dsl_cpe_api_include_HEADERS += \
+	include/drv_dsl_cpe_api_pm.h
+endif
+
+if DEVICE_DANUBE
+drv_dsl_cpe_api_include_HEADERS += \
+	include/drv_dsl_cpe_cmv_danube.h \
+	include/drv_dsl_cpe_danube_ctx.h
+endif
 
 ## sources for BND module
 drv_bnd_sources = \
@@ -34,7 +63,7 @@ drv_bnd_sources = \
 ## extra for BND
 drv_bnd_extra = \
 	include/drv_dsl_cpe_api_bnd.h \
-   include/drv_dsl_cpe_api_bnd_vrx.h
+	include/drv_dsl_cpe_api_bnd_vrx.h
 
 ## sources for PM module
 drv_pm_sources = \
@@ -245,7 +274,7 @@ EXTRA_DIST = \
 	$(drv_ceoc_extra) \
 	$(drv_adsl_mib_extra) \
 	$(drv_danube_specific_extra) \
-   $(drv_vrx_specific_extra)
+	$(drv_vrx_specific_extra)
 
 # common driver cflags
 if DSL_CPE_API_LIBRARY_BUILD_2_6
