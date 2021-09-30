@@ -1,6 +1,7 @@
 /******************************************************************************
 
-         Copyright 2016 - 2018 Intel Corporation
+         Copyright (c) 2020, MaxLinear, Inc.
+         Copyright 2016 - 2020 Intel Corporation
          Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
          Copyright 2009 - 2014 Lantiq Deutschland GmbH
          Copyright 2007 - 2008 Infineon Technologies AG
@@ -29,6 +30,8 @@
 
    /** MEI CPE driver interface header file*/
    #include "drv_mei_cpe_api_intern.h"
+   /** MEI CPE driver TC interface header file */
+   #include "drv_mei_cpe_api_atm_ptm_intern.h"
 
 #endif /* defined(DSL_CPE_SIMULATOR_DRIVER) && defined(WIN32)*/
 
@@ -499,6 +502,7 @@ typedef struct
 #define DSL_DRV_VRX_InternalNfcMsgRead         MEI_InternalNfcMsgRead
 #define DSL_DRV_VRX_InternalDebugLevelSet      MEI_InternalDebugLevelSet
 #define DSL_DRV_VRX_InternalNfcCallBackDataSet MEI_InternalNfcCallBackDataSet
+#define DSL_DRV_VRX_InternalTcRequest          MEI_InternalTcRequest
 #endif /* defined(DSL_CPE_SIMULATOR_DRIVER) && defined(WIN32)*/
 
 /**
@@ -599,9 +603,10 @@ DSL_Error_t DSL_DRV_VRX_G997_FramingParameterStatusAdslGet(
 #endif /* INCLUDE_DSL_G997_FRAMING_PARAMETERS*/
 
 #ifdef INCLUDE_DSL_SYSTEM_INTERFACE
-DSL_Error_t DSL_DRV_VRX_SystemInterfaceStatusUpdate(
-   DSL_IN DSL_Context_t *pContext);
-#endif
+DSL_Error_t DSL_DRV_VRX_TcStatusSet(
+   DSL_Context_t *pContext,
+   const DSL_void_t *pData);
+#endif /* INCLUDE_DSL_SYSTEM_INTERFACE */
 
 #ifdef INCLUDE_DSL_G997_FRAMING_PARAMETERS
 DSL_Error_t DSL_DRV_VRX_G997_FramingParameterStatusVdsl2Get(
@@ -787,7 +792,7 @@ DSL_Error_t DSL_DRV_VRX_ChannelStatusGet(
 
    \param pContext   Pointer to dsl library context structure, [I]
    \param nLine      Specifies on which line the message was received, [I]
-   \param pData      Includes the the new power management mode, [I]
+   \param pData      Includes the new power management mode, [I]
 
    \return
    Return values are defined within the DSL_Error_t definition

@@ -381,9 +381,11 @@ drv_dsl_cpe_api_docdir = ${prefix}/doc/drv_dsl_cpe_api
 drv_dsl_cpe_api_doc_DATA = \
     ChangeLog
 
-drv_dsl_cpe_api_doc_DEVICE = \
-    doc/doxyconfig.danube \
-    doc/doxyconfig.vrx
+@DEVICE_DANUBE_TRUE@drv_dsl_cpe_api_doc_DEVICE = \
+@DEVICE_DANUBE_TRUE@    doc/doxyconfig.danube
+
+@DEVICE_VRX_TRUE@drv_dsl_cpe_api_doc_DEVICE = \
+@DEVICE_VRX_TRUE@    doc/doxyconfig.vrx
 
 EXTRA_DIST = $(drv_dsl_cpe_api_doc_DATA) \
     $(drv_dsl_cpe_api_doc_DEVICE) \

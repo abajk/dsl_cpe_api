@@ -50,22 +50,20 @@
 #define ACK_LineStatusPerBandDS_Get_FV 25
 #define CMD_LineStatusPerBandUS_Get_FV 25
 #define ACK_LineStatusPerBandUS_Get_FV 25
-#define CMD_DBG_AttndrControl_ATTNDR_NO_FORCE 0
-#define CMD_DBG_AttndrControl_ATTNDR_IMPROVE1 1
-#define CMD_DBG_AttndrControl_ATTNDR_IMPROVE2 2
 #define CMD_PSD_BreakpointsUS_Get_FV 97
 #define ACK_PSD_BreakpointsUS_Get_FV 97
 #define CMD_BearerChsDS_Get_FV 18
 #define ACK_BearerChsDS_Get_FV 18
 #define CMD_BearerChsUS_Get_FV 18
 #define ACK_BearerChsUS_Get_FV 18
-#define CMD_FrameDataExt2DS_Get_FV 40
-#define ACK_FrameDataExt2DS_Get_FV 40
-#define CMD_FrameDataExt2US_Get_FV 40
-#define ACK_FrameDataExt2US_Get_FV 40
+#define CMD_FrameDataExt2DS_Get_FV 42
+#define ACK_FrameDataExt2DS_Get_FV 42
+#define CMD_FrameDataExt2US_Get_FV 42
+#define ACK_FrameDataExt2US_Get_FV 42
 #define ACK_HybridGet_POTS 0x1
 #define ACK_HybridGet_ISDN_B 0x2
 #define ACK_HybridGet_ISDN_BJ 0x3
+#define ACK_HybridGet_UNIVERSAL 0x4
 #define ACK_MFD_ResultsGet_NONLNF 0x0
 #define ACK_MFD_ResultsGet_NLNFTRIGGERED 0x1
 #define ACK_MFD_ResultsGet_NLNFSTARTED 0x2
@@ -76,6 +74,10 @@
 #define ACK_MFD_ResultsGet_LONGRANGE 0x3
 #define ACK_MFD_ResultsGet_READY 0x1
 #define ACK_MFD_ResultsGet_NOT_READY 0x0
+#define ACK_MFD_InitResultsGet_UNKNOWN 0x0
+#define ACK_MFD_InitResultsGet_FILTER_NO 0x1
+#define ACK_MFD_InitResultsGet_FILTER_YES 0x2
+#define ACK_MFD_InitResultsGet_UNDONE 0x3
 /* ----- Message Specific Constants Definition section (End) ----- */
 
 /** Message ID for CMD_HS_ToneGroupSet */
@@ -83,7 +85,7 @@
 
 /**
    Selects one or more groups of tones to be used during the handshake phase.
-   (See G.994.1 Amendment 2 [8], Table 1/G.994.1).
+   (See G.994.1 [6], Table 1).
 */
 typedef struct CMD_HS_ToneGroupSet CMD_HS_ToneGroupSet_t;
 
@@ -100,8 +102,7 @@ typedef struct ACK_HS_ToneGroupSet ACK_HS_ToneGroupSet_t;
 
 /**
    Configures the profile settings to be used for the handshake phase. (See
-   G.994.1 Amendment 4 [10], NPAR(3) coding).All "support" bits should be set to
-   "Enable".
+   G.994.1 [6], NPAR(3) coding).
 */
 typedef struct CMD_HS_VDSL2ProfileControl CMD_HS_VDSL2ProfileControl_t;
 
@@ -117,8 +118,7 @@ typedef struct ACK_HS_VDSL2ProfileControl ACK_HS_VDSL2ProfileControl_t;
 #define CMD_HS_STANDARDINFOFE_VDSL2GET 0xCC03
 
 /**
-   Requests the VDSL2 far-end Standard Info (See G.994.1 Amendment 4 [10],
-   NPAR(3) coding).
+   Requests the VDSL2 far-end Standard Info (See G.994.1 [6], NPAR(3) coding).
 */
 typedef struct CMD_HS_StandardInfoFE_VDSL2Get CMD_HS_StandardInfoFE_VDSL2Get_t;
 
@@ -127,8 +127,7 @@ typedef struct CMD_HS_StandardInfoFE_VDSL2Get CMD_HS_StandardInfoFE_VDSL2Get_t;
 
 /**
    Delivers the VDSL2 far-end info as requested by
-   CMD_HS_StandardInfoFE_VDSL2Get (see G.994.1 Amendment 4 [10], NPAR(3)
-   coding).
+   CMD_HS_StandardInfoFE_VDSL2Get (see G.994.1 [6], NPAR(3) coding).
 */
 typedef struct ACK_HS_StandardInfoFE_VDSL2Get ACK_HS_StandardInfoFE_VDSL2Get_t;
 
@@ -136,8 +135,7 @@ typedef struct ACK_HS_StandardInfoFE_VDSL2Get ACK_HS_StandardInfoFE_VDSL2Get_t;
 #define CMD_HS_SELECTEDPROFILEVDSL2GET 0xCD03
 
 /**
-   Requests the actual selected VDSL2 Profile (See G.994.1 Amendment 4 [10],
-   NPAR(3) coding).
+   Requests the actual selected VDSL2 Profile (See G.994.1 [6], NPAR(3) coding).
 */
 typedef struct CMD_HS_SelectedProfileVDSL2Get CMD_HS_SelectedProfileVDSL2Get_t;
 
@@ -146,8 +144,7 @@ typedef struct CMD_HS_SelectedProfileVDSL2Get CMD_HS_SelectedProfileVDSL2Get_t;
 
 /**
    Provides the actual selected VDSL2 Profile as requested by
-   CMD_HS_SelectedProfileVDSL2Get (see G.994.1 Amendment 4 [10], NPAR(3)
-   coding).
+   CMD_HS_SelectedProfileVDSL2Get (see G.994.1 [6], NPAR(3) coding).
 */
 typedef struct ACK_HS_SelectedProfileVDSL2Get ACK_HS_SelectedProfileVDSL2Get_t;
 
@@ -156,8 +153,7 @@ typedef struct ACK_HS_SelectedProfileVDSL2Get ACK_HS_SelectedProfileVDSL2Get_t;
 
 /**
    Requests the handshake information about the far-end operating mode (See
-   G.994.1 [6] and Amendments 1-4 [7]-[10], standard information fields- SPAR(1)
-   coding).
+   G.994.1 [6], standard information fields- SPAR(1) coding).
 */
 typedef struct CMD_HS_StandardInfoFE_SPAR1Get CMD_HS_StandardInfoFE_SPAR1Get_t;
 
@@ -166,9 +162,8 @@ typedef struct CMD_HS_StandardInfoFE_SPAR1Get CMD_HS_StandardInfoFE_SPAR1Get_t;
 
 /**
    Provides the handshake information about the far-end operating mode (See
-   G.994.1 [6] and Amendments 1-4 [7]-[10], Standard information field - SPAR(1)
-   coding). The bit numbering per octet below follows the standard (starting
-   with "1").
+   G.994.1 [6], Standard information field - SPAR(1) coding). The bit numbering
+   per octet below follows the standard (starting with "1").
 */
 typedef struct ACK_HS_StandardInfoFE_SPAR1Get ACK_HS_StandardInfoFE_SPAR1Get_t;
 
@@ -176,7 +171,7 @@ typedef struct ACK_HS_StandardInfoFE_SPAR1Get ACK_HS_StandardInfoFE_SPAR1Get_t;
 #define CMD_SYSVENDORID_R_SET 0x3C43
 
 /**
-   Sets the in System Vendor ID at the xTU-R. (Section 7.4.4 of G.997.1 [11])
+   Sets the in System Vendor ID at the xTU-R. (Section 7.4.4 of G.997.1 [7])
 */
 typedef struct CMD_SysVendorID_R_Set CMD_SysVendorID_R_Set_t;
 
@@ -193,7 +188,7 @@ typedef struct ACK_SysVendorID_R_Set ACK_SysVendorID_R_Set_t;
 
 /**
    Sets the system vendor version number at the xTU-R. (Section 7.4.6 of G.997.1
-   [11])
+   [7])
 */
 typedef struct CMD_SysVendorVersionNum_R_Set CMD_SysVendorVersionNum_R_Set_t;
 
@@ -210,7 +205,7 @@ typedef struct ACK_SysVendorVersionNum_R_Set ACK_SysVendorVersionNum_R_Set_t;
 
 /**
    Sets the system vendor serial number at the xTU-R. (Section 7.4.8 of G.997.1
-   [11])
+   [7])
 */
 typedef struct CMD_SysVendorSerialNum_R_Set CMD_SysVendorSerialNum_R_Set_t;
 
@@ -226,8 +221,8 @@ typedef struct ACK_SysVendorSerialNum_R_Set ACK_SysVendorSerialNum_R_Set_t;
 #define CMD_AUXINVENTORYINFO_R_SET 0x4343
 
 /**
-   Sets auxiliary inventory information at the VTU-R (�11.2.3.2.4 of G993.2
-   [5]).
+   Sets auxiliary inventory information at the VTU-R (Section 11.2.3.2.4 of
+   G993.2 [5]).
 */
 typedef struct CMD_AuxInventoryInfo_R_Set CMD_AuxInventoryInfo_R_Set_t;
 
@@ -243,7 +238,7 @@ typedef struct ACK_AuxInventoryInfo_R_Set ACK_AuxInventoryInfo_R_Set_t;
 #define CMD_VENDORID_O_GET 0x4003
 
 /**
-   Requests the xTU-C Vendor ID. (Section 7.4.1 of G.997.1 [11])
+   Requests the xTU-C Vendor ID. (Section 7.4.1 of G.997.1 [7])
 */
 typedef struct CMD_VendorID_O_Get CMD_VendorID_O_Get_t;
 
@@ -259,7 +254,7 @@ typedef struct ACK_VendorID_O_Get ACK_VendorID_O_Get_t;
 #define CMD_VENDORID_R_GET 0x4103
 
 /**
-   Requests the xTU-R Vendor ID. (Section 7.4.2 of G.997.1 [11])
+   Requests the xTU-R Vendor ID. (Section 7.4.2 of G.997.1 [7])
 */
 typedef struct CMD_VendorID_R_Get CMD_VendorID_R_Get_t;
 
@@ -275,7 +270,7 @@ typedef struct ACK_VendorID_R_Get ACK_VendorID_R_Get_t;
 #define CMD_SYSVENDORID_O_GET 0x3803
 
 /**
-   Requests the xTU-C System Vendor ID. (Section 7.4.3 of G.997.1 [11])
+   Requests the xTU-C System Vendor ID. (Section 7.4.3 of G.997.1 [7])
 */
 typedef struct CMD_SysVendorID_O_Get CMD_SysVendorID_O_Get_t;
 
@@ -291,7 +286,7 @@ typedef struct ACK_SysVendorID_O_Get ACK_SysVendorID_O_Get_t;
 #define CMD_SYSVENDORID_R_GET 0x3C03
 
 /**
-   Requests the xTU-R System Vendor ID. (Section 7.4.4 of G.997.1 [11])
+   Requests the xTU-R System Vendor ID. (Section 7.4.4 of G.997.1 [7])
 */
 typedef struct CMD_SysVendorID_R_Get CMD_SysVendorID_R_Get_t;
 
@@ -308,7 +303,7 @@ typedef struct ACK_SysVendorID_R_Get ACK_SysVendorID_R_Get_t;
 
 /**
    Requests the xTU-C system vendor version number. (Section 7.4.5 of G.997.1
-   [11])
+   [7])
 */
 typedef struct CMD_SysVendorVersionNumO_Get CMD_SysVendorVersionNumO_Get_t;
 
@@ -326,7 +321,7 @@ typedef struct ACK_SysVendorVersionNum_O_Get ACK_SysVendorVersionNum_O_Get_t;
 
 /**
    Requests the xTU-R system vendor version number. (Section 7.4.6 of G.997.1
-   [11])
+   [7])
 */
 typedef struct CMD_SysVendorVersionNum_R_Get CMD_SysVendorVersionNum_R_Get_t;
 
@@ -344,7 +339,7 @@ typedef struct ACK_SysVendorVersionNum_R_Get ACK_SysVendorVersionNum_R_Get_t;
 
 /**
    Requests the xTU-C system vendor serial number. (Section 7.4.7 of G.997.1
-   [11])
+   [7])
 */
 typedef struct CMD_SysVendorSerialNum_O_Get CMD_SysVendorSerialNum_O_Get_t;
 
@@ -362,7 +357,7 @@ typedef struct ACK_SysVendorSerialNum_O_Get ACK_SysVendorSerialNum_O_Get_t;
 
 /**
    Requests the xTU-R system vendor serial number. (Section 7.4.8 of G.997.1
-   [11])
+   [7])
 */
 typedef struct CMD_SysVendorSerialNum_R_Get CMD_SysVendorSerialNum_R_Get_t;
 
@@ -379,7 +374,8 @@ typedef struct ACK_SysVendorSerialNum_R_Get ACK_SysVendorSerialNum_R_Get_t;
 #define CMD_AUXINVENTORYINFO_O_GET 0x4203
 
 /**
-   Requests VTU-O auxiliary inventory information (�11.2.3.2.4 of G993.2 [5]).
+   Requests VTU-O auxiliary inventory information (Section 11.2.3.2.4 of G993.2
+   [5]).
 */
 typedef struct CMD_AuxInventoryInfo_O_Get CMD_AuxInventoryInfo_O_Get_t;
 
@@ -396,7 +392,8 @@ typedef struct ACK_AuxInventoryInfo_O_Get ACK_AuxInventoryInfo_O_Get_t;
 #define CMD_AUXINVENTORYINFO_R_GET 0x4303
 
 /**
-   Requests VTU-R auxiliary inventory information (�11.2.3.2.4 of G993.2 [5]).
+   Requests VTU-R auxiliary inventory information (Section 11.2.3.2.4 of G993.2
+   [5]).
 */
 typedef struct CMD_AuxInventoryInfo_R_Get CMD_AuxInventoryInfo_R_Get_t;
 
@@ -413,8 +410,8 @@ typedef struct ACK_AuxInventoryInfo_R_Get ACK_AuxInventoryInfo_R_Get_t;
 #define CMD_T1413_VENDORID_O_GET 0x7C03
 
 /**
-   Requests the ATU-C�s T1.413 Vendor identification. (Section 9.6.4.2 of ANSI
-   T1.413 [16])
+   Requests the ATU-C's T1.413 Vendor identification. (Section 9.6.4.2 of ANSI
+   T1.413 [12])
 */
 typedef struct CMD_T1413_VendorID_O_Get CMD_T1413_VendorID_O_Get_t;
 
@@ -422,7 +419,7 @@ typedef struct CMD_T1413_VendorID_O_Get CMD_T1413_VendorID_O_Get_t;
 #define ACK_T1413_VENDORID_O_GET 0x7C03
 
 /**
-   Delivers the ATU-C�s T1.413 vendor identification number.
+   Delivers the ATU-C's T1.413 vendor identification number.
 */
 typedef struct ACK_T1413_VendorID_O_Get ACK_T1413_VendorID_O_Get_t;
 
@@ -430,8 +427,8 @@ typedef struct ACK_T1413_VendorID_O_Get ACK_T1413_VendorID_O_Get_t;
 #define CMD_T1413_VENDORID_R_GET 0x7D03
 
 /**
-   Requests the ATU-R�s T1.413 Vendor identification. (Section 9.6.4.2 of ANSI
-   T1.413 [16])
+   Requests the ATU-R's T1.413 Vendor identification. (Section 9.6.4.2 of ANSI
+   T1.413 [12])
 */
 typedef struct CMD_T1413_VendorID_R_Get CMD_T1413_VendorID_R_Get_t;
 
@@ -439,7 +436,7 @@ typedef struct CMD_T1413_VendorID_R_Get CMD_T1413_VendorID_R_Get_t;
 #define ACK_T1413_VENDORID_R_GET 0x7D03
 
 /**
-   Reports the ATU-R�s T1.413 vendor identification number.
+   Reports the ATU-R's T1.413 vendor identification number.
 */
 typedef struct ACK_T1413_VendorID_R_Get ACK_T1413_VendorID_R_Get_t;
 
@@ -447,8 +444,8 @@ typedef struct ACK_T1413_VendorID_R_Get ACK_T1413_VendorID_R_Get_t;
 #define CMD_T1413_REVNO_O_GET 0x7E03
 
 /**
-   Requests the xTU-O�s T1.413 revision number. (Section 9.6.4.3 of ANSI T1.413
-   [16])
+   Requests the xTU-C's T1.413 revision number. (Section 9.6.4.3 of ANSI T1.413
+   [12])
 */
 typedef struct CMD_T1413_RevNo_O_Get CMD_T1413_RevNo_O_Get_t;
 
@@ -456,7 +453,7 @@ typedef struct CMD_T1413_RevNo_O_Get CMD_T1413_RevNo_O_Get_t;
 #define ACK_T1413_REVNO_O_GET 0x7E03
 
 /**
-   Delivers the xTU-O�s T1.413 revision number.
+   Delivers the xTU-C's T1.413 revision number.
 */
 typedef struct ACK_T1413_RevNo_O_Get ACK_T1413_RevNo_O_Get_t;
 
@@ -464,8 +461,8 @@ typedef struct ACK_T1413_RevNo_O_Get ACK_T1413_RevNo_O_Get_t;
 #define CMD_T1413_REVNO_R_GET 0x7F03
 
 /**
-   Requests the xTU-R�s T1.413 revision number. (Section 9.7.6.2 of ANSI T1.413
-   [16])
+   Requests the xTU-R's T1.413 revision number. (Section 9.7.6.2 of ANSI T1.413
+   [12])
 */
 typedef struct CMD_T1413_RevNo_R_Get CMD_T1413_RevNo_R_Get_t;
 
@@ -473,7 +470,7 @@ typedef struct CMD_T1413_RevNo_R_Get CMD_T1413_RevNo_R_Get_t;
 #define ACK_T1413_REVNO_R_GET 0x7F03
 
 /**
-   Delivers the xTU-R�s T1.413 revision number.
+   Delivers the xTU-R's T1.413 revision number.
 */
 typedef struct ACK_T1413_RevNo_R_Get ACK_T1413_RevNo_R_Get_t;
 
@@ -481,8 +478,8 @@ typedef struct ACK_T1413_RevNo_R_Get ACK_T1413_RevNo_R_Get_t;
 #define CMD_T1413_VENDORREVNO_O_GET 0x8003
 
 /**
-   Requests the xTU-O�s T1.413 vendor revision number. (Section 9.6.4.4 of ANSI
-   T1.413 [16])
+   Requests the xTU-C's T1.413 vendor revision number. (Section 9.6.4.4 of ANSI
+   T1.413 [12])
 */
 typedef struct CMD_T1413_VendorRevNo_O_Get CMD_T1413_VendorRevNo_O_Get_t;
 
@@ -490,7 +487,7 @@ typedef struct CMD_T1413_VendorRevNo_O_Get CMD_T1413_VendorRevNo_O_Get_t;
 #define ACK_T1413_VENDORREVNO_O_GET 0x8003
 
 /**
-   Delivers the xTU-O�s T1.413 vendor revision number.
+   Delivers the xTU-C's T1.413 vendor revision number.
 */
 typedef struct ACK_T1413_VendorRevNo_O_Get ACK_T1413_VendorRevNo_O_Get_t;
 
@@ -498,8 +495,8 @@ typedef struct ACK_T1413_VendorRevNo_O_Get ACK_T1413_VendorRevNo_O_Get_t;
 #define CMD_T1413_VENDORREVNO_R_GET 0x8103
 
 /**
-   Requests the xTU-R�s T1.413 vendor revision number. (Section 9.7.6.3 of ANSI
-   T1.413 [16])
+   Requests the xTU-R's T1.413 vendor revision number. (Section 9.7.6.3 of ANSI
+   T1.413 [12])
 */
 typedef struct CMD_T1413_VendorRevNo_R_Get CMD_T1413_VendorRevNo_R_Get_t;
 
@@ -507,7 +504,7 @@ typedef struct CMD_T1413_VendorRevNo_R_Get CMD_T1413_VendorRevNo_R_Get_t;
 #define ACK_T1413_VENDORREVNO_R_GET 0x8103
 
 /**
-   Delivers the xTU-R�s T1.413 vendor revision number.
+   Delivers the xTU-R's T1.413 vendor revision number.
 */
 typedef struct ACK_T1413_VendorRevNo_R_Get ACK_T1413_VendorRevNo_R_Get_t;
 
@@ -516,7 +513,7 @@ typedef struct ACK_T1413_VendorRevNo_R_Get ACK_T1413_VendorRevNo_R_Get_t;
 
 /**
    Requests the transmission system in use on the line (DSL flavour). (Section
-   7.5.1.1. of G.997.1 [11]) See note at ACK_XTSE_StatusGet about the expected
+   7.5.1.1. of G.997.1 [7]) See note at ACK_XTSE_StatusGet about the expected
    behaviour.
 */
 typedef struct CMD_XTSE_StatusGet CMD_XTSE_StatusGet_t;
@@ -541,12 +538,7 @@ typedef struct ACK_XTSE_StatusGet ACK_XTSE_StatusGet_t;
 #define CMD_BANDCONTROL_DS_GET 0xC803
 
 /**
-   Reads the used downstream band configuration.The reported used DS band
-   configuration reflects the MEDLEYds set as defined in the O-PRM message of
-   the channel discovery phase according to G.993.2. In case of an
-   initialization faillure the message content in FAIL state depends on when the
-   fail occured:- after Handshake: G.HS information- after O-Signature:
-   SUPPORTEDCARRIERSds set- after O-PRM: it contains the MEDLEYds set
+   Reads the used downstream band configuration.
 */
 typedef struct CMD_BandControl_DS_Get CMD_BandControl_DS_Get_t;
 
@@ -562,12 +554,7 @@ typedef struct ACK_BandControl_DS_Get ACK_BandControl_DS_Get_t;
 #define CMD_BANDCONTROL_US_GET 0xC903
 
 /**
-   Reads the used upstream band configuration.The reported used US band
-   configuration reflects the MEDLEYus set as defined in the R-PRM message of
-   the channel discovery phase according to G.993.2. In case of an
-   initialization faillure the message content in FAIL state depends on when the
-   fail occured:- after Handshake: G.HS information- after O-Signature:
-   SUPPORTEDCARRIERSus set- after R-PRM: it contains the MEDLEYus set
+   Reads the used upstream band configuration.
 */
 typedef struct CMD_BandControl_US_Get CMD_BandControl_US_Get_t;
 
@@ -687,26 +674,6 @@ typedef struct CMD_AttndrStatusGet CMD_AttndrStatusGet_t;
    G.997.1 [12]).
 */
 typedef struct ACK_AttndrStatusGet ACK_AttndrStatusGet_t;
-
-/** Message ID for CMD_DBG_AttndrControl */
-#define CMD_DBG_ATTNDRCONTROL 0x5648
-
-/**
-   Debug message to controls the attainable net data rate (ATTNDR) calculation
-   locally at CPE. The contained parameters shall only be effective for the
-   local calculation and have no effect for the method selection communication
-   towards the CO. Its purpose is to allow -for test purposes- improved local
-   ATTNDR calculation even against a CO which does not support the feature.
-*/
-typedef struct CMD_DBG_AttndrControl CMD_DBG_AttndrControl_t;
-
-/** Message ID for ACK_DBG_AttndrControl */
-#define ACK_DBG_ATTNDRCONTROL 0x5648
-
-/**
-   Acknowledgement for the message CMD_DBG_AttndrControl.
-*/
-typedef struct ACK_DBG_AttndrControl ACK_DBG_AttndrControl_t;
 
 /** Message ID for CMD_PSD_BreakpointsDS_Get */
 #define CMD_PSD_BREAKPOINTSDS_GET 0xD403
@@ -853,6 +820,29 @@ typedef struct CMD_PSDMASK_DS_Get CMD_PSDMASK_DS_Get_t;
    as absolute value without the offset.)
 */
 typedef struct ACK_PSDMASK_DS_Get ACK_PSDMASK_DS_Get_t;
+
+/** Message ID for CMD_RxPSD_TableEntriesGet */
+#define CMD_RXPSD_TABLEENTRIESGET 0x5403
+
+/**
+   The message requests information about the receive PSD per subcarrier
+   available at the near-end side, which means for downstream direction at the
+   CPE. It is the hosts responsibility to select the tone indices accordingly.In
+   Showtime the message reports the receive PSD measured in Channel Discovery
+   phase after the final hybrid training (no Showtime update).
+*/
+typedef struct CMD_RxPSD_TableEntriesGet CMD_RxPSD_TableEntriesGet_t;
+
+/** Message ID for ACK_RxPSD_TableEntriesGet */
+#define ACK_RXPSD_TABLEENTRIESGET 0x5403
+
+/**
+   Returns information about the receive PSD per subcarrier available at the
+   near-end side, which means for downstream direction at the CPE.In Showtime
+   the message reports the receive PSD measured in Channel Discovery phase after
+   the final hybrid training (no Showtime update).
+*/
+typedef struct ACK_RxPSD_TableEntriesGet ACK_RxPSD_TableEntriesGet_t;
 
 /** Message ID for CMD_BearerChsDS_Get */
 #define CMD_BEARERCHSDS_GET 0x0106
@@ -1099,9 +1089,29 @@ typedef struct CMD_MFD_HybridInfoGet CMD_MFD_HybridInfoGet_t;
 */
 typedef struct ACK_MFD_HybridInfoGet ACK_MFD_HybridInfoGet_t;
 
+/** Message ID for CMD_MFD_InitResultsGet */
+#define CMD_MFD_INITRESULTSGET 0x0822
+
+/**
+   Requests basic micro filter detection (MFD) results from (normal)
+   initialization. This is about basic microfilter detection info collected
+   during each DSL initialization. For more detailed results a special
+   microfilter detection test mode can be run (see description at Chapter 5.13.5
+*/
+typedef struct CMD_MFD_InitResultsGet CMD_MFD_InitResultsGet_t;
+
+/** Message ID for ACK_MFD_InitResultsGet */
+#define ACK_MFD_INITRESULTSGET 0x0822
+
+/**
+   Reports the results of the micro filter detection (MFD) from last
+   initialization.
+*/
+typedef struct ACK_MFD_InitResultsGet ACK_MFD_InitResultsGet_t;
+
 /**
    Selects one or more groups of tones to be used during the handshake phase.
-   (See G.994.1 Amendment 2 [8], Table 1/G.994.1).
+   (See G.994.1 [6], Table 1).
 */
 struct CMD_HS_ToneGroupSet
 {
@@ -1180,8 +1190,7 @@ struct ACK_HS_ToneGroupSet
 
 /**
    Configures the profile settings to be used for the handshake phase. (See
-   G.994.1 Amendment 4 [10], NPAR(3) coding).All "support" bits should be set to
-   "Enable".
+   G.994.1 [6], NPAR(3) coding).
 */
 struct CMD_HS_VDSL2ProfileControl
 {
@@ -1463,8 +1472,7 @@ struct ACK_HS_VDSL2ProfileControl
 
 
 /**
-   Requests the VDSL2 far-end Standard Info (See G.994.1 Amendment 4 [10],
-   NPAR(3) coding).
+   Requests the VDSL2 far-end Standard Info (See G.994.1 [6], NPAR(3) coding).
 */
 struct CMD_HS_StandardInfoFE_VDSL2Get
 {
@@ -1484,8 +1492,7 @@ struct CMD_HS_StandardInfoFE_VDSL2Get
 
 /**
    Delivers the VDSL2 far-end info as requested by
-   CMD_HS_StandardInfoFE_VDSL2Get (see G.994.1 Amendment 4 [10], NPAR(3)
-   coding).
+   CMD_HS_StandardInfoFE_VDSL2Get (see G.994.1 [6], NPAR(3) coding).
 */
 struct ACK_HS_StandardInfoFE_VDSL2Get
 {
@@ -1594,7 +1601,7 @@ struct ACK_HS_StandardInfoFE_VDSL2Get
    DSL_uint16_t C_US0PsdSup0 : 1;
    /** Reserved */
    DSL_uint16_t Res7 : 7;
-   /** G.998.4 Anx DSupported Bit 8 (VDSL only) */
+   /** G.998.4 Anx D Supported Bit 8 (VDSL only) */
    DSL_uint16_t RtxExtMemSup8 : 1;
    /** Reserved */
    DSL_uint16_t Res8 : 2;
@@ -1727,7 +1734,7 @@ struct ACK_HS_StandardInfoFE_VDSL2Get
    DSL_uint16_t OpVect1FlagTonesSup5 : 1;
    /** Reserved */
    DSL_uint16_t Res8 : 2;
-   /** G.998.4 Anx DSupported Bit 8 (VDSL only) */
+   /** G.998.4 Anx D Supported Bit 8 (VDSL only) */
    DSL_uint16_t RtxExtMemSup8 : 1;
    /** Reserved */
    DSL_uint16_t Res7 : 7;
@@ -1736,8 +1743,7 @@ struct ACK_HS_StandardInfoFE_VDSL2Get
 
 
 /**
-   Requests the actual selected VDSL2 Profile (See G.994.1 Amendment 4 [10],
-   NPAR(3) coding).
+   Requests the actual selected VDSL2 Profile (See G.994.1 [6], NPAR(3) coding).
 */
 struct CMD_HS_SelectedProfileVDSL2Get
 {
@@ -1757,8 +1763,7 @@ struct CMD_HS_SelectedProfileVDSL2Get
 
 /**
    Provides the actual selected VDSL2 Profile as requested by
-   CMD_HS_SelectedProfileVDSL2Get (see G.994.1 Amendment 4 [10], NPAR(3)
-   coding).
+   CMD_HS_SelectedProfileVDSL2Get (see G.994.1 [6], NPAR(3) coding).
 */
 struct ACK_HS_SelectedProfileVDSL2Get
 {
@@ -1986,8 +1991,7 @@ struct ACK_HS_SelectedProfileVDSL2Get
 
 /**
    Requests the handshake information about the far-end operating mode (See
-   G.994.1 [6] and Amendments 1-4 [7]-[10], standard information fields- SPAR(1)
-   coding).
+   G.994.1 [6], standard information fields- SPAR(1) coding).
 */
 struct CMD_HS_StandardInfoFE_SPAR1Get
 {
@@ -2007,9 +2011,8 @@ struct CMD_HS_StandardInfoFE_SPAR1Get
 
 /**
    Provides the handshake information about the far-end operating mode (See
-   G.994.1 [6] and Amendments 1-4 [7]-[10], Standard information field - SPAR(1)
-   coding). The bit numbering per octet below follows the standard (starting
-   with "1").
+   G.994.1 [6], Standard information field - SPAR(1) coding). The bit numbering
+   per octet below follows the standard (starting with "1").
 */
 struct ACK_HS_StandardInfoFE_SPAR1Get
 {
@@ -2192,7 +2195,7 @@ struct ACK_HS_StandardInfoFE_SPAR1Get
 
 
 /**
-   Sets the in System Vendor ID at the xTU-R. (Section 7.4.4 of G.997.1 [11])
+   Sets the in System Vendor ID at the xTU-R. (Section 7.4.4 of G.997.1 [7])
 */
 struct CMD_SysVendorID_R_Set
 {
@@ -2235,7 +2238,7 @@ struct ACK_SysVendorID_R_Set
 
 /**
    Sets the system vendor version number at the xTU-R. (Section 7.4.6 of G.997.1
-   [11])
+   [7])
 */
 struct CMD_SysVendorVersionNum_R_Set
 {
@@ -2278,7 +2281,7 @@ struct ACK_SysVendorVersionNum_R_Set
 
 /**
    Sets the system vendor serial number at the xTU-R. (Section 7.4.8 of G.997.1
-   [11])
+   [7])
 */
 struct CMD_SysVendorSerialNum_R_Set
 {
@@ -2320,8 +2323,8 @@ struct ACK_SysVendorSerialNum_R_Set
 
 
 /**
-   Sets auxiliary inventory information at the VTU-R (�11.2.3.2.4 of G993.2
-   [5]).
+   Sets auxiliary inventory information at the VTU-R (Section 11.2.3.2.4 of
+   G993.2 [5]).
 */
 struct CMD_AuxInventoryInfo_R_Set
 {
@@ -2363,7 +2366,7 @@ struct ACK_AuxInventoryInfo_R_Set
 
 
 /**
-   Requests the xTU-C Vendor ID. (Section 7.4.1 of G.997.1 [11])
+   Requests the xTU-C Vendor ID. (Section 7.4.1 of G.997.1 [7])
 */
 struct CMD_VendorID_O_Get
 {
@@ -2405,7 +2408,7 @@ struct ACK_VendorID_O_Get
 
 
 /**
-   Requests the xTU-R Vendor ID. (Section 7.4.2 of G.997.1 [11])
+   Requests the xTU-R Vendor ID. (Section 7.4.2 of G.997.1 [7])
 */
 struct CMD_VendorID_R_Get
 {
@@ -2447,7 +2450,7 @@ struct ACK_VendorID_R_Get
 
 
 /**
-   Requests the xTU-C System Vendor ID. (Section 7.4.3 of G.997.1 [11])
+   Requests the xTU-C System Vendor ID. (Section 7.4.3 of G.997.1 [7])
 */
 struct CMD_SysVendorID_O_Get
 {
@@ -2489,7 +2492,7 @@ struct ACK_SysVendorID_O_Get
 
 
 /**
-   Requests the xTU-R System Vendor ID. (Section 7.4.4 of G.997.1 [11])
+   Requests the xTU-R System Vendor ID. (Section 7.4.4 of G.997.1 [7])
 */
 struct CMD_SysVendorID_R_Get
 {
@@ -2532,7 +2535,7 @@ struct ACK_SysVendorID_R_Get
 
 /**
    Requests the xTU-C system vendor version number. (Section 7.4.5 of G.997.1
-   [11])
+   [7])
 */
 struct CMD_SysVendorVersionNumO_Get
 {
@@ -2576,7 +2579,7 @@ struct ACK_SysVendorVersionNum_O_Get
 
 /**
    Requests the xTU-R system vendor version number. (Section 7.4.6 of G.997.1
-   [11])
+   [7])
 */
 struct CMD_SysVendorVersionNum_R_Get
 {
@@ -2620,7 +2623,7 @@ struct ACK_SysVendorVersionNum_R_Get
 
 /**
    Requests the xTU-C system vendor serial number. (Section 7.4.7 of G.997.1
-   [11])
+   [7])
 */
 struct CMD_SysVendorSerialNum_O_Get
 {
@@ -2664,7 +2667,7 @@ struct ACK_SysVendorSerialNum_O_Get
 
 /**
    Requests the xTU-R system vendor serial number. (Section 7.4.8 of G.997.1
-   [11])
+   [7])
 */
 struct CMD_SysVendorSerialNum_R_Get
 {
@@ -2707,7 +2710,8 @@ struct ACK_SysVendorSerialNum_R_Get
 
 
 /**
-   Requests VTU-O auxiliary inventory information (�11.2.3.2.4 of G993.2 [5]).
+   Requests VTU-O auxiliary inventory information (Section 11.2.3.2.4 of G993.2
+   [5]).
 */
 struct CMD_AuxInventoryInfo_O_Get
 {
@@ -2750,7 +2754,8 @@ struct ACK_AuxInventoryInfo_O_Get
 
 
 /**
-   Requests VTU-R auxiliary inventory information (�11.2.3.2.4 of G993.2 [5]).
+   Requests VTU-R auxiliary inventory information (Section 11.2.3.2.4 of G993.2
+   [5]).
 */
 struct CMD_AuxInventoryInfo_R_Get
 {
@@ -2793,8 +2798,8 @@ struct ACK_AuxInventoryInfo_R_Get
 
 
 /**
-   Requests the ATU-C�s T1.413 Vendor identification. (Section 9.6.4.2 of ANSI
-   T1.413 [16])
+   Requests the ATU-C's T1.413 Vendor identification. (Section 9.6.4.2 of ANSI
+   T1.413 [12])
 */
 struct CMD_T1413_VendorID_O_Get
 {
@@ -2813,7 +2818,7 @@ struct CMD_T1413_VendorID_O_Get
 
 
 /**
-   Delivers the ATU-C�s T1.413 vendor identification number.
+   Delivers the ATU-C's T1.413 vendor identification number.
 */
 struct ACK_T1413_VendorID_O_Get
 {
@@ -2836,8 +2841,8 @@ struct ACK_T1413_VendorID_O_Get
 
 
 /**
-   Requests the ATU-R�s T1.413 Vendor identification. (Section 9.6.4.2 of ANSI
-   T1.413 [16])
+   Requests the ATU-R's T1.413 Vendor identification. (Section 9.6.4.2 of ANSI
+   T1.413 [12])
 */
 struct CMD_T1413_VendorID_R_Get
 {
@@ -2856,7 +2861,7 @@ struct CMD_T1413_VendorID_R_Get
 
 
 /**
-   Reports the ATU-R�s T1.413 vendor identification number.
+   Reports the ATU-R's T1.413 vendor identification number.
 */
 struct ACK_T1413_VendorID_R_Get
 {
@@ -2879,8 +2884,8 @@ struct ACK_T1413_VendorID_R_Get
 
 
 /**
-   Requests the xTU-O�s T1.413 revision number. (Section 9.6.4.3 of ANSI T1.413
-   [16])
+   Requests the xTU-C's T1.413 revision number. (Section 9.6.4.3 of ANSI T1.413
+   [12])
 */
 struct CMD_T1413_RevNo_O_Get
 {
@@ -2899,7 +2904,7 @@ struct CMD_T1413_RevNo_O_Get
 
 
 /**
-   Delivers the xTU-O�s T1.413 revision number.
+   Delivers the xTU-C's T1.413 revision number.
 */
 struct ACK_T1413_RevNo_O_Get
 {
@@ -2922,8 +2927,8 @@ struct ACK_T1413_RevNo_O_Get
 
 
 /**
-   Requests the xTU-R�s T1.413 revision number. (Section 9.7.6.2 of ANSI T1.413
-   [16])
+   Requests the xTU-R's T1.413 revision number. (Section 9.7.6.2 of ANSI T1.413
+   [12])
 */
 struct CMD_T1413_RevNo_R_Get
 {
@@ -2942,7 +2947,7 @@ struct CMD_T1413_RevNo_R_Get
 
 
 /**
-   Delivers the xTU-R�s T1.413 revision number.
+   Delivers the xTU-R's T1.413 revision number.
 */
 struct ACK_T1413_RevNo_R_Get
 {
@@ -2965,8 +2970,8 @@ struct ACK_T1413_RevNo_R_Get
 
 
 /**
-   Requests the xTU-O�s T1.413 vendor revision number. (Section 9.6.4.4 of ANSI
-   T1.413 [16])
+   Requests the xTU-C's T1.413 vendor revision number. (Section 9.6.4.4 of ANSI
+   T1.413 [12])
 */
 struct CMD_T1413_VendorRevNo_O_Get
 {
@@ -2985,7 +2990,7 @@ struct CMD_T1413_VendorRevNo_O_Get
 
 
 /**
-   Delivers the xTU-O�s T1.413 vendor revision number.
+   Delivers the xTU-C's T1.413 vendor revision number.
 */
 struct ACK_T1413_VendorRevNo_O_Get
 {
@@ -3008,8 +3013,8 @@ struct ACK_T1413_VendorRevNo_O_Get
 
 
 /**
-   Requests the xTU-R�s T1.413 vendor revision number. (Section 9.7.6.3 of ANSI
-   T1.413 [16])
+   Requests the xTU-R's T1.413 vendor revision number. (Section 9.7.6.3 of ANSI
+   T1.413 [12])
 */
 struct CMD_T1413_VendorRevNo_R_Get
 {
@@ -3028,7 +3033,7 @@ struct CMD_T1413_VendorRevNo_R_Get
 
 
 /**
-   Delivers the xTU-R�s T1.413 vendor revision number.
+   Delivers the xTU-R's T1.413 vendor revision number.
 */
 struct ACK_T1413_VendorRevNo_R_Get
 {
@@ -3052,7 +3057,7 @@ struct ACK_T1413_VendorRevNo_R_Get
 
 /**
    Requests the transmission system in use on the line (DSL flavour). (Section
-   7.5.1.1. of G.997.1 [11]) See note at ACK_XTSE_StatusGet about the expected
+   7.5.1.1. of G.997.1 [7]) See note at ACK_XTSE_StatusGet about the expected
    behaviour.
 */
 struct CMD_XTSE_StatusGet
@@ -3175,12 +3180,7 @@ struct ACK_XTSE_StatusGet
 
 
 /**
-   Reads the used downstream band configuration.The reported used DS band
-   configuration reflects the MEDLEYds set as defined in the O-PRM message of
-   the channel discovery phase according to G.993.2. In case of an
-   initialization faillure the message content in FAIL state depends on when the
-   fail occured:- after Handshake: G.HS information- after O-Signature:
-   SUPPORTEDCARRIERSds set- after O-PRM: it contains the MEDLEYds set
+   Reads the used downstream band configuration.
 */
 struct CMD_BandControl_DS_Get
 {
@@ -3230,12 +3230,7 @@ struct ACK_BandControl_DS_Get
 
 
 /**
-   Reads the used upstream band configuration.The reported used US band
-   configuration reflects the MEDLEYus set as defined in the R-PRM message of
-   the channel discovery phase according to G.993.2. In case of an
-   initialization faillure the message content in FAIL state depends on when the
-   fail occured:- after Handshake: G.HS information- after O-Signature:
-   SUPPORTEDCARRIERSus set- after R-PRM: it contains the MEDLEYus set
+   Reads the used upstream band configuration.
 */
 struct CMD_BandControl_US_Get
 {
@@ -3386,11 +3381,17 @@ struct ACK_LineStatusDS_Get
    /** Virtual Noise Status DS */
    DSL_uint16_t VNstatus_ds : 1;
    /** Reserved */
-   DSL_uint16_t Res2 : 6;
+   DSL_uint16_t Res2 : 5;
+   /** ROC Status DS */
+   DSL_uint16_t ROCstatus_ds : 1;
    /** NTR Status DS */
    DSL_uint16_t NTRstatus_ds : 1;
    /** TCM Status DS */
    DSL_uint16_t TCMstatus_ds : 1;
+   /** Reserved */
+   DSL_uint16_t Res3;
+   /** Downstream SNRM-ROC (VDSL only) */
+   DSL_uint16_t SNRM_ROCds;
 #else
    /** Index */
    DSL_uint16_t Index;
@@ -3416,12 +3417,18 @@ struct ACK_LineStatusDS_Get
    DSL_uint16_t TCMstatus_ds : 1;
    /** NTR Status DS */
    DSL_uint16_t NTRstatus_ds : 1;
+   /** ROC Status DS */
+   DSL_uint16_t ROCstatus_ds : 1;
    /** Reserved */
-   DSL_uint16_t Res2 : 6;
+   DSL_uint16_t Res2 : 5;
    /** Virtual Noise Status DS */
    DSL_uint16_t VNstatus_ds : 1;
    /** Reserved */
    DSL_uint16_t Res1 : 7;
+   /** Reserved */
+   DSL_uint16_t Res3;
+   /** Downstream SNRM-ROC (VDSL only) */
+   DSL_uint16_t SNRM_ROCds;
 #endif
 } __PACKED__ ;
 
@@ -3478,9 +3485,17 @@ struct ACK_LineStatusUS_Get
    /** Virtual Noise Status US */
    DSL_uint16_t VNstatus_us : 1;
    /** Reserved */
-   DSL_uint16_t Res2 : 7;
+   DSL_uint16_t Res2 : 5;
+   /** ROC Status US */
+   DSL_uint16_t ROCstatus_us : 1;
+   /** Reserved */
+   DSL_uint16_t Res3 : 1;
    /** TCM Status US */
    DSL_uint16_t TCMstatus_us : 1;
+   /** ERB BDR US */
+   DSL_uint16_t BDRus;
+   /** Upstream SNRM-ROC (VDSL only) */
+   DSL_uint16_t SNRM_ROCus;
 #else
    /** Index */
    DSL_uint16_t Index;
@@ -3505,11 +3520,19 @@ struct ACK_LineStatusUS_Get
    /** TCM Status US */
    DSL_uint16_t TCMstatus_us : 1;
    /** Reserved */
-   DSL_uint16_t Res2 : 7;
+   DSL_uint16_t Res3 : 1;
+   /** ROC Status US */
+   DSL_uint16_t ROCstatus_us : 1;
+   /** Reserved */
+   DSL_uint16_t Res2 : 5;
    /** Virtual Noise Status US */
    DSL_uint16_t VNstatus_us : 1;
    /** Reserved */
    DSL_uint16_t Res1 : 7;
+   /** ERB BDR US */
+   DSL_uint16_t BDRus;
+   /** Upstream SNRM-ROC (VDSL only) */
+   DSL_uint16_t SNRM_ROCus;
 #endif
 } __PACKED__ ;
 
@@ -3665,60 +3688,6 @@ struct ACK_AttndrStatusGet
    DSL_uint16_t AttndrActInpReinDs;
    /** ATTNDR DS Actual Delay (ATTNDR_ACTDELAYds). */
    DSL_uint16_t AttndrActDelayDs;
-#endif
-} __PACKED__ ;
-
-
-/**
-   Debug message to controls the attainable net data rate (ATTNDR) calculation
-   locally at CPE. The contained parameters shall only be effective for the
-   local calculation and have no effect for the method selection communication
-   towards the CO. Its purpose is to allow -for test purposes- improved local
-   ATTNDR calculation even against a CO which does not support the feature.
-*/
-struct CMD_DBG_AttndrControl
-{
-#if DSL_BYTE_ORDER == DSL_BIG_ENDIAN
-   /** Index */
-   DSL_uint16_t Index;
-   /** Length */
-   DSL_uint16_t Length;
-   /** DS ATTNDR Method Forced */
-   DSL_uint16_t AttndrMethodForced;
-   /** ATTNDR MaxDelay Octets DS Forced, LSW */
-   DSL_uint16_t AttndrMaxDelayOctDs_LSW;
-   /** ATTNDR MaxDelay Octets DS Forced, MSW */
-   DSL_uint16_t AttndrMaxDelayOctDs_MSW;
-#else
-   /** Index */
-   DSL_uint16_t Index;
-   /** Length */
-   DSL_uint16_t Length;
-   /** DS ATTNDR Method Forced */
-   DSL_uint16_t AttndrMethodForced;
-   /** ATTNDR MaxDelay Octets DS Forced, LSW */
-   DSL_uint16_t AttndrMaxDelayOctDs_LSW;
-   /** ATTNDR MaxDelay Octets DS Forced, MSW */
-   DSL_uint16_t AttndrMaxDelayOctDs_MSW;
-#endif
-} __PACKED__ ;
-
-
-/**
-   Acknowledgement for the message CMD_DBG_AttndrControl.
-*/
-struct ACK_DBG_AttndrControl
-{
-#if DSL_BYTE_ORDER == DSL_BIG_ENDIAN
-   /** Index */
-   DSL_uint16_t Index;
-   /** Length */
-   DSL_uint16_t Length;
-#else
-   /** Index */
-   DSL_uint16_t Index;
-   /** Length */
-   DSL_uint16_t Length;
 #endif
 } __PACKED__ ;
 
@@ -4146,6 +4115,55 @@ struct ACK_PSDMASK_DS_Get
 
 
 /**
+   The message requests information about the receive PSD per subcarrier
+   available at the near-end side, which means for downstream direction at the
+   CPE. It is the hosts responsibility to select the tone indices accordingly.In
+   Showtime the message reports the receive PSD measured in Channel Discovery
+   phase after the final hybrid training (no Showtime update).
+*/
+struct CMD_RxPSD_TableEntriesGet
+{
+#if DSL_BYTE_ORDER == DSL_BIG_ENDIAN
+   /** Index */
+   DSL_uint16_t Index;
+   /** Length */
+   DSL_uint16_t Length;
+#else
+   /** Index */
+   DSL_uint16_t Index;
+   /** Length */
+   DSL_uint16_t Length;
+#endif
+} __PACKED__ ;
+
+
+/**
+   Returns information about the receive PSD per subcarrier available at the
+   near-end side, which means for downstream direction at the CPE.In Showtime
+   the message reports the receive PSD measured in Channel Discovery phase after
+   the final hybrid training (no Showtime update).
+*/
+struct ACK_RxPSD_TableEntriesGet
+{
+#if DSL_BYTE_ORDER == DSL_BIG_ENDIAN
+   /** Index */
+   DSL_uint16_t Index;
+   /** Length */
+   DSL_uint16_t Length;
+   /** Receive PSD */
+   DSL_uint16_t PSDps[128];
+#else
+   /** Index */
+   DSL_uint16_t Index;
+   /** Length */
+   DSL_uint16_t Length;
+   /** Receive PSD */
+   DSL_uint16_t PSDps[128];
+#endif
+} __PACKED__ ;
+
+
+/**
    Requests status information for the downstream bearer channels.
 */
 struct CMD_BearerChsDS_Get
@@ -4431,62 +4449,66 @@ struct ACK_FrameDataExt2DS_Get
    DSL_uint16_t Mp_LP0ds;
    /** Reserved */
    DSL_uint16_t Res6;
-   /** Bits per Symbol "Lp" LP0 DS */
-   DSL_uint16_t Lp_LP0ds;
+   /** Bits per Symbol "Lp" LP0 DS, LSW */
+   DSL_uint16_t Lp_LP0ds_LSW;
+   /** Bits per Symbol "Lp" LP0 DS, MSW */
+   DSL_uint16_t Lp_LP0ds_MSW;
    /** Reserved */
    DSL_uint16_t Res7;
+   /** Reserved */
+   DSL_uint16_t Res8;
    /** RS Check Bytes "Rp" LP0 DS */
    DSL_uint16_t Rp_LP0ds;
    /** Reserved */
-   DSL_uint16_t Res8;
+   DSL_uint16_t Res9;
    /** Interleaver Block Length "Ip", LP0 DS */
    DSL_uint16_t Ip_LP0ds;
    /** Reserved */
-   DSL_uint16_t Res9;
+   DSL_uint16_t Res10;
    /** Interleaving Depth "Dp" LP0 DS */
    DSL_uint16_t Dp_LP0ds;
    /** Reserved */
-   DSL_uint16_t Res10;
+   DSL_uint16_t Res11;
    /** OH Frame Period "PERp", LP0 DS */
    DSL_uint16_t PERp_LP0ds;
    /** Reserved */
-   DSL_uint16_t Res11;
+   DSL_uint16_t Res12;
    /** Line Data Rate DS for LP0, LSW */
    DSL_uint16_t DRp_LP0ds_LSW;
    /** Line Data Rate DS for LP0, MSW */
    DSL_uint16_t DRp_LP0ds_MSW;
    /** Reserved */
-   DSL_uint16_t Res12;
-   /** Reserved */
    DSL_uint16_t Res13;
+   /** Reserved */
+   DSL_uint16_t Res14;
    /** RS Codeword Size "N_fecp" LP0 DS */
    DSL_uint16_t N_fecp_LP0ds;
    /** Reserved */
-   DSL_uint16_t Res14;
+   DSL_uint16_t Res15;
    /** Framing Parameter "q", LP0 DS */
    DSL_uint16_t q_LP0ds;
    /** Reserved */
-   DSL_uint16_t Res15;
+   DSL_uint16_t Res16;
    /** OH Bytes per OH FrameLP0 "SEQp" DS */
    DSL_uint16_t SEQp_LP0ds;
    /** Reserved */
-   DSL_uint16_t Res16;
+   DSL_uint16_t Res17;
    /** OH sub-frames "Up" per OH frame LP0 DS */
    DSL_uint16_t Up_LP0ds;
    /** Reserved */
-   DSL_uint16_t Res17;
+   DSL_uint16_t Res18;
    /** Bytes per OH Frame LP0 DS, LSW */
    DSL_uint16_t PERBp_LP0ds_LSW;
    /** Bytes per OH Frame LP0 DS, MSW */
    DSL_uint16_t PERBp_LP0ds_MSW;
    /** Reserved */
-   DSL_uint16_t Res18;
-   /** Reserved */
    DSL_uint16_t Res19;
+   /** Reserved */
+   DSL_uint16_t Res20;
    /** Bytes in MSG OH "MSGc" LP0 DS */
    DSL_uint16_t MSGc_LP0ds;
    /** Reserved */
-   DSL_uint16_t Res20;
+   DSL_uint16_t Res21;
 #else
    /** Index */
    DSL_uint16_t Index;
@@ -4516,62 +4538,66 @@ struct ACK_FrameDataExt2DS_Get
    DSL_uint16_t Mp_LP0ds;
    /** Reserved */
    DSL_uint16_t Res6;
-   /** Bits per Symbol "Lp" LP0 DS */
-   DSL_uint16_t Lp_LP0ds;
+   /** Bits per Symbol "Lp" LP0 DS, LSW */
+   DSL_uint16_t Lp_LP0ds_LSW;
+   /** Bits per Symbol "Lp" LP0 DS, MSW */
+   DSL_uint16_t Lp_LP0ds_MSW;
    /** Reserved */
    DSL_uint16_t Res7;
+   /** Reserved */
+   DSL_uint16_t Res8;
    /** RS Check Bytes "Rp" LP0 DS */
    DSL_uint16_t Rp_LP0ds;
    /** Reserved */
-   DSL_uint16_t Res8;
+   DSL_uint16_t Res9;
    /** Interleaver Block Length "Ip", LP0 DS */
    DSL_uint16_t Ip_LP0ds;
    /** Reserved */
-   DSL_uint16_t Res9;
+   DSL_uint16_t Res10;
    /** Interleaving Depth "Dp" LP0 DS */
    DSL_uint16_t Dp_LP0ds;
    /** Reserved */
-   DSL_uint16_t Res10;
+   DSL_uint16_t Res11;
    /** OH Frame Period "PERp", LP0 DS */
    DSL_uint16_t PERp_LP0ds;
    /** Reserved */
-   DSL_uint16_t Res11;
+   DSL_uint16_t Res12;
    /** Line Data Rate DS for LP0, LSW */
    DSL_uint16_t DRp_LP0ds_LSW;
    /** Line Data Rate DS for LP0, MSW */
    DSL_uint16_t DRp_LP0ds_MSW;
    /** Reserved */
-   DSL_uint16_t Res12;
-   /** Reserved */
    DSL_uint16_t Res13;
+   /** Reserved */
+   DSL_uint16_t Res14;
    /** RS Codeword Size "N_fecp" LP0 DS */
    DSL_uint16_t N_fecp_LP0ds;
    /** Reserved */
-   DSL_uint16_t Res14;
+   DSL_uint16_t Res15;
    /** Framing Parameter "q", LP0 DS */
    DSL_uint16_t q_LP0ds;
    /** Reserved */
-   DSL_uint16_t Res15;
+   DSL_uint16_t Res16;
    /** OH Bytes per OH FrameLP0 "SEQp" DS */
    DSL_uint16_t SEQp_LP0ds;
    /** Reserved */
-   DSL_uint16_t Res16;
+   DSL_uint16_t Res17;
    /** OH sub-frames "Up" per OH frame LP0 DS */
    DSL_uint16_t Up_LP0ds;
    /** Reserved */
-   DSL_uint16_t Res17;
+   DSL_uint16_t Res18;
    /** Bytes per OH Frame LP0 DS, LSW */
    DSL_uint16_t PERBp_LP0ds_LSW;
    /** Bytes per OH Frame LP0 DS, MSW */
    DSL_uint16_t PERBp_LP0ds_MSW;
    /** Reserved */
-   DSL_uint16_t Res18;
-   /** Reserved */
    DSL_uint16_t Res19;
+   /** Reserved */
+   DSL_uint16_t Res20;
    /** Bytes in MSG OH "MSGc" LP0 DS */
    DSL_uint16_t MSGc_LP0ds;
    /** Reserved */
-   DSL_uint16_t Res20;
+   DSL_uint16_t Res21;
 #endif
 } __PACKED__ ;
 
@@ -4632,62 +4658,66 @@ struct ACK_FrameDataExt2US_Get
    DSL_uint16_t Mp_LP0us;
    /** Reserved */
    DSL_uint16_t Res6;
-   /** Bits per Symbol "Lp" LP0 US */
-   DSL_uint16_t Lp_LP0us;
+   /** Bits per Symbol "Lp" LP0 US, LSW */
+   DSL_uint16_t Lp_LP0us_LSW;
+   /** Bits per Symbol "Lp" LP0 US, MSW */
+   DSL_uint16_t Lp_LP0us_MSW;
    /** Reserved */
    DSL_uint16_t Res7;
+   /** Reserved */
+   DSL_uint16_t Res8;
    /** RS Check Bytes "Rp" LP0 US */
    DSL_uint16_t Rp_LP0us;
    /** Reserved */
-   DSL_uint16_t Res8;
+   DSL_uint16_t Res9;
    /** Interleaver Block Length "Ip", LP0 US */
    DSL_uint16_t Ip_LP0us;
    /** Reserved */
-   DSL_uint16_t Res9;
+   DSL_uint16_t Res10;
    /** Interleaving Depth "Dp" LP0 US */
    DSL_uint16_t Dp_LP0us;
    /** Reserved */
-   DSL_uint16_t Res10;
+   DSL_uint16_t Res11;
    /** OH Frame Period "PERp", LP0 US */
    DSL_uint16_t PERp_LP0us;
    /** Reserved */
-   DSL_uint16_t Res11;
+   DSL_uint16_t Res12;
    /** Line Data Rate US for LP0, LSW */
    DSL_uint16_t DRp_LP0us_LSW;
    /** Line Data Rate US for LP0, MSW */
    DSL_uint16_t DRp_LP0us_MSW;
    /** Reserved */
-   DSL_uint16_t Res12;
-   /** Reserved */
    DSL_uint16_t Res13;
+   /** Reserved */
+   DSL_uint16_t Res14;
    /** RS Codeword Size "N_fecp" LP0 US */
    DSL_uint16_t N_fecp_LP0us;
    /** Reserved */
-   DSL_uint16_t Res14;
+   DSL_uint16_t Res15;
    /** Framing Parameter "q", LP0 US */
    DSL_uint16_t q_LP0us;
    /** Reserved */
-   DSL_uint16_t Res15;
+   DSL_uint16_t Res16;
    /** OH Bytes per OH FrameLP0 "SEQp" US */
    DSL_uint16_t SEQp_LP0us;
    /** Reserved */
-   DSL_uint16_t Res16;
+   DSL_uint16_t Res17;
    /** OH sub-frames "Up" per OH frame LP0 US */
    DSL_uint16_t Up_LP0us;
    /** Reserved */
-   DSL_uint16_t Res17;
+   DSL_uint16_t Res18;
    /** Bytes per OH Frame LP0 US, LSW */
    DSL_uint16_t PERBp_LP0us_LSW;
    /** Bytes per OH Frame LP0 US, MSW */
    DSL_uint16_t PERBp_LP0us_MSW;
    /** Reserved */
-   DSL_uint16_t Res18;
-   /** Reserved */
    DSL_uint16_t Res19;
+   /** Reserved */
+   DSL_uint16_t Res20;
    /** Bytes in MSG OH "MSGc" LP0 US */
    DSL_uint16_t MSGc_LP0us;
    /** Reserved */
-   DSL_uint16_t Res20;
+   DSL_uint16_t Res21;
 #else
    /** Index */
    DSL_uint16_t Index;
@@ -4717,62 +4747,66 @@ struct ACK_FrameDataExt2US_Get
    DSL_uint16_t Mp_LP0us;
    /** Reserved */
    DSL_uint16_t Res6;
-   /** Bits per Symbol "Lp" LP0 US */
-   DSL_uint16_t Lp_LP0us;
+   /** Bits per Symbol "Lp" LP0 US, LSW */
+   DSL_uint16_t Lp_LP0us_LSW;
+   /** Bits per Symbol "Lp" LP0 US, MSW */
+   DSL_uint16_t Lp_LP0us_MSW;
    /** Reserved */
    DSL_uint16_t Res7;
+   /** Reserved */
+   DSL_uint16_t Res8;
    /** RS Check Bytes "Rp" LP0 US */
    DSL_uint16_t Rp_LP0us;
    /** Reserved */
-   DSL_uint16_t Res8;
+   DSL_uint16_t Res9;
    /** Interleaver Block Length "Ip", LP0 US */
    DSL_uint16_t Ip_LP0us;
    /** Reserved */
-   DSL_uint16_t Res9;
+   DSL_uint16_t Res10;
    /** Interleaving Depth "Dp" LP0 US */
    DSL_uint16_t Dp_LP0us;
    /** Reserved */
-   DSL_uint16_t Res10;
+   DSL_uint16_t Res11;
    /** OH Frame Period "PERp", LP0 US */
    DSL_uint16_t PERp_LP0us;
    /** Reserved */
-   DSL_uint16_t Res11;
+   DSL_uint16_t Res12;
    /** Line Data Rate US for LP0, LSW */
    DSL_uint16_t DRp_LP0us_LSW;
    /** Line Data Rate US for LP0, MSW */
    DSL_uint16_t DRp_LP0us_MSW;
    /** Reserved */
-   DSL_uint16_t Res12;
-   /** Reserved */
    DSL_uint16_t Res13;
+   /** Reserved */
+   DSL_uint16_t Res14;
    /** RS Codeword Size "N_fecp" LP0 US */
    DSL_uint16_t N_fecp_LP0us;
    /** Reserved */
-   DSL_uint16_t Res14;
+   DSL_uint16_t Res15;
    /** Framing Parameter "q", LP0 US */
    DSL_uint16_t q_LP0us;
    /** Reserved */
-   DSL_uint16_t Res15;
+   DSL_uint16_t Res16;
    /** OH Bytes per OH FrameLP0 "SEQp" US */
    DSL_uint16_t SEQp_LP0us;
    /** Reserved */
-   DSL_uint16_t Res16;
+   DSL_uint16_t Res17;
    /** OH sub-frames "Up" per OH frame LP0 US */
    DSL_uint16_t Up_LP0us;
    /** Reserved */
-   DSL_uint16_t Res17;
+   DSL_uint16_t Res18;
    /** Bytes per OH Frame LP0 US, LSW */
    DSL_uint16_t PERBp_LP0us_LSW;
    /** Bytes per OH Frame LP0 US, MSW */
    DSL_uint16_t PERBp_LP0us_MSW;
    /** Reserved */
-   DSL_uint16_t Res18;
-   /** Reserved */
    DSL_uint16_t Res19;
+   /** Reserved */
+   DSL_uint16_t Res20;
    /** Bytes in MSG OH "MSGc" LP0 US */
    DSL_uint16_t MSGc_LP0us;
    /** Reserved */
-   DSL_uint16_t Res20;
+   DSL_uint16_t Res21;
 #endif
 } __PACKED__ ;
 
@@ -5408,6 +5442,60 @@ struct ACK_MFD_HybridInfoGet
    DSL_uint16_t Hybrid0Metric;
    /** Loaded Hybrid Index */
    DSL_uint16_t LoadHybridIndex;
+#endif
+} __PACKED__ ;
+
+
+/**
+   Requests basic micro filter detection (MFD) results from (normal)
+   initialization. This is about basic microfilter detection info collected
+   during each DSL initialization. For more detailed results a special
+   microfilter detection test mode can be run (see description at Chapter 5.13.5
+*/
+struct CMD_MFD_InitResultsGet
+{
+#if DSL_BYTE_ORDER == DSL_BIG_ENDIAN
+   /** Index */
+   DSL_uint16_t Index;
+   /** Length */
+   DSL_uint16_t Length;
+#else
+   /** Index */
+   DSL_uint16_t Index;
+   /** Length */
+   DSL_uint16_t Length;
+#endif
+} __PACKED__ ;
+
+
+/**
+   Reports the results of the micro filter detection (MFD) from last
+   initialization.
+*/
+struct ACK_MFD_InitResultsGet
+{
+#if DSL_BYTE_ORDER == DSL_BIG_ENDIAN
+   /** Index */
+   DSL_uint16_t Index;
+   /** Length */
+   DSL_uint16_t Length;
+   /** Reserved */
+   DSL_uint16_t Res0 : 14;
+   /** Micro Filter Detection */
+   DSL_uint16_t FilterDetected : 2;
+   /** Metric3 */
+   DSL_int16_t M3Metric;
+#else
+   /** Index */
+   DSL_uint16_t Index;
+   /** Length */
+   DSL_uint16_t Length;
+   /** Micro Filter Detection */
+   DSL_uint16_t FilterDetected : 2;
+   /** Reserved */
+   DSL_uint16_t Res0 : 14;
+   /** Metric3 */
+   DSL_int16_t M3Metric;
 #endif
 } __PACKED__ ;
 

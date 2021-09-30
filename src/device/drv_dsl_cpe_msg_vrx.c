@@ -1,6 +1,6 @@
 /******************************************************************************
 
-         Copyright 2016 - 2019 Intel Corporation
+         Copyright 2016 - 2020 Intel Corporation
          Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
          Copyright 2009 - 2014 Lantiq Deutschland GmbH
          Copyright 2007 - 2008 Infineon Technologies AG
@@ -148,11 +148,12 @@ static DSL_uint16_t g_VRxMsgWhitelist[] =
    CMD_RTX_US_STATSGET,             /*     +     :      +      :      +       */
    CMD_RTX_PM_DS_GET,               /*     +     :      +      :      +       */
    CMD_RTX_PM_US_GET,               /*     +     :      +      :      -/+     */
-   CMD_PAF_HS_CONTROL,              /*     +     :      +      :      -/+     */
+   CMD_BONDING_HS_CONTROL,              /*     +     :      +      :      -/+     */
    CMD_PAF_HS_STATUSGET,            /*     +     :      +      :      -/+     */
    CMD_PAF_HS_CONTINUE,             /*     +     :      +      :      -/+     */
    CMD_OPERATIONOPTIONSSET,         /*     +     :      +      :      +       */
    CMD_MFD_RESULTSGET,              /*     +     :      +      :      +/-     */
+   CMD_MFD_INITRESULTSGET,          /*     +     :      +      :      +/-     */
    CMD_MFD_LOOPLENGTHGET,           /*     +     :      +      :      +/-     */
    CMD_MFD_HYBRIDINFOGET,           /*     +     :      +      :      +/-     */
    CMD_MISC_CONFIGSET,              /*     +     :      +      :      +       */
@@ -166,6 +167,7 @@ static DSL_uint16_t g_VRxMsgWhitelist[] =
    CMD_TXL3REQFAILREASONGET,        /*     +     :      +      :      +       */
    CMD_ATM_BC0_TXSTATSNE_GET,       /*     +     :      +      :      +/+     */
    CMD_PBO_AELEM_STATUS_GET,        /*     +     :      +      :      -/+     */
+   CMD_UPBO_KL0GET,                 /*     +     :      +      :      -/+     */
    CMD_TESTPARAMSFE_REQUEST,        /*     +     :      +      :      -/+     */
    CMD_HS_STANDARDINFOFE_VDSL2GET,  /*     +     :      +      :      -/+     */
    CMD_ATTNDRSTATUSGET,             /*     +     :      +      :      +/+     */
@@ -183,6 +185,7 @@ static DSL_uint16_t g_VRxMsgWhitelist[] =
 #if defined (DSL_VRX_DEVICE_VR11)
    CMD_ADSL_FEATUREMAPGET,          /*     +     :      +      :       +      */
    CMD_VDSL_FEATUREMAPGET,          /*     +     :      +      :       +      */
+   CMD_IMAP_CONTROL,                /*     +     :      +      :      +/-     */
 #endif
    CMD_SOS_STATSNE_GET,             /*     +     :      +      :       +      */
    CMD_SOS_STATSFE_GET,             /*     +     :      +      :       +      */
@@ -3752,6 +3755,34 @@ DSL_Error_t DSL_DRV_VRX_SendMsgLineStatusPerBandGet(
    For a detailed description of the function, its arguments and return value
    please refer to the description in the header file 'drv_dsl_cpe_msg_vrx.h'
 */
+DSL_Error_t DSL_DRV_VRX_SendMsgUsPowerBackOffKLERStatusGet(
+   DSL_Context_t *pContext,
+   DSL_uint8_t *pAck)
+{
+   DSL_Error_t nErrCode = DSL_SUCCESS;
+   CMD_UPBO_KL0Get_t sCmd = { 0 };
+   ACK_UPBO_KL0Get_t sAck = { 0 };
+
+   sCmd.Length = DSL_VRX_16BIT_RD_MSG_LEN_GET(sAck);
+
+   nErrCode =  DSL_DRV_VRX_SendMessage(pContext, CMD_UPBO_KL0GET,
+      sizeof(sCmd), (DSL_uint8_t*)&sCmd,
+      sizeof(sAck), (DSL_uint8_t*)&sAck);
+
+   if (nErrCode < 0)
+   {
+      return nErrCode;
+   }
+
+   memcpy(pAck, &sAck, sizeof(ACK_UPBO_KL0Get_t));
+
+   return (nErrCode);
+}
+
+/*
+   For a detailed description of the function, its arguments and return value
+   please refer to the description in the header file 'drv_dsl_cpe_msg_vrx.h'
+*/
 DSL_Error_t DSL_DRV_VRX_SendMsgUsPowerBackOffStatusGet(
    DSL_Context_t *pContext,
    DSL_uint8_t *pAck)
@@ -4634,6 +4665,96 @@ DSL_Error_t DSL_DRV_VRX_SendMsgVdsl2ProfileControl(
 }
 
 /*
+   This function determines correct values of TC-config ATM flags
+   according to the current bonding configuration
+
+   \param nDslMode      current TC mode (ADSL/VDSL), [I]
+   \param bPafEnable    PAF bonding configuration, [I]
+   \param bImapEnable   IMAP bonding configuration, [I]
+
+   \return
+   Returns TRUE or FALSE for ATMControl according to the
+   dependencies described in the specification (detailed
+   comment in the function)
+*/
+static DSL_boolean_t DSL_DRV_VRX_IsBndAtmEnabled(
+   const DSL_DslModeSelection_t nDslMode,
+   const DSL_boolean_t bPafEnable,
+   const DSL_boolean_t bImapEnable
+)
+{
+   DSL_boolean_t bAtmControl = DSL_TRUE;
+
+   /*
+      Following cases are handled below (this is also indicated to the
+      user during API configuration):
+      a) In case of PAF and IMAP bonding are enabled together but it
+         is VDSL mode mask out ATM because in VDSL mode (PAF) bonding
+         is only supported in PTM
+      b) In case of (ONLY) PAF bonding is enabled mask out ATM because
+         PAF bonding is supported in PTM only
+      c) In case of (ONLY) IMAP bonding is enabled and it is VDSL mode,
+         mask out ATM because IMAP bonding is not supported in VDSL mode */
+   if (bPafEnable == DSL_TRUE && bImapEnable == DSL_TRUE)
+   {
+#if defined(INCLUDE_DSL_CPE_API_VRX)
+      if (nDslMode == DSL_MODE_VDSL)
+      {
+         bAtmControl = DSL_FALSE;
+      }
+#endif /* defined(INCLUDE_DSL_CPE_API_VRX) */
+   }
+   else if (bPafEnable == DSL_TRUE) /* bImapEnable == DSL_FALSE */
+   {
+      bAtmControl = DSL_FALSE;
+   }
+   else if (bImapEnable == DSL_TRUE) /* bPafEnable == DSL_FALSE */
+   {
+#if defined(INCLUDE_DSL_CPE_API_VRX)
+      if (nDslMode == DSL_MODE_VDSL)
+      {
+         bAtmControl = DSL_FALSE;
+      }
+#endif /* defined(INCLUDE_DSL_CPE_API_VRX) */
+   }
+
+   return bAtmControl;
+}
+
+/*
+   This function determines correct values of TC-config PTM flags
+   according to the current bonding configuration
+
+   \param nDslMode      current TC mode (ADSL/VDSL), [I]
+   \param bPafEnable    PAF bonding configuration, [I]
+   \param bImapEnable   IMAP bonding configuration, [I]
+
+   \return
+   Returns TRUE or FALSE for PTMControl according to the
+   dependencies described in the specification (detailed
+   comment in the function)
+*/
+static DSL_boolean_t DSL_DRV_VRX_IsBndPtmEnabled(
+   const DSL_DslModeSelection_t nDslMode,
+   const DSL_boolean_t bPafEnable,
+   const DSL_boolean_t bImapEnable
+)
+{
+   DSL_boolean_t bPtmControl = DSL_TRUE;
+   /*
+      Following case is handled below (this is also indicated to the
+      user during API configuration):
+      a) In case of (ONLY) IMAP bonding is enabled mask out PTM because
+         IMAP bonding is supported in ATM only */
+   if (bPafEnable == DSL_FALSE && bImapEnable == DSL_TRUE)
+   {
+      bPtmControl = DSL_FALSE;
+   }
+
+   return bPtmControl;
+}
+
+/*
    For a detailed description of the function, its arguments and return value
    please refer to the description in the header file 'drv_dsl_cpe_msg_vrx.h'
 */
@@ -4647,7 +4768,7 @@ DSL_Error_t DSL_DRV_VRX_SendMsgBearerChSet(
    DSL_uint8_t  tmpVal_8 = 0, xtse6 = 0, xtse7 = 0;
    DSL_uint32_t tmpVal_32 = 0;
    DSL_int_t nDlsModeIdx = -1;
-   DSL_boolean_t bPafEnable = DSL_FALSE;
+   DSL_boolean_t bPafEnable = DSL_FALSE, bImapEnable = DSL_FALSE;
    DSL_TcLayerSelection_t nTcMode = DSL_TC_UNKNOWN;
    DSL_DslModeSelection_t nDslMode = DSL_MODE_NA;
 
@@ -4676,6 +4797,7 @@ DSL_Error_t DSL_DRV_VRX_SendMsgBearerChSet(
       /* Bonding is always enabled for both lines/devices together so using the
          configuration from the current line/device is ok. */
       DSL_CTX_READ_SCALAR( pContext, nErrCode, BndConfig[nDslMode].bPafEnable, bPafEnable);
+      DSL_CTX_READ_SCALAR( pContext, nErrCode, BndConfig[nDslMode].bImapEnable, bImapEnable);
    }
 
    /* Programm downstream configuration */
@@ -4721,15 +4843,15 @@ DSL_Error_t DSL_DRV_VRX_SendMsgBearerChSet(
          sCmd.DsCfg.PTMControl = 0;
          break;
       case DSL_TC_AUTO:
-         /* In case of bonding is enabled mask out ATM because PAF bonding is
-            only supported in PTM (this is also indicated to the user during API
-            configuration).
-            Reverse logic: Only set ATM bit if bonding is not enabled. */
-         if (bPafEnable == DSL_FALSE)
-         {
-            sCmd.DsCfg.ATMControl = 1;
-         }
+         sCmd.DsCfg.ATMControl = 1;
          sCmd.DsCfg.PTMControl = 1;
+         if (DSL_DRV_BONDING_ENABLED)
+         {
+            sCmd.DsCfg.ATMControl = (DSL_DRV_VRX_IsBndAtmEnabled(
+               nDslMode, bPafEnable, bImapEnable) ? 1 : 0);
+            sCmd.DsCfg.PTMControl = (DSL_DRV_VRX_IsBndPtmEnabled(
+               nDslMode, bPafEnable, bImapEnable) ? 1 : 0);
+         }
          break;
       default:
          return DSL_ERROR;
@@ -4866,15 +4988,15 @@ DSL_Error_t DSL_DRV_VRX_SendMsgBearerChSet(
          sCmd.UsCfg.PTMControl = 0;
          break;
       case DSL_TC_AUTO:
-         /* In case of bonding is enabled mask out ATM because PAF bonding is
-            only supported in PTM (this is also indicated to the user during API
-            configuration).
-            Reverse logic: Only set ATM bit if bonding is not enabled. */
-         if (bPafEnable == DSL_FALSE)
-         {
-            sCmd.DsCfg.ATMControl = 1;
-         }
+         sCmd.UsCfg.ATMControl = 1;
          sCmd.UsCfg.PTMControl = 1;
+         if (DSL_DRV_BONDING_ENABLED)
+         {
+            sCmd.UsCfg.ATMControl = (DSL_DRV_VRX_IsBndAtmEnabled(
+               nDslMode, bPafEnable, bImapEnable) ? 1 : 0);
+            sCmd.UsCfg.PTMControl = (DSL_DRV_VRX_IsBndPtmEnabled(
+               nDslMode, bPafEnable, bImapEnable) ? 1 : 0);
+         }
          break;
       default:
          return DSL_ERROR;
@@ -5004,8 +5126,9 @@ DSL_Error_t DSL_DRV_VRX_SendMsgBearerChTcLayerSet(
 {
    DSL_int_t nDlsModeIdx = -1;
    DSL_Error_t nErrCode = DSL_SUCCESS;
-
+   DSL_boolean_t bPafEnable = DSL_FALSE, bImapEnable = DSL_FALSE;
    DSL_TcLayerSelection_t nTcMode = DSL_TC_UNKNOWN;
+   DSL_DslModeSelection_t nDslMode = DSL_MODE_NA;
 
    union
    {
@@ -5029,6 +5152,19 @@ DSL_Error_t DSL_DRV_VRX_SendMsgBearerChTcLayerSet(
    sCmd.DsCfg.CIPolicy1_PTMds= VRX_ENABLE;
    sCmd.DsCfg.CIPolicy2_PTMds= VRX_ENABLE;
 #endif
+
+   if (DSL_DRV_BONDING_ENABLED)
+   {
+      nDslMode = DSL_DRV_VRX_DslModeIndexGet(pContext);
+
+      DSL_CHECK_DSLMODE(nDslMode);
+      DSL_CHECK_ERR_CODE();
+
+      /* Bonding is always enabled for both lines/devices together so using the
+         configuration from the current line/device is ok. */
+      DSL_CTX_READ_SCALAR( pContext, nErrCode, BndConfig[nDslMode].bPafEnable, bPafEnable);
+      DSL_CTX_READ_SCALAR( pContext, nErrCode, BndConfig[nDslMode].bImapEnable, bImapEnable);
+   }
 
    /* Programm downstream configuration */
 
@@ -5068,6 +5204,13 @@ DSL_Error_t DSL_DRV_VRX_SendMsgBearerChTcLayerSet(
       case DSL_TC_AUTO:
          sCmd.DsCfg.ATMControl = 1;
          sCmd.DsCfg.PTMControl = 1;
+         if (DSL_DRV_BONDING_ENABLED)
+         {
+            sCmd.DsCfg.ATMControl = (DSL_DRV_VRX_IsBndAtmEnabled(
+               nDslMode, bPafEnable, bImapEnable) ? 1 : 0);
+            sCmd.DsCfg.PTMControl = (DSL_DRV_VRX_IsBndPtmEnabled(
+               nDslMode, bPafEnable, bImapEnable) ? 1 : 0);
+         }
          break;
       default:
          return DSL_ERROR;
@@ -5095,8 +5238,15 @@ DSL_Error_t DSL_DRV_VRX_SendMsgBearerChTcLayerSet(
          sCmd.UsCfg.PTMControl = 0;
          break;
       case DSL_TC_AUTO:
-         sCmd.DsCfg.ATMControl = 1;
+         sCmd.UsCfg.ATMControl = 1;
          sCmd.UsCfg.PTMControl = 1;
+         if (DSL_DRV_BONDING_ENABLED)
+         {
+            sCmd.UsCfg.ATMControl = (DSL_DRV_VRX_IsBndAtmEnabled(
+               nDslMode, bPafEnable, bImapEnable) ? 1 : 0);
+            sCmd.UsCfg.PTMControl = (DSL_DRV_VRX_IsBndPtmEnabled(
+               nDslMode, bPafEnable, bImapEnable) ? 1 : 0);
+         }
          break;
       default:
          return DSL_ERROR;
@@ -5109,6 +5259,39 @@ DSL_Error_t DSL_DRV_VRX_SendMsgBearerChTcLayerSet(
    DSL_DEBUG( DSL_DBG_MSG,
      (pContext, SYS_DBG_MSG"DSL[%02d]: OUT - DSL_DRV_VRX_SendMsgBearerChTcLayerSet()"
      DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+
+   return (nErrCode);
+}
+
+/*
+   For a detailed description of the function, its arguments and return value
+   please refer to the description in the header file 'drv_dsl_cpe_msg_vrx.h'
+*/
+DSL_Error_t DSL_DRV_VRX_SendMsgImapControl(
+   DSL_Context_t *pContext)
+{
+   DSL_Error_t nErrCode = DSL_SUCCESS;
+   CMD_IMAP_Control_t sCmd;
+   ACK_IMAP_Control_t sAck;
+   DSL_boolean_t bImapActivate = DSL_FALSE;
+
+   DSL_DEBUG( DSL_DBG_MSG,
+      (pContext, SYS_DBG_MSG"DSL[%02d]: IN - DSL_DRV_VRX_SendMsgImapControl()"
+      DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+
+   memset(&sCmd, 0, sizeof(sCmd));
+   sCmd.Length = 0x1;
+   /* Get IMAP activate flag and enable or disable IMA+ bonding */
+   DSL_CTX_READ_SCALAR(pContext, nErrCode, bImapActivate, bImapActivate);
+   sCmd.Imap = bImapActivate ? VRX_ENABLE : VRX_DISABLE;
+
+   nErrCode = DSL_DRV_VRX_SendMessage( pContext, CMD_IMAP_CONTROL,
+                  sizeof(sCmd), (DSL_uint8_t*)&sCmd,
+                  sizeof(sAck), (DSL_uint8_t*)&sAck );
+
+   DSL_DEBUG( DSL_DBG_MSG,
+      (pContext, SYS_DBG_MSG"DSL[%02d]: OUT - DSL_DRV_VRX_SendMsgImapControl()"
+      DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
 
    return (nErrCode);
 }
@@ -5461,7 +5644,9 @@ DSL_Error_t DSL_DRV_VRX_SendMsgRtxStatsGet(
 {
    DSL_Error_t nErrCode = DSL_SUCCESS;
    CMD_RTX_DS_StatsGet_t sCmd;
-   /* Assume that US/DS messages have same format */
+   /* Assume that US/DS messages have same format within area of used data,
+      which is length of 6 payload words (upstream message was extended for R6
+      by another 10 payload words which are not used by the API) */
    union
    {
       ACK_RTX_US_StatsGet_t FUS;
@@ -5471,7 +5656,7 @@ DSL_Error_t DSL_DRV_VRX_SendMsgRtxStatsGet(
    /* fill up the message to be sent */
    memset(&sCmd, 0, sizeof(sCmd));
 
-   sCmd.Length = DSL_VRX_16BIT_RD_MSG_LEN_GET(sAck);
+   sCmd.Length = 6;
 
    nErrCode = DSL_DRV_VRX_SendMessage( pContext,
       nDirection == DSL_DOWNSTREAM ? CMD_RTX_DS_STATSGET :
@@ -5490,7 +5675,7 @@ DSL_Error_t DSL_DRV_VRX_SendMsgRtxStatsGet(
       /* fill up the message to be sent */
       memset(&sCmd, 0, sizeof(sCmd));
 
-      sCmd.Length = DSL_VRX_16BIT_RD_MSG_LEN_GET(sAck);
+      sCmd.Length = 6;
 
       /* For nTxRetransmitted API direction mapping to the FW (DS->US, US->DS) */
       nErrCode = DSL_DRV_VRX_SendMessage( pContext,
@@ -6181,9 +6366,20 @@ DSL_Error_t DSL_DRV_VRX_SendMsgTcStatusGet(
    DSL_Error_t nErrCode = DSL_SUCCESS;
    CMD_TC_StatusGet_t sCmd;
    ACK_TC_StatusGet_t sAck;
+   ACK_ADSL_FeatureMapGet_t nFeatureMapGetAck = { 0 };
 
    memset(&sCmd, 0, sizeof(sCmd));
-   sCmd.Length = 1;
+   nErrCode = DSL_DRV_VRX_SendMsgFeatureMapGet(pContext,
+      (DSL_uint8_t *) &nFeatureMapGetAck);
+   if (nErrCode == DSL_SUCCESS && nFeatureMapGetAck.W1F01 == VRX_ENABLE)
+   {
+      /* Bonding info supported by the FW */
+      sCmd.Length = 2;
+   }
+   else
+   {
+      sCmd.Length = 1;
+   }
 
    nErrCode = DSL_DRV_VRX_SendMessage( pContext, CMD_TC_STATUSGET,
                   sizeof(sCmd), (DSL_uint8_t*)&sCmd,
@@ -6231,6 +6427,43 @@ DSL_Error_t DSL_DRV_VRX_SendMsgMfdResultsGet(
 
    return (nErrCode);
 }
+
+#ifdef INCLUDE_DSL_FILTER_DETECTION
+DSL_Error_t DSL_DRV_VRX_SendMsgMfdInitResultsGet(
+   DSL_Context_t *pContext,
+   DSL_uint8_t *pAck)
+{
+   DSL_Error_t nErrCode = DSL_SUCCESS;
+   CMD_MFD_InitResultsGet_t sCmd;
+   ACK_MFD_InitResultsGet_t sAck;
+
+   /* fill up the message to be sent */
+   memset(&sCmd, 0, sizeof(sCmd));
+   sCmd.Length = DSL_VRX_16BIT_RD_MSG_LEN_GET(sAck);
+
+   /* clear buf for ack */
+   memset(&sAck, 0, sizeof(sAck));
+
+   /* Read necessary msg that includes filter detection results */
+   nErrCode =  DSL_DRV_VRX_SendMessage(pContext, CMD_MFD_INITRESULTSGET,
+                                       sizeof(sCmd), (DSL_uint8_t*)&sCmd,
+                                       sizeof(sAck), (DSL_uint8_t*)&sAck);
+   /* Copy data only if successful */
+   if (nErrCode >= 0)
+   {
+      memcpy(pAck, &(sAck), sizeof(sAck));
+   }
+   else
+   {
+      DSL_DEBUG( DSL_DBG_ERR, (pContext,
+         "DSL[%02d]: ERROR - ACK_MFD_InitResultsGet read failed!" DSL_DRV_CRLF,
+         DSL_DEV_NUM(pContext)));
+      return nErrCode;
+   }
+
+   return (nErrCode);
+}
+#endif /* INCLUDE_DSL_FILTER_DETECTION */
 
 DSL_Error_t DSL_DRV_VRX_SendMsgLoopLengthGet(
    DSL_Context_t *pContext,

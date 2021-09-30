@@ -1,6 +1,6 @@
 /******************************************************************************
 
-         Copyright 2016 - 2019 Intel Corporation
+         Copyright 2016 - 2020 Intel Corporation
          Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
          Copyright 2009 - 2014 Lantiq Deutschland GmbH
          Copyright 2007 - 2008 Infineon Technologies AG
@@ -276,6 +276,8 @@ DSL_Error_t DSL_DRV_PM_DEV_ChannelCountersGet(
    DSL_PM_ChannelData_t *pCounters)
 {
    DSL_Error_t nErrCode = DSL_SUCCESS;
+   DSL_boolean_t bRTXModeEnabled = DSL_FALSE;
+   DSL_uint8_t XTSE[DSL_G997_NUM_XTSE_OCTETS] = { 0 };
 
    union
    {
@@ -332,44 +334,58 @@ DSL_Error_t DSL_DRV_PM_DEV_ChannelCountersGet(
       return nErrCode;
    }
 
-   /* ACKs for the CMD_CRC_STATSNE_GET and CMD_CRC_STATSFE_GET have the
-      same strucrure, so we can use any*/
-   if (DSL_DRV_VRX_FirmwareXdslModeCheck(pContext, DSL_VRX_FW_ADSL))
-   {
-      /* store CV of LP0 (interleaving) and LP1 (fast) paths  */
-      pCounters->nCodeViolations = (DSL_uint32_t)sAck.CrcStatsNE.cntCVI_LSW |
-                            (((DSL_uint32_t)sAck.CrcStatsNE.cntCVI_MSW) << 16);
+   bRTXModeEnabled = pContext->lineFeatureDataSts[nDirection].bReTxEnable;
 
-      pCounters->nCodeViolations += (DSL_uint32_t)sAck.CrcStatsNE.cntCVF_LSW |
-                            (((DSL_uint32_t)sAck.CrcStatsNE.cntCVF_MSW) << 16);
+   if (bRTXModeEnabled == DSL_TRUE &&
+       DSL_DRV_VRX_FirmwareXdslModeCheck(pContext, DSL_VRX_FW_ADSL))
+   {
+      DSL_CTX_READ(pContext, nErrCode, xtseCurr, XTSE);
+      if( nErrCode < 0 )
+      {
+         DSL_DEBUG( DSL_DBG_ERR,
+           (pContext,SYS_DBG_ERR"DSL[%02d]: ERROR - Could not read current XTSE!"
+            DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+
+         return nErrCode;
+      }
+
+      /* check if ADSL1 or US - then use I-FEC */
+      if (((XTSE[1-1] & (XTSE_1_03_A_1_NO | XTSE_1_05_B_1_NO)) ||
+           (XTSE[2-1] &  XTSE_2_01_A_2_NO)) ||
+          nDirection == DSL_FAR_END)
+      {
+         bRTXModeEnabled = DSL_FALSE;
+      }
+   }
+
+   /* for debugging clarity purpose */
+   if (bRTXModeEnabled == DSL_TRUE)
+   {
+      DSL_DEBUG(DSL_DBG_MSG,
+         (pContext,SYS_DBG_MSG"DSL[%02d]: RTX mode, "
+         "storing counters of LP1 (fast) path."
+         DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+
    }
    else
    {
-      /* RTX mode */
-      if(pContext->lineFeatureDataCfg[DSL_MODE_VDSL][DSL_DOWNSTREAM].bReTxEnable)
-      {
-         DSL_DEBUG( DSL_DBG_MSG,
-            (pContext,SYS_DBG_MSG"DSL[%02d]: Store CV of LP1 (fast) path only"
-             DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+      DSL_DEBUG(DSL_DBG_MSG,
+         (pContext,SYS_DBG_MSG"DSL[%02d]: I-FEC mode, "
+         "storing counters of LP0 (interleaved) path."
+         DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+   }
 
-         /* store CV of LP1 (fast) path only */
-         pCounters->nCodeViolations = (DSL_uint32_t)sAck.CrcStatsNE.cntCVF_LSW |
-                               (((DSL_uint32_t)sAck.CrcStatsNE.cntCVF_MSW) << 16);
-      }
-      /* IFEC mode */
-      else
-      {
-         DSL_DEBUG( DSL_DBG_MSG,
-            (pContext,SYS_DBG_MSG"DSL[%02d]: Store CV of both LP0 (interleaving)"
-            " and LP1 (fast) paths" DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
-
-         /* store CV of both LP0 (interleaving) and LP1 (fast) paths  */
-         pCounters->nCodeViolations = (DSL_uint32_t)sAck.CrcStatsNE.cntCVI_LSW |
-                               (((DSL_uint32_t)sAck.CrcStatsNE.cntCVI_MSW) << 16);
-
-         pCounters->nCodeViolations += (DSL_uint32_t)sAck.CrcStatsNE.cntCVF_LSW |
-                               (((DSL_uint32_t)sAck.CrcStatsNE.cntCVF_MSW) << 16);
-      }
+   /* RTX (LP1/Fast Path) */
+   if (bRTXModeEnabled == DSL_TRUE)
+   {
+      pCounters->nCodeViolations = (DSL_uint32_t)sAck.CrcStatsNE.cntCVF_LSW |
+         (((DSL_uint32_t)sAck.CrcStatsNE.cntCVF_MSW) << 16);
+   }
+   /* I-FEC (LP0/Interleaved Path) */
+   else
+   {
+      pCounters->nCodeViolations = (DSL_uint32_t)sAck.CrcStatsNE.cntCVI_LSW |
+         (((DSL_uint32_t)sAck.CrcStatsNE.cntCVI_MSW) << 16);
    }
 
    memset(&(sAck.FecStatsNE), 0x0, sizeof(sAck.FecStatsNE));
@@ -394,44 +410,17 @@ DSL_Error_t DSL_DRV_PM_DEV_ChannelCountersGet(
       return nErrCode;
    }
 
-   /* ACKs for the CMD_FEC_STATSNE_GET and CMD_FEC_STATSFE_GET have the
-      same strucrure, so we can use any*/
-   if (DSL_DRV_VRX_FirmwareXdslModeCheck(pContext, DSL_VRX_FW_ADSL))
+   /* RTX (LP1/Fast Path) */
+   if (bRTXModeEnabled == DSL_TRUE)
    {
-      /* store FEC of LP0 (interleaving) and LP1 (fast) paths */
-      pCounters->nFEC = (DSL_uint32_t)sAck.FecStatsNE.cntECI_LSW |
-                      (((DSL_uint32_t)sAck.FecStatsNE.cntECI_MSW) << 16);
-
-      pCounters->nFEC += (DSL_uint32_t)sAck.FecStatsNE.cntECF_CW_LSW |
-                       (((DSL_uint32_t)sAck.FecStatsNE.cntECF_CW_MSW) << 16);
+      pCounters->nFEC = (DSL_uint32_t)sAck.FecStatsNE.cntFEC_LSW |
+         (((DSL_uint32_t)sAck.FecStatsNE.cntFEC_MSW) << 16);
    }
+   /* I-FEC (LP0/Interleaved Path) */
    else
    {
-      /* RTX mode */
-      if(pContext->lineFeatureDataCfg[DSL_MODE_VDSL][DSL_DOWNSTREAM].bReTxEnable)
-      {
-         DSL_DEBUG( DSL_DBG_MSG,
-            (pContext,SYS_DBG_MSG"DSL[%02d]: Store CV of LP1 (fast) path only"
-            DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
-
-         /* store FEC of LP1 (fast) path only */
-         pCounters->nFEC = (DSL_uint32_t)sAck.FecStatsNE.cntECF_CW_LSW |
-                          (((DSL_uint32_t)sAck.FecStatsNE.cntECF_CW_MSW) << 16);
-      }
-      /* IFEC mode */
-      else
-      {
-         DSL_DEBUG( DSL_DBG_MSG,
-            (pContext,SYS_DBG_MSG"DSL[%02d]: Store CV of both LP0 (interleaving)"
-            DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
-
-         /* store FEC of both LP0 (interleaving) and LP1 (fast) paths */
-         pCounters->nFEC = (DSL_uint32_t)sAck.FecStatsNE.cntECI_LSW |
-                         (((DSL_uint32_t)sAck.FecStatsNE.cntECI_MSW) << 16);
-
-         pCounters->nFEC += (DSL_uint32_t)sAck.FecStatsNE.cntECF_CW_LSW |
-                          (((DSL_uint32_t)sAck.FecStatsNE.cntECF_CW_MSW) << 16);
-      }
+      pCounters->nFEC = (DSL_uint32_t)sAck.FecStatsNE.cntECI_LSW |
+         (((DSL_uint32_t)sAck.FecStatsNE.cntECI_MSW) << 16);
    }
 
    DSL_DEBUG( DSL_DBG_MSG,

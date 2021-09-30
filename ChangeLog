@@ -1,9 +1,59 @@
 NEXT VERSION
 
-V4.21.6.2 - 2019-12-30
+V4.23.1 - 2021-01-18
+common:
+- VRX (CURTSYS-4887) [VRX518] Cleanup of console prints from dsl_cpe_control
+- VRX (CURTSYS-4856) [VRX518] Apply generic update process also to TC-Layer status
+- VRX (CURTSYS-4680) [VRX518] License updates
+
+V4.22.8 - 2020-12-01
+common:
+- VRX (CURTSYS-4855) [VRX518] When doing COC test in DSL driver is crashing
+  and DUT is rebooting
+- VRX (CURTSYS-4812) [VRX518] Extension of ATM Bonding impl. with "Fake-TC" handling
+
+V4.22.7 - 2020-11-03
+common:
+- VRX (CURTSYS-4009) [VRX518] Provide scalar value for UPBOKLER
+
+V4.22.6 - 2020-10-20
 -
 
-V4.21.6.1 - 2019-12-27
+V4.22.5 - 2020-09-18
+common:
+- VRX (CURTSYS-4406) [VRX518] Bonding simulation code cleanups
+- VRX (CURTSYS-3717) [VRX518]Rework of "bonding" and "remote bonding enable"
+  status and TC-Driver callback handling
+- VRX (CURTSYS-4232) [VRX518] Synchronize ATM Bonding configuration between
+  bonding lines
+- VRX (CURTSYS-4220) [VRX518] Unique storage for accumulated bonding group rate
+- VRX (CURTSYS-3718) Extend ATM bonding enable (config and status) handling
+
+V4.22.4 - 2020-09-14
+common:
+- VRX (CURTSYS-4010) Extend DSL PHY Subsystem to provide INPREPORT parameter of TR-181
+- Corrected length of VRX FW Message (CMD_RTX_DS_STATSGET) to retrieve API
+  related RTX DS statistics correctly again
+- Take care to backup/restore PM related counters also within context of
+  optimized FW download handling
+- VRX (CURTSYS-4158) LOS count from the command pmlescsg is not behaving
+  compliant to G.997.1 definitions
+
+V4.22.3 - 2020-06-10
+common:
+- VRX (CURTSYS-3716) [VRX518] Update MCAT header files to latest revision (Rev.3.4.1)
+- VRX (CURTSYS-2976) [VRX518] Crash on performing forced reboot command (reboot -f)
+- VRX (CURTSYS-3734) [VRX518] Hang on performing reboot command
+
+V4.22.2 - 2020-03-30
+common:
+- VRX (CURTSYS-3399) [VRX518] Support for Basic Micro Filter Detection handling
+- VRX (CURTSYS-2702) CLONE - VRx518/ ARCADYAN / DTAG Smart3 UGW8.1 /
+  DS FEC are zero in VDSL mode.
+- VRX (CURTSYS-1894) [VRX] Latest images does not reflect the API Driver
+  Patch Level within version information
+
+V4.22.1 - 2019-12-30
 common:
 - VRX (CURTSYS-2901) Crash on performing actions within context of reboot command
   + Added reboot notifier to Linux handling of DSL CPE API

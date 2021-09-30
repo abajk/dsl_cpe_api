@@ -157,6 +157,27 @@ DSL_void_t DSL_DRV_ErrorSet(DSL_void_t *pContext, DSL_Error_t code);
    } \
 }
 
+#ifdef __LINUX__
+#define DSL_DBG_RATELIMIT_STRUCT_NAME(x) g_drv_dsl_cpe_ratelimit_state_##x
+#define DSL_DEBUG_LIMIT(level, body) \
+{ \
+   /*lint -save -e568 -e685 -e774 */ \
+   /* Warning 568 non-negative quantity is never less than zero */ \
+   /* Warning 685 Relational operator '<=' always evaluates to 'true' */ \
+   if ( (DSL_DBG_MAX_LEVEL >= level) && \
+        (((((level) <= DSL_g_dbgLvl[DSL_DBG_BLOCK].nDbgLvl) && (DSL_g_globalDbgLvl == DSL_DBG_LOCAL))) \
+     || (((level) <= DSL_g_globalDbgLvl) && (DSL_g_globalDbgLvl != DSL_DBG_LOCAL))) ) \
+   { \
+      if (__ratelimit(&DSL_DBG_RATELIMIT_STRUCT_NAME(DSL_DBG_BLOCK))) \
+      { \
+         DSL_DBG_PRINTF body; \
+      } \
+   } \
+}
+#else
+#define DSL_DEBUG_LIMIT(level, body) DSL_DEBUG(level, body)
+#endif/* __LINUX__ */
+
 /** Macro to get debug level for actual debug block */
 #define DSL_DEBUG_LEVEL_GET   (DSL_g_dbgLvl[DSL_DBG_BLOCK].nDbgLvl)
 

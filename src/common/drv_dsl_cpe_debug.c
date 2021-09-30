@@ -1,6 +1,6 @@
 /******************************************************************************
 
-         Copyright 2016 - 2019 Intel Corporation
+         Copyright 2016 - 2020 Intel Corporation
          Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
          Copyright 2009 - 2014 Lantiq Deutschland GmbH
          Copyright 2007 - 2008 Infineon Technologies AG
@@ -88,7 +88,10 @@ const DSL_char_t* DSL_DBG_PRN_AUTOBOOT_STATUS[] =
    "FwWait",
    "ConfigWriteWait",
    "LinkActivateWait",
-   "RestartWait"
+   "RestartWait",
+   "Disabled",
+   "Shutdown PD",
+   "Stopped PD"
 };
 
 /**
@@ -240,6 +243,8 @@ DSL_char_t* DSL_DBG_IoctlName(DSL_uint_t nIoctlCode)
 #ifdef INCLUDE_DSL_FILTER_DETECTION
    case DSL_FIO_FILTER_DETECTION_DATA_GET:
       return "DSL_FIO_FILTER_DETECTION_DATA_GET";
+   case DSL_FIO_FILTER_DETECTION_BASIC_DATA_GET:
+      return "DSL_FIO_FILTER_DETECTION_BASIC_DATA_GET";
 #endif /* INCLUDE_DSL_FILTER_DETECTION */
    case DSL_FIO_HYBRID_SELECTION_DATA_GET:
       return "DSL_FIO_HYBRID_SELECTION_DATA_GET";
@@ -259,6 +264,8 @@ DSL_char_t* DSL_DBG_IoctlName(DSL_uint_t nIoctlCode)
       return "DSL_FIO_BND_CONFIG_SET";
    case DSL_FIO_BND_CONFIG_GET:
       return "DSL_FIO_BND_CONFIG_GET";
+   case DSL_FIO_BND_STATUS_GET:
+      return "DSL_FIO_BND_STATUS_GET";
    case DSL_FIO_BND_HS_STATUS_GET:
       return "DSL_FIO_BND_HS_STATUS_GET";
    case DSL_FIO_BND_HS_CONTINUE:

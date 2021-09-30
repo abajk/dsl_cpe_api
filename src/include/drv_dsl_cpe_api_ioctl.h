@@ -1,6 +1,6 @@
 /******************************************************************************
 
-         Copyright 2016 - 2019 Intel Corporation
+         Copyright 2016 - 2020 Intel Corporation
          Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
          Copyright 2009 - 2014 Lantiq Deutschland GmbH
          Copyright 2007 - 2008 Infineon Technologies AG
@@ -156,8 +156,7 @@ typedef union
 #endif
 
    DSL_BND_HwInit_t                    bndHwInit;
-   DSL_BND_ConfigSet_t                 bndConfigSet;
-   DSL_BND_ConfigGet_t                 bndConfigGet;
+   DSL_BND_Config_t                    bndConfig;
    DSL_BND_HsStatusGet_t               bndHsStatusGet;
    DSL_BND_HsContinue_t                bndHsContinue;
    DSL_BND_EthDbgCounters_t            bndEthDbgCounters;
@@ -356,7 +355,7 @@ typedef union
       The parameter points to a \ref DSL_Init_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -388,7 +387,7 @@ typedef union
       The parameter points to a \ref DSL_AutobootLoadFirmware_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -420,7 +419,7 @@ typedef union
       The parameter points to a \ref DSL_AutobootControl_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -454,7 +453,7 @@ typedef union
       The parameter points to a \ref DSL_AutobootStatus_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -485,7 +484,7 @@ typedef union
       The parameter points to a \ref DSL_VersionInformation_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -515,7 +514,7 @@ typedef union
       The parameter points to a \ref DSL_LineState_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -545,7 +544,7 @@ typedef union
       The parameter points to a \ref DSL_LineFeature_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -579,7 +578,7 @@ typedef union
       The parameter points to a \ref DSL_LineFeature_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -609,7 +608,7 @@ typedef union
       The parameter points to a \ref DSL_LineFeature_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -645,7 +644,7 @@ typedef union
       The parameter points to a \ref DSL_FramingParameterStatus_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -685,7 +684,7 @@ typedef union
       is included within accessCtl structure of user data.
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
 
    \remarks
    Supported by all platforms.
@@ -716,7 +715,7 @@ typedef union
       The parameter points to a \ref DSL_DBG_ModuleLevel_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -746,7 +745,7 @@ typedef union
       The parameter points to a \ref DSL_DeviceMessage_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -766,119 +765,6 @@ typedef union
 #define DSL_FIO_DBG_DEVICE_MESSAGE_SEND \
    _IOWR(DSL_IOC_MAGIC_CPE_API, 12, DSL_DeviceMessage_t)
 
-#ifdef INCLUDE_DSL_CPE_DEBUG_LOGGER_SUPPORT
-/**
-   This debug function sets a the debug output destination. Console or logger
-   application can be selected as the destination.
-
-   CLI
-   - long command: DBG_ModuleDestinationSet
-   - short command: dbgmds
-
-   \note Implementation only available if preprocessor directive
-         'DSL_DEBUG_DISABLE' is not set.
-
-   \param DSL_DBG_ModuleDestination_t*
-      The parameter points to a \ref DSL_DBG_ModuleDestination_t structure
-      In case of an error/warning please refer to the value of 'nReturn' which
-      is included within accessCtl structure of user data.
-
-   \return
-      0 if successful and -1 in case of an error/warning
-
-   \remarks
-   Supported by all platforms.
-
-   \code
-      DSL_DBG_ModuleDestination_t dbgModuleDest;
-      DSL_int_t ret = 0;
-
-      memset(&dbgModuleDest, 0x00, sizeof(DSL_DBG_ModuleDestination_t));
-      ret = ioctl(fd, DSL_FIO_DBG_MODULE_DESTINATION_SET, &dbgModuleDest);
-   \endcode
-
-   \ingroup DRV_DSL_CPE_DEBUG */
-#define DSL_FIO_DBG_MODULE_DESTINATION_SET \
-   _IOWR(DSL_IOC_MAGIC_CPE_API, 70, DSL_DBG_ModuleDestination_t)
-
-/**
-   This debug function returns the debug module destination value.
-
-   CLI
-   - long command: DBG_ModuleDestinationGet
-   - short command: dbgmdg
-
-   \note Implementation only available if preprocessor directive
-         'DSL_DEBUG_DISABLE' is not set.
-
-   \param DSL_DBG_ModuleDestination_t*
-      The parameter points to a \ref DSL_DBG_ModuleDestination_t structure
-
-   \return
-      0 if successful and -1 in case of an error/warning
-      In case of an error/warning please refer to the value of 'nReturn' which
-      is included within accessCtl structure of user data.
-
-   \remarks
-   Supported by all platforms.
-
-   \code
-      DSL_DBG_ModuleDestination_t dbgModuleLevel;
-      DSL_int_t ret = 0;
-
-      memset(&dbgModuleLevel, 0x00, sizeof(DSL_DBG_ModuleDestination_t));
-      ret = ioctl(fd, DSL_FIO_DBG_MODULE_LEVEL_GET, &dbgModuleLevel);
-   \endcode
-
-   \ingroup DRV_DSL_CPE_DEBUG */
-#define DSL_FIO_DBG_MODULE_DESTINATION_GET \
-   _IOWR(DSL_IOC_MAGIC_CPE_API, 71, DSL_DBG_ModuleDestination_t)
-#endif /* INCLUDE_DSL_CPE_DEBUG_LOGGER_SUPPORT */
-
-/**
-   This debug function makes it possible to send a low level device message.
-   In addition to the data word a mask word is used that makes it possible to
-   write single bits or bit groups instead of the complete data word.
-
-   <tt>
-      Example\n
-      --------\n
-      Act. Msg value.: 0xFF00 -> 1111 1111 0000 0000\n
-      data word......: 0xF0F0 -> 1111 0000 1111 0000\n
-      mask word......: 0xAAAA -> 1010 1010 1010 1010\n
-      ------------------------------------------------\n
-      Res. Msg value.: 0xF5A0 -> 1111 0101 1010 0000\n
-      ================================================
-   </tt>
-
-   CLI
-   - long command: DeviceMessageModifySend
-   - short command: dmms
-
-   \param DSL_DeviceMessageModify_t*
-      The parameter points to a \ref DSL_DeviceMessageModify_t structure
-
-   \return
-      0 if successful and -1 in case of an error/warning
-      In case of an error/warning please refer to the value of 'nReturn' which
-      is included within accessCtl structure of user data.
-
-   \remarks
-   Supported by all platforms.
-
-   \code
-      DSL_DeviceMessageModify_t devMsg;
-
-      // Initialize the device message here before calling the ioctl...
-      memset(&devMsg, 0x00, sizeof(DSL_DeviceMessageModify_t));
-      // Set message data here (data and mask)
-      ret = ioctl(fd, DSL_FIO_DBG_DEVICE_MESSAGE_MODIFY_SEND, &devMsg)
-   \endcode
-
-   \ingroup DRV_DSL_CPE_DEBUG */
-#define DSL_FIO_DBG_DEVICE_MESSAGE_MODIFY_SEND \
-   _IOWR(DSL_IOC_MAGIC_CPE_API, 61, DSL_DeviceMessageModify_t)
-
 /**
    This function provides the possibility to activate a testmode.
 
@@ -890,7 +776,7 @@ typedef union
       The parameter points to a \ref DSL_TestModeControl_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -930,7 +816,7 @@ typedef union
       The parameter points to a \ref DSL_AuxLineInventory_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -966,7 +852,7 @@ typedef union
       The parameter points to a \ref DSL_LoopLengthStatus_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -989,6 +875,12 @@ typedef union
 /**
    This function configures the System Interface.
 
+   \note For applying a new bonding configuration profile it is highly
+         recommended to apply the system interface configuration *before* the
+         bonding enable configuration, which is done via ioctl
+         \ref DSL_FIO_BND_CONFIG_SET to make use of the API internal
+         configuration consistency checks in the most effective way.
+
    CLI
    - long command: SystemInterfaceConfigSet
    - short command: sics
@@ -997,7 +889,7 @@ typedef union
       The parameter points to a \ref DSL_SystemInterfaceConfig_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1031,7 +923,7 @@ typedef union
       The parameter points to a \ref DSL_SystemInterfaceConfig_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1062,12 +954,12 @@ typedef union
       The parameter points to a \ref DSL_BandPlanStatus_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
    \remarks
-   Additional Band Plan information is provided by the the following ioctl
+   Additional Band Plan information is provided by the following ioctl
    \ref DSL_FIO_BAND_BORDER_STATUS_GET
    Supported by
    - VRX200: xDSL-CPE
@@ -1101,7 +993,7 @@ typedef union
       The parameter points to a \ref DSL_BandPlanSupport_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1139,7 +1031,7 @@ typedef union
       The parameter points to a \ref DSL_ShowtimeLogging_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1175,7 +1067,7 @@ typedef union
       The parameter points to a \ref DSL_EventStatusMask_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1222,7 +1114,7 @@ typedef union
       The parameter points to a \ref DSL_EventStatusMask_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1252,7 +1144,7 @@ typedef union
       The parameter points to a \ref DSL_LowLevelConfiguration_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1283,7 +1175,7 @@ typedef union
       The parameter points to a \ref DSL_LowLevelConfiguration_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1315,7 +1207,7 @@ typedef union
       The parameter points to a \ref DSL_TestModeStatus_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1346,7 +1238,7 @@ typedef union
       The parameter points to a \ref DSL_SystemInterfaceStatus_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1366,10 +1258,10 @@ typedef union
    _IOWR(DSL_IOC_MAGIC_CPE_API, 34, DSL_SystemInterfaceStatus_t)
 
 /**
-   This function has to be used to get information on an event that has been
-   occurred. The function is designed to be called by the upper layer software
-   in case of using event (interrupt) handling and in case of a wakeup of the
-   upper layer software by the DSL CPE API.
+   This function has to be used to get information on an event that has occurred.
+   The function is designed to be called by the upper layer software in case of
+   using event (interrupt) handling and in case of a wakeup of the upper layer
+   software by the DSL CPE API.
    There is always an event identifier included within the returned information.
    According the event type there might be also additional event data included.
 
@@ -1383,7 +1275,7 @@ typedef union
       The parameter points to a \ref DSL_EventStatus_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1422,7 +1314,7 @@ typedef union
       The parameter points to a \ref DSL_InstanceControl_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1455,7 +1347,7 @@ typedef union
       The parameter points to a \ref DSL_InstanceStatus_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1490,7 +1382,7 @@ typedef union
       The parameter points to a \ref DSL_AutobootConfig_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1524,7 +1416,7 @@ typedef union
       The parameter points to a \ref DSL_AutobootConfig_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1556,7 +1448,7 @@ typedef union
       The parameter points to a \ref DSL_InteropFeatureConfig_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1588,7 +1480,7 @@ typedef union
       The parameter points to a \ref DSL_InteropFeatureConfig_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1621,7 +1513,7 @@ typedef union
    The parameter points to a \ref DSL_ResourceUsageStatistics_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1652,7 +1544,7 @@ typedef union
    The parameter points to a \ref DSL_MiscLineStatus_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1685,7 +1577,7 @@ typedef union
    The parameter points to a \ref DSL_BandBorderStatus_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1716,7 +1608,7 @@ typedef union
    The parameter points to a \ref DSL_LineOptionsConfig_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1750,7 +1642,7 @@ typedef union
    The parameter points to a \ref DSL_LineOptionsConfig_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1784,7 +1676,7 @@ typedef union
           \ref DSL_LastExceptionCodes_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1818,7 +1710,7 @@ typedef union
    The parameter points to a \ref DSL_DBG_DebugFeatureConfig_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1856,7 +1748,7 @@ typedef union
    The parameter points to a \ref DSL_DBG_DebugFeatureConfig_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1891,7 +1783,7 @@ typedef union
    The parameter points to a \ref DSL_PilotTonesStatus_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1923,7 +1815,7 @@ typedef union
    The parameter points to a \ref DSL_RebootCriteriaConfig_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1958,7 +1850,7 @@ typedef union
    The parameter points to a \ref DSL_RebootCriteriaConfig_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -1992,7 +1884,7 @@ typedef union
    The parameter points to a \ref DSL_ReTxStatistics_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2018,11 +1910,15 @@ typedef union
 /**
    This function returns Filter Detection data.
 
+   CLI
+   - long command: FilterDetectionDataGet
+   - short command: fddg
+
    \param DSL_FilterDetection_t*
    The parameter points to a \ref DSL_FilterDetection_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2039,8 +1935,7 @@ typedef union
 
    \ingroup DRV_DSL_CPE_COMMON */
 #define DSL_FIO_FILTER_DETECTION_DATA_GET \
-   _IOWR(DSL_IOC_MAGIC_CPE_API, 59, \
-   DSL_FilterDetection_t)
+   _IOWR(DSL_IOC_MAGIC_CPE_API, 59, DSL_FilterDetection_t)
 #endif /* INCLUDE_DSL_FILTER_DETECTION */
 
 /**
@@ -2050,7 +1945,7 @@ typedef union
    The parameter points to a \ref DSL_HybridSelection_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2082,7 +1977,7 @@ typedef union
       The parameter points to a \ref DSL_OlrStatistics_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2114,7 +2009,7 @@ typedef union
       The parameter points to a \ref DSL_G997_DeltSnr_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2146,7 +2041,7 @@ typedef union
       The parameter points to a \ref DSL_FirmwareDownloadStatus_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2181,7 +2076,7 @@ typedef union
    The parameter points to a \ref DSL_VdslProfileConfig_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2215,7 +2110,7 @@ typedef union
    The parameter points to a \ref DSL_VdslProfileConfig_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2249,7 +2144,7 @@ typedef union
    The parameter points to a \ref DSL_T1413RevisionStatus_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2283,7 +2178,7 @@ typedef union
    The parameter points to a \ref DSL_T1413RevisionStatus_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2317,7 +2212,7 @@ typedef union
    The parameter points to a \ref DSL_T1413VendorRevisionStatus_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2351,7 +2246,7 @@ typedef union
    The parameter points to a \ref DSL_T1413VendorRevisionStatus_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2385,7 +2280,7 @@ typedef union
       The parameter points to a \ref DSL_PSDCalibration_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2413,7 +2308,7 @@ typedef union
       The parameter points to a \ref DSL_PSDCalibration_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2430,6 +2325,223 @@ typedef union
    \ingroup DRV_DSL_CPE_COMMON */
 #define DSL_FIO_PSD_CALIBRATION_CONFIG_SET \
    _IOWR(DSL_IOC_MAGIC_CPE_API, 71, DSL_PSDCalibration_t)
+
+/**
+   This function configures the selection of DSL operator specific handling,
+   which will be applied within DSL PHY Firmware.
+
+   CLI
+   - long command: OperatorConfigSet
+   - short command: ocs
+
+   \param DSL_OperatorConfig_t*
+      The parameter points to a \ref DSL_OperatorConfig_t structure
+
+   \return
+      0 if successful and -1 in case of an error/warning.
+      In case of an error/warning please refer to the value of 'nReturn' which
+      is included within accessCtl structure of user data.
+
+   \remarks
+      Supported by
+      - VRX200: xDSL-CPE
+      - VRX300: xDSL-CPE
+      - VRX500: xDSL-CPE
+
+   \code
+      DSL_OperatorConfig_t operatorConfig;
+      DSL_int_t ret = 0;
+
+      memset(&operatorConfig, 0x00, sizeof(DSL_OperatorConfig_t));
+      // Set configuration setting here before calling the ioctl...
+      ret = DSL_CPE_Ioctl (fd, DSL_FIO_OPERATOR_CONFIG_SET, &operatorConfig);
+
+   \endcode
+
+   \ingroup DRV_DSL_CPE_COMMON */
+#define DSL_FIO_OPERATOR_CONFIG_SET \
+   _IOWR(DSL_IOC_MAGIC_CPE_API, 72, DSL_OperatorConfig_t)
+
+/**
+   This function returns the currently configured selection of the DSL operator
+   specific handling, which is applied within DSL PHY Firmware.
+
+   CLI
+   - long command: OperatorConfigGet
+   - short command: ocg
+
+   \param DSL_OperatorConfig_t*
+      The parameter points to a \ref DSL_OperatorConfig_t structure
+
+   \return
+      0 if successful and -1 in case of an error/warning.
+      In case of an error/warning please refer to the value of 'nReturn' which
+      is included within accessCtl structure of user data.
+
+   \remarks
+      Supported by
+      - VRX200: xDSL-CPE
+      - VRX300: xDSL-CPE
+      - VRX500: xDSL-CPE
+
+   \code
+      DSL_OperatorConfig_t operatorConfig;
+      DSL_int_t ret = 0;
+
+      memset(&operatorConfig, 0x00, sizeof(DSL_OperatorConfig_t));
+      ret = DSL_CPE_Ioctl (fd, DSL_FIO_OPERATOR_CONFIG_GET, &operatorConfig);
+
+   \endcode
+
+   \ingroup DRV_DSL_CPE_COMMON */
+#define DSL_FIO_OPERATOR_CONFIG_GET \
+   _IOWR(DSL_IOC_MAGIC_CPE_API, 73, DSL_OperatorConfig_t)
+
+#ifdef INCLUDE_DSL_FILTER_DETECTION
+/**
+   This function returns Filter Detection basic data.
+
+   CLI
+   - long command: FilterDetectionBasicDataGet
+   - short command: fdbdg
+
+   \param DSL_FilterDetectionBasic_t*
+   The parameter points to a \ref DSL_FilterDetectionBasic_t structure
+
+   \return
+      0 if successful and -1 in case of an error/warning.
+      In case of an error/warning please refer to the value of 'nReturn' which
+      is included within accessCtl structure of user data.
+
+   \remarks
+   Supported by all platforms.
+
+   \code
+      DSL_FilterDetectionBasic_t filterDetectionBasic;
+      DSL_int_t ret = 0;
+
+      memset(&filterDetectionBasic, 0x00, sizeof(DSL_FilterDetectionBasic_t));
+      ret = ioctl(fd, DSL_FIO_FILTER_DETECTION_BASIC_DATA_GET, &filterDetectionBasic);
+   \endcode
+
+   \ingroup DRV_DSL_CPE_COMMON */
+#define DSL_FIO_FILTER_DETECTION_BASIC_DATA_GET \
+   _IOWR(DSL_IOC_MAGIC_CPE_API, 74, DSL_FilterDetectionBasic_t)
+#endif /* INCLUDE_DSL_FILTER_DETECTION */
+
+#ifdef INCLUDE_DSL_CPE_DEBUG_LOGGER_SUPPORT
+/**
+   This debug function sets a the debug output destination. Console or logger
+   application can be selected as the destination.
+
+   CLI
+   - long command: DBG_ModuleDestinationSet
+   - short command: dbgmds
+
+   \note Implementation only available if preprocessor directive
+         'DSL_DEBUG_DISABLE' is not set.
+
+   \param DSL_DBG_ModuleDestination_t*
+      The parameter points to a \ref DSL_DBG_ModuleDestination_t structure
+      In case of an error/warning please refer to the value of 'nReturn' which
+      is included within accessCtl structure of user data.
+
+   \return
+      0 if successful and -1 in case of an error/warning.
+
+   \remarks
+   Supported by all platforms.
+
+   \code
+      DSL_DBG_ModuleDestination_t dbgModuleDest;
+      DSL_int_t ret = 0;
+
+      memset(&dbgModuleDest, 0x00, sizeof(DSL_DBG_ModuleDestination_t));
+      ret = ioctl(fd, DSL_FIO_DBG_MODULE_DESTINATION_SET, &dbgModuleDest);
+   \endcode
+
+   \ingroup DRV_DSL_CPE_DEBUG */
+#define DSL_FIO_DBG_MODULE_DESTINATION_SET \
+   _IOWR(DSL_IOC_MAGIC_CPE_API, 80, DSL_DBG_ModuleDestination_t)
+
+/**
+   This debug function returns the debug module destination value.
+
+   CLI
+   - long command: DBG_ModuleDestinationGet
+   - short command: dbgmdg
+
+   \note Implementation only available if preprocessor directive
+         'DSL_DEBUG_DISABLE' is not set.
+
+   \param DSL_DBG_ModuleDestination_t*
+      The parameter points to a \ref DSL_DBG_ModuleDestination_t structure
+
+   \return
+      0 if successful and -1 in case of an error/warning.
+      In case of an error/warning please refer to the value of 'nReturn' which
+      is included within accessCtl structure of user data.
+
+   \remarks
+   Supported by all platforms.
+
+   \code
+      DSL_DBG_ModuleDestination_t dbgModuleDest;
+      DSL_int_t ret = 0;
+
+      memset(&dbgModuleDest, 0x00, sizeof(DSL_DBG_ModuleDestination_t));
+      ret = ioctl(fd, DSL_FIO_DBG_MODULE_DESTINATION_GET, &dbgModuleDest);
+   \endcode
+
+   \ingroup DRV_DSL_CPE_DEBUG */
+#define DSL_FIO_DBG_MODULE_DESTINATION_GET \
+   _IOWR(DSL_IOC_MAGIC_CPE_API, 81, DSL_DBG_ModuleDestination_t)
+#endif /* INCLUDE_DSL_CPE_DEBUG_LOGGER_SUPPORT */
+
+/**
+   This debug function makes it possible to send a low level device message.
+   In addition to the data word a mask word is used that makes it possible to
+   write single bits or bit groups instead of the complete data word.
+
+   <tt>
+      Example\n
+      --------\n
+      Act. Msg value.: 0xFF00 -> 1111 1111 0000 0000\n
+      data word......: 0xF0F0 -> 1111 0000 1111 0000\n
+      mask word......: 0xAAAA -> 1010 1010 1010 1010\n
+      ------------------------------------------------\n
+      Res. Msg value.: 0xF5A0 -> 1111 0101 1010 0000\n
+      ================================================
+   </tt>
+
+   CLI
+   - long command: DeviceMessageModifySend
+   - short command: dmms
+
+   \param DSL_DeviceMessageModify_t*
+      The parameter points to a \ref DSL_DeviceMessageModify_t structure
+
+   \return
+      0 if successful and -1 in case of an error/warning.
+      In case of an error/warning please refer to the value of 'nReturn' which
+      is included within accessCtl structure of user data.
+
+   \remarks
+   Supported by all platforms.
+
+   \code
+      DSL_DeviceMessageModify_t devMsg;
+
+      // Initialize the device message here before calling the ioctl...
+      memset(&devMsg, 0x00, sizeof(DSL_DeviceMessageModify_t));
+      // Set message data here (data and mask)
+      ret = ioctl(fd, DSL_FIO_DBG_DEVICE_MESSAGE_MODIFY_SEND, &devMsg)
+   \endcode
+
+   \ingroup DRV_DSL_CPE_DEBUG */
+#define DSL_FIO_DBG_DEVICE_MESSAGE_MODIFY_SEND \
+   _IOWR(DSL_IOC_MAGIC_CPE_API, 82, DSL_DeviceMessageModify_t)
+
 
 /* ************************************************************************** */
 /* * Ioctl interface definitions for Bonding                                * */
@@ -2448,7 +2560,7 @@ typedef union
       The parameter points to a \ref DSL_BND_HwInit_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2473,17 +2585,22 @@ typedef union
    _IOWR(DSL_IOC_MAGIC_CPE_API_BND, 0, DSL_BND_HwInit_t)
 
 /**
-   This ioctl configures the bonding handshake configuration.
+   This ioctl provides configuration options to enable/disabe bonding.
+
+   \note For applying a new configuration profile it is highly recommended to
+         apply the configuration for \ref DSL_FIO_SYSTEM_INTERFACE_CONFIG_SET
+         *before* this bonding configuration to make use of the API internal
+         configuration consistency checks in the most effective way.
 
    CLI
    - long command: BND_ConfigSet
    - short command: bndcs
 
-   \param DSL_BND_ConfigSet_t*
-      The parameter points to a \ref DSL_BND_ConfigSet_t structure
+   \param DSL_BND_Config_t*
+      The parameter points to a \ref DSL_BND_Config_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2498,30 +2615,30 @@ typedef union
      \ref DSL_FIO_AUTOBOOT_CONTROL_SET with command \ref DSL_AUTOBOOT_CTRL_RESTART
 
    \code
-      DSL_BND_ConfigSet_t BND_ConfigSet;
+      DSL_BND_Config_t BND_ConfigSet;
       DSL_int_t ret = 0;
 
-      memset(&BND_ConfigSet, 0x00, sizeof(DSL_BND_ConfigSet_t));
+      memset(&BND_ConfigSet, 0x00, sizeof(DSL_BND_Config_t));
       BND_ConfigSet = ;
       ret = ioctl(fd, DSL_FIO_BND_CONFIG_SET, &BND_ConfigSet);
    \endcode
 
    \ingroup DRV_DSL_CPE_BND */
 #define DSL_FIO_BND_CONFIG_SET \
-   _IOWR(DSL_IOC_MAGIC_CPE_API_BND, 2, DSL_BND_ConfigSet_t)
+   _IOWR(DSL_IOC_MAGIC_CPE_API_BND, 2, DSL_BND_Config_t)
 
 /**
-   This ioctl retrieves the the bonding handshake configuration.
+   This ioctl returns the current bonding configuration.
 
    CLI
    - long command: BND_ConfigGet
    - short command: bndcg
 
-   \param DSL_BND_ConfigGet_t*
-      The parameter points to a \ref DSL_BND_ConfigGet_t structure
+   \param DSL_BND_Config_t*
+      The parameter points to a \ref DSL_BND_Config_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2532,20 +2649,54 @@ typedef union
    - VRX500: xDSL-CPE
 
    \code
-      DSL_BND_ConfigGet_t BND_ConfigGet;
+      DSL_BND_Config_t BND_ConfigGet;
       DSL_int_t ret = 0;
 
-      memset(&BND_ConfigGet, 0x00, sizeof(DSL_BND_ConfigGet_t));
+      memset(&BND_ConfigGet, 0x00, sizeof(DSL_BND_Config_t));
       BND_ConfigGet = ;
       ret = ioctl(fd, DSL_FIO_BND_CONFIG_GET, &BND_ConfigGet);
    \endcode
 
    \ingroup DRV_DSL_CPE_BND */
 #define DSL_FIO_BND_CONFIG_GET \
-   _IOWR(DSL_IOC_MAGIC_CPE_API_BND, 3, DSL_BND_ConfigGet_t)
+   _IOWR(DSL_IOC_MAGIC_CPE_API_BND, 3, DSL_BND_Config_t)
+
+/**
+   This ioctl returns the status for the bonding operation.
+
+   CLI
+   - long command: BND_StatusGet
+   - short command: bndsg
+
+   \param DSL_BND_StatusGet_t*
+      The parameter points to a \ref DSL_BND_StatusGet_t structure
+
+   \return
+      0 if successful and -1 in case of an error/warning.
+      In case of an error/warning please refer to the value of 'nReturn' which
+      is included within accessCtl structure of user data.
+
+   \remarks
+   Supported by
+   - VRX500: xDSL-CPE
+
+   \code
+      DSL_BND_StatusGet_t BND_StatusgGet;
+      DSL_int_t ret = 0;
+
+      memset(&BND_StatusgGet, 0x00, sizeof(DSL_BND_StatusGet_t));
+      ret = ioctl(fd, DSL_FIO_BND_STATUS_GET, &BND_StatusgGet);
+   \endcode
+
+   \ingroup DRV_DSL_CPE_BND */
+#define DSL_FIO_BND_STATUS_GET \
+   _IOWR(DSL_IOC_MAGIC_CPE_API_BND, 6, DSL_BND_StatusGet_t)
 
 /**
    This ioctl retrieves the bonding handshake status.
+
+   \note The usage of this ioctl is only intended for PTM (PAF) bonding
+         operation.
 
    CLI
    - long command: BND_HsStatusGet
@@ -2555,7 +2706,7 @@ typedef union
       The parameter points to a \ref DSL_BND_HsStatusGet_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2583,21 +2734,25 @@ typedef union
    network processor and common to all bonded ports) and notifies the
    DSP CPE API that the discovery exchange may continue.
 
+   \note The usage of this ioctl is only intended for PTM (PAF) bonding
+         operation
+
+   \note This ioctl is called automatically within context of bonding
+         related autoboot handling.
+         Please note that the handling that is related to this ioctl is
+         timing critical (the complete SW related handshake part has to be
+         done within less than 500ms). Therefore do not use it outside the
+         bonding state machine which is implemented within DSL CPE Control
+         Application.
+
    CLI
    - n/a
-   - Note: This ioctl is called automatically within context of bonding
-           related autoboot handling.
-           Please note that the handling that is related to this ioctl is
-           timing critical (the complete SW related handshake part has to be
-           done within less than 500ms). Therefore do not use it outside the
-           bonding state machine which is implemented within DSL CPE Control
-           Application.
 
    \param DSL_BND_HsContinue_t*
       The parameter points to a \ref DSL_BND_HsContinue_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2634,7 +2789,7 @@ typedef union
       The parameter points to a \ref DSL_BND_EthDbgCounters_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2681,7 +2836,7 @@ typedef union
       The parameter points to a \ref DSL_BND_EthCounters_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2717,7 +2872,7 @@ typedef union
       The parameter points to a \ref DSL_BND_PortModeSync_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2761,7 +2916,7 @@ typedef union
       The parameter points to a \ref DSL_G997_LineActivate_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2795,7 +2950,7 @@ typedef union
       The parameter points to a \ref DSL_G997_LineActivate_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2828,7 +2983,7 @@ typedef union
       The parameter points to a \ref DSL_G997_XTUSystemEnabling_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2862,7 +3017,7 @@ typedef union
       The parameter points to a \ref DSL_G997_XTUSystemEnabling_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2895,7 +3050,7 @@ typedef union
       The parameter points to a \ref DSL_G997_XTUSystemEnabling_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2931,7 +3086,7 @@ typedef union
       The parameter points to a \ref DSL_G997_ChannelDataRateThreshold_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2962,7 +3117,7 @@ typedef union
       The parameter points to a \ref DSL_G997_ChannelDataRateThreshold_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -2992,7 +3147,7 @@ typedef union
       The parameter points to a \ref DSL_G997_LineTransmissionStatus_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3022,7 +3177,7 @@ typedef union
       The parameter points to a \ref DSL_G997_LineInitStatus_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3053,7 +3208,7 @@ typedef union
       The parameter points to a \ref DSL_G997_LineStatus_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3084,7 +3239,7 @@ typedef union
       The parameter points to a \ref DSL_G997_LineStatusPerBand_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3118,7 +3273,7 @@ typedef union
       The parameter points to a \ref DSL_G997_ChannelStatus_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3153,7 +3308,7 @@ typedef union
       The parameter points to a \ref DSL_G997_PowerManagementStateForcedTrigger_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3183,7 +3338,7 @@ typedef union
       The parameter points to a \ref DSL_G997_PowerManagementStatus_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3214,7 +3369,7 @@ typedef union
       The parameter points to a \ref DSL_G997_LastStateTransmitted_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3246,7 +3401,7 @@ typedef union
       The parameter points to a \ref DSL_G997_BitAllocationNsc_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3279,7 +3434,7 @@ typedef union
       The parameter points to a \ref DSL_G997_GainAllocationNsc_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3314,7 +3469,7 @@ typedef union
       The parameter points to a \ref DSL_G997_SnrAllocationNsc_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3347,7 +3502,7 @@ typedef union
       The parameter points to a \ref DSL_G997_LineFailures_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3378,7 +3533,7 @@ typedef union
       The parameter points to a \ref DSL_G997_LineFailures_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3408,7 +3563,7 @@ typedef union
       The parameter points to a \ref DSL_G997_LineFailures_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3440,7 +3595,7 @@ typedef union
       The parameter points to a \ref DSL_G997_DataPathFailures_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3472,7 +3627,7 @@ typedef union
       The parameter points to a \ref DSL_G997_DataPathFailures_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3503,7 +3658,7 @@ typedef union
       The parameter points to a \ref DSL_G997_DataPathFailures_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3533,7 +3688,7 @@ typedef union
       The parameter points to a \ref DSL_G997_FramingParameterStatus_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3575,7 +3730,7 @@ typedef union
       The parameter points to a \ref DSL_G997_LineInventory_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3606,7 +3761,7 @@ typedef union
       The parameter points to a \ref DSL_G997_LineInventoryNe_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3637,7 +3792,7 @@ typedef union
       The parameter points to a \ref DSL_G997_DeltHlinScale_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3668,7 +3823,7 @@ typedef union
       The parameter points to a \ref DSL_G997_DeltHlin_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3702,7 +3857,7 @@ typedef union
       The parameter points to a \ref DSL_G997_DeltHlog_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3735,7 +3890,7 @@ typedef union
       The parameter points to a \ref DSL_G997_DeltSnr_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3769,7 +3924,7 @@ typedef union
       The parameter points to a \ref DSL_G997_DeltQln_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3803,7 +3958,7 @@ typedef union
            internal memory could be freed by using this function.
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3831,7 +3986,7 @@ typedef union
       The parameter points to a \ref DSL_G997_Snmp_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3864,7 +4019,7 @@ typedef union
       The parameter points to a \ref DSL_G997_Snmp_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3897,7 +4052,7 @@ typedef union
       The parameter points to a \ref DSL_G997_RateAdaptationConfig_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3932,7 +4087,7 @@ typedef union
       The parameter points to a \ref DSL_G997_RateAdaptationConfig_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3964,7 +4119,7 @@ typedef union
    The parameter points to a \ref DSL_G997_RateAdaptationStatus_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -3998,7 +4153,7 @@ typedef union
    The parameter points to a \ref DSL_G997_UsPowerBackOffStatus_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4036,7 +4191,7 @@ typedef union
       The parameter points to a \ref DSL_PM_HistoryStatsDir_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4066,7 +4221,7 @@ typedef union
       The parameter points to a \ref DSL_PM_HistoryStatsDir_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4097,7 +4252,7 @@ typedef union
       The parameter points to a \ref DSL_PM_LineSecCounters_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4128,7 +4283,7 @@ typedef union
       The parameter points to a \ref DSL_PM_LineSecCounters_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4159,7 +4314,7 @@ typedef union
       The parameter points to a \ref DSL_PM_LineSecCountersTotal_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4189,7 +4344,7 @@ typedef union
       The parameter points to a \ref DSL_PM_LineSecThreshold_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4219,7 +4374,7 @@ typedef union
       The parameter points to a \ref DSL_PM_LineSecThreshold_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4249,7 +4404,7 @@ typedef union
       The parameter points to a \ref DSL_PM_LineSecThreshold_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4279,7 +4434,7 @@ typedef union
       The parameter points to a \ref DSL_PM_LineSecThreshold_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4310,7 +4465,7 @@ typedef union
       The parameter points to a \ref DSL_PM_HistoryStats_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4341,7 +4496,7 @@ typedef union
       The parameter points to a \ref DSL_PM_HistoryStats_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4372,7 +4527,7 @@ typedef union
       The parameter points to a \ref DSL_PM_LineInitCounters_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4403,7 +4558,7 @@ typedef union
       The parameter points to a \ref DSL_PM_LineInitCounters_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4434,7 +4589,7 @@ typedef union
       The parameter points to a \ref DSL_PM_LineInitCountersTotal_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4464,7 +4619,7 @@ typedef union
       The parameter points to a \ref DSL_PM_LineInitThreshold_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4494,7 +4649,7 @@ typedef union
       The parameter points to a \ref DSL_PM_LineInitThreshold_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4524,7 +4679,7 @@ typedef union
       The parameter points to a \ref DSL_PM_LineInitThreshold_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4554,7 +4709,7 @@ typedef union
       The parameter points to a \ref DSL_PM_LineInitThreshold_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4584,7 +4739,7 @@ typedef union
       The parameter points to a \ref DSL_PM_HistoryStatsChDir_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4614,7 +4769,7 @@ typedef union
       The parameter points to a \ref DSL_PM_HistoryStatsChDir_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4644,7 +4799,7 @@ typedef union
       The parameter points to a \ref DSL_PM_ChannelCounters_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4674,7 +4829,7 @@ typedef union
       The parameter points to a \ref DSL_PM_ChannelCounters_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4704,7 +4859,7 @@ typedef union
       The parameter points to a \ref DSL_PM_ChannelCountersTotal_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4734,7 +4889,7 @@ typedef union
       The parameter points to a \ref DSL_PM_ChannelThreshold_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4764,7 +4919,7 @@ typedef union
       The parameter points to a \ref DSL_PM_ChannelThreshold_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4794,7 +4949,7 @@ typedef union
       The parameter points to a \ref DSL_PM_ChannelThreshold_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4824,7 +4979,7 @@ typedef union
       The parameter points to a \ref DSL_PM_ChannelThreshold_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4854,7 +5009,7 @@ typedef union
       The parameter points to a \ref DSL_PM_HistoryStatsChDir_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4884,7 +5039,7 @@ typedef union
       The parameter points to a \ref DSL_PM_HistoryStatsChDir_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4915,7 +5070,7 @@ typedef union
       The parameter points to a \ref DSL_PM_DataPathCounters_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4946,7 +5101,7 @@ typedef union
       The parameter points to a \ref DSL_PM_DataPathCounters_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -4977,7 +5132,7 @@ typedef union
       The parameter points to a \ref DSL_PM_DataPathCountersTotal_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5007,7 +5162,7 @@ typedef union
       The parameter points to a \ref DSL_PM_DataPathThreshold_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5037,7 +5192,7 @@ typedef union
       The parameter points to a \ref DSL_PM_DataPathThreshold_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5067,7 +5222,7 @@ typedef union
       The parameter points to a \ref DSL_PM_DataPathThreshold_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5097,7 +5252,7 @@ typedef union
       The parameter points to a \ref DSL_PM_DataPathThreshold_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5128,7 +5283,7 @@ typedef union
       The parameter points to a \ref DSL_PM_Reset_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5165,7 +5320,7 @@ typedef union
       The parameter points to a \ref DSL_PM_ElapsedExtTrigger_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5201,7 +5356,7 @@ typedef union
       The parameter points to a \ref DSL_PM_ElapsedTimeReset_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5231,7 +5386,7 @@ typedef union
       The parameter points to a \ref DSL_PM_SyncMode_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5264,7 +5419,7 @@ typedef union
       The parameter points to a \ref DSL_PM_BurninMode_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5299,7 +5454,7 @@ typedef union
       The parameter points to a \ref DSL_PM_Dump_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5324,7 +5479,7 @@ typedef union
 #endif /* defined(DSL_PM_DEBUG_MODE_ENABLE) && (DSL_PM_DEBUG_MODE_ENABLE > 0) */
 
 /**
-   This function returns returns DSL second counter statistics accumulated since
+   This function returns DSL second counter statistics accumulated since
    the specified showtime interval.
    Implementation is done according to specification within TR-98.
 
@@ -5336,7 +5491,7 @@ typedef union
       The parameter points to a \ref DSL_PM_LineSecCounters_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5356,7 +5511,7 @@ typedef union
    _IOWR(DSL_IOC_MAGIC_CPE_API_PM, 42, DSL_PM_LineSecCounters_t)
 
 /**
-   This function returns returns DSL initialization counter statistics
+   This function returns DSL initialization counter statistics
    accumulated since the specified showtime interval.
    Implementation is done according to specification within TR-98.
 
@@ -5368,7 +5523,7 @@ typedef union
       The parameter points to a \ref DSL_PM_LineInitCounters_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5388,7 +5543,7 @@ typedef union
    _IOWR(DSL_IOC_MAGIC_CPE_API_PM, 43, DSL_PM_LineInitCounters_t)
 
 /**
-   This function returns returns DSL channel counter statistics accumulated
+   This function returns DSL channel counter statistics accumulated
    since the specified showtime interval.
    Implementation is done according to specification within TR-98.
 
@@ -5400,7 +5555,7 @@ typedef union
       The parameter points to a \ref DSL_PM_ChannelCounters_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5420,7 +5575,7 @@ typedef union
    _IOWR(DSL_IOC_MAGIC_CPE_API_PM, 44, DSL_PM_ChannelCounters_t)
 
 /**
-   This function returns returns DSL data path counter statistics accumulated
+   This function returns DSL data path counter statistics accumulated
    since the specified showtime interval.
    Implementation is done according to specification within TR-98.
 
@@ -5432,7 +5587,7 @@ typedef union
       The parameter points to a \ref DSL_PM_DataPathCounters_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5463,7 +5618,7 @@ typedef union
       The parameter points to a \ref DSL_PM_Config_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5495,7 +5650,7 @@ typedef union
       The parameter points to a \ref DSL_PM_Config_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5519,7 +5674,7 @@ typedef union
    _IOWR(DSL_IOC_MAGIC_CPE_API_PM, 47, DSL_PM_Config_t)
 
 /**
-   This function returns returns DSL extended channel counter statistics accumulated
+   This function returns DSL extended channel counter statistics accumulated
    since the specified showtime interval.
    Implementation is done according to specification within TR-98.
 
@@ -5531,7 +5686,7 @@ typedef union
       The parameter points to a \ref DSL_PM_ChannelCountersExt_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5563,7 +5718,7 @@ typedef union
       The parameter points to a \ref DSL_PM_LineEventShowtimeCounters_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5594,7 +5749,7 @@ typedef union
       The parameter points to a \ref DSL_PM_LineEventShowtimeCounters_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5614,7 +5769,7 @@ typedef union
    _IOWR(DSL_IOC_MAGIC_CPE_API_PM, 50, DSL_PM_LineEventShowtimeCounters_t)
 
 /**
-   This function returns returns DSL line event showtime counter statistics accumulated
+   This function returns DSL line event showtime counter statistics accumulated
    since the specified showtime interval.
    Implementation is done according to specification within TR-98.
 
@@ -5626,7 +5781,7 @@ typedef union
       The parameter points to a \ref DSL_PM_LineEventShowtimeCounters_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5657,7 +5812,7 @@ typedef union
       The parameter points to a \ref DSL_PM_LineEventShowtimeCountersTotal_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5687,7 +5842,7 @@ typedef union
       The parameter points to a \ref DSL_PM_HistoryStatsChDir_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5717,7 +5872,7 @@ typedef union
       The parameter points to a \ref DSL_PM_HistoryStatsChDir_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5748,7 +5903,7 @@ typedef union
       The parameter points to a \ref DSL_PM_DataPathFailureCounters_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5779,7 +5934,7 @@ typedef union
       The parameter points to a \ref DSL_PM_DataPathFailureCounters_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5799,7 +5954,7 @@ typedef union
    _IOWR(DSL_IOC_MAGIC_CPE_API_PM, 56, DSL_PM_DataPathFailureCounters_t)
 
 /**
-   This function returns returns DSL data path failure counter statistics accumulated
+   This function returns DSL data path failure counter statistics accumulated
    since the specified showtime interval.
    Implementation is done according to specification within TR-98.
 
@@ -5811,7 +5966,7 @@ typedef union
       The parameter points to a \ref DSL_PM_DataPathFailureCounters_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5842,7 +5997,7 @@ typedef union
       The parameter points to a \ref DSL_PM_DataPathFailureCountersTotal_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5872,7 +6027,7 @@ typedef union
       The parameter points to a \ref DSL_PM_HistoryStatsChDir_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5902,7 +6057,7 @@ typedef union
       The parameter points to a \ref DSL_PM_HistoryStatsChDir_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5933,7 +6088,7 @@ typedef union
       The parameter points to a \ref DSL_PM_ReTxCounters_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -5968,7 +6123,7 @@ typedef union
       The parameter points to a \ref DSL_PM_ReTxCounters_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -6003,7 +6158,7 @@ typedef union
       The parameter points to a \ref DSL_PM_ReTxCounters_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -6034,7 +6189,7 @@ typedef union
       The parameter points to a \ref DSL_PM_ReTxCounters_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -6064,7 +6219,7 @@ typedef union
       The parameter points to a \ref DSL_PM_HistoryStatsDir_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -6094,7 +6249,7 @@ typedef union
       The parameter points to a \ref DSL_PM_HistoryStatsDir_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -6124,7 +6279,7 @@ typedef union
       The parameter points to a \ref DSL_PM_ReTxThreshold_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -6154,7 +6309,7 @@ typedef union
       The parameter points to a \ref DSL_PM_ReTxThreshold_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -6184,7 +6339,7 @@ typedef union
       The parameter points to a \ref DSL_PM_ReTxThreshold_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -6214,7 +6369,7 @@ typedef union
       The parameter points to a \ref DSL_PM_ReTxThreshold_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -6244,7 +6399,7 @@ typedef union
       The parameter points to a \ref DSL_PM_SyncMode_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -6262,77 +6417,6 @@ typedef union
    \ingroup DRV_DSL_CPE_PM */
 #define DSL_FIO_PM_SYNC_MODE_GET \
    _IOWR(DSL_IOC_MAGIC_CPE_API_PM, 71, DSL_PM_SyncMode_t)
-
-/**
-   This function configures the selection of DSL operator specific handling,
-   which will be applied within DSL PHY Firmware.
-
-   CLI
-   - long command: OperatorConfigSet
-   - short command: ocs
-
-   \param DSL_OperatorConfig_t*
-      The parameter points to a \ref DSL_OperatorConfig_t structure
-
-   \return
-      0 if successful and -1 in case of an error/warning
-      In case of an error/warning please refer to the value of 'nReturn' which
-      is included within accessCtl structure of user data.
-
-   \remarks
-      Supported by
-      - VRX200: xDSL-CPE
-      - VRX300: xDSL-CPE
-      - VRX500: xDSL-CPE
-
-   \code
-      DSL_OperatorConfig_t operatorConfig;
-      DSL_int_t ret = 0;
-
-      memset(&operatorConfig, 0x00, sizeof(DSL_OperatorConfig_t));
-      // Set configuration setting here before calling the ioctl...
-      ret = DSL_CPE_Ioctl (fd, DSL_FIO_OPERATOR_CONFIG_SET, &operatorConfig);
-
-   \endcode
-
-   \ingroup DRV_DSL_CPE_COMMON */
-#define DSL_FIO_OPERATOR_CONFIG_SET \
-   _IOWR(DSL_IOC_MAGIC_CPE_API, 72, DSL_OperatorConfig_t)
-
-/**
-   This function returns the currently configured selection of the DSL operator
-   specific handling, which is applied within DSL PHY Firmware.
-
-   CLI
-   - long command: OperatorConfigGet
-   - short command: ocg
-
-   \param DSL_OperatorConfig_t*
-      The parameter points to a \ref DSL_OperatorConfig_t structure
-
-   \return
-      0 if successful and -1 in case of an error/warning
-      In case of an error/warning please refer to the value of 'nReturn' which
-      is included within accessCtl structure of user data.
-
-   \remarks
-      Supported by
-      - VRX200: xDSL-CPE
-      - VRX300: xDSL-CPE
-      - VRX500: xDSL-CPE
-
-   \code
-      DSL_OperatorConfig_t operatorConfig;
-      DSL_int_t ret = 0;
-
-      memset(&operatorConfig, 0x00, sizeof(DSL_OperatorConfig_t));
-      ret = DSL_CPE_Ioctl (fd, DSL_FIO_OPERATOR_CONFIG_GET, &operatorConfig);
-
-   \endcode
-
-   \ingroup DRV_DSL_CPE_COMMON */
-#define DSL_FIO_OPERATOR_CONFIG_GET \
-   _IOWR(DSL_IOC_MAGIC_CPE_API, 73, DSL_OperatorConfig_t)
 
 #ifdef INCLUDE_DEPRECATED
 
@@ -6415,7 +6499,7 @@ typedef union
       The parameter points to a \ref DSL_RTT_Init_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -6447,7 +6531,7 @@ typedef union
       The parameter points to a \ref DSL_RTT_Config_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -6486,7 +6570,7 @@ typedef union
       The parameter points to a \ref DSL_RTT_Config_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -6518,7 +6602,7 @@ typedef union
       The parameter points to a \ref DSL_RTT_Status_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -6551,7 +6635,7 @@ typedef union
       The parameter points to a \ref DSL_RTT_Control_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -6586,7 +6670,7 @@ typedef union
       The parameter points to a \ref DSL_RTT_Statistics_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -6623,7 +6707,7 @@ typedef union
       The parameter points to a \ref DSL_G997_LowPowerModeConfig_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -6658,7 +6742,7 @@ typedef union
       The parameter points to a \ref DSL_G997_LowPowerModeConfig_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 
@@ -6692,7 +6776,7 @@ typedef union
       The parameter points to a \ref DSL_G997_AttainableNdrStatus_t structure
 
    \return
-      0 if successful and -1 in case of an error/warning
+      0 if successful and -1 in case of an error/warning.
       In case of an error/warning please refer to the value of 'nReturn' which
       is included within accessCtl structure of user data.
 

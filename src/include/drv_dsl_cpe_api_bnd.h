@@ -1,7 +1,9 @@
 /******************************************************************************
 
-                          Copyright (c) 2007-2015
-                     Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2016 - 2020 Intel Corporation
+         Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2009 - 2014 Lantiq Deutschland GmbH
+         Copyright 2007 - 2008 Infineon Technologies AG
 
   For licensing information, see the file 'LICENSE' in the root folder of
   this software module.
@@ -27,40 +29,27 @@
 
 
 /**
-   Data structure used to set the PAF handshake control.
+   Data structure used to configure the bonding operation modes.
 */
 typedef struct
 {
    /**
-   Enable/disable bonding
-   DSL_FALSE - bonding is disabled (Default)
-   DSL_TRUE  -  bonding is enabled
-   \note In case of operating a VDSL capable platform, bonding is currently only
-         supported for VDSL modes. */
+   Enable/disable PAF (PTM) bonding
+   DSL_FALSE - PAF bonding is disabled (Default)
+   DSL_TRUE  - PAF bonding is enabled */
    DSL_IN DSL_boolean_t bPafEnable;
+   /**
+   Enable/disable IMA+ (ATM) bonding
+   DSL_FALSE - IMA+ bonding is disabled (Default)
+   DSL_TRUE  - IMA+ bonding is enabled
+   \note This bonding mode is only supported for ADSL modes. */
+   DSL_IN DSL_boolean_t bImapEnable;
 } DSL_BND_ConfigData_t;
 
 /**
-   Structure for configuring bonding handshake operation.
+   Structure for configuring bonding operation modes.
    This structure has to be used for ioctl
    - \ref DSL_FIO_BND_CONFIG_SET
-*/
-typedef struct
-{
-   /**
-   Driver control/status structure */
-   DSL_IN_OUT DSL_AccessCtl_t accessCtl;
-   /**
-   Specifies for which DSL flavor the configuration will be applied. */
-   DSL_IN DSL_DslModeSelection_t nDslMode;
-   /**
-   Structure that contains Bonding config data */
-   DSL_IN DSL_BND_ConfigData_t data;
-} DSL_BND_ConfigSet_t;
-
-/**
-   Structure for configuring bonding handshake operation.
-   This structure has to be used for ioctl
    - \ref DSL_FIO_BND_CONFIG_GET
 */
 typedef struct
@@ -73,12 +62,12 @@ typedef struct
    DSL_IN DSL_DslModeSelection_t nDslMode;
    /**
    Structure that contains Bonding config data */
-   DSL_OUT DSL_BND_ConfigData_t data;
-} DSL_BND_ConfigGet_t;
+   DSL_CFG DSL_BND_ConfigData_t data;
+} DSL_BND_Config_t;
 
 /**
-   Defines possible values that signals the status whether the bonding feature
-   is enabled on the far end side.
+   Defines possible values to indicate whether the bonding feature is enabled
+   or not.
 */
 typedef enum
 {
@@ -86,12 +75,74 @@ typedef enum
    Default value for initialization (not updated/initialized so far) */
    DSL_BND_ENABLE_NOT_INITIALIZED = -1,
    /**
-   Bonding is disabled at the far end side. */
+   Bonding is disabled. */
    DSL_BND_ENABLE_OFF = 0,
    /**
-   Bonding is enable at the far end side. */
+   Bonding is enabled. */
    DSL_BND_ENABLE_ON = 1,
-} DSL_BND_RemotePafSupported_t;
+} DSL_BND_Enable_t;
+
+/**
+   Defines possible values to indicate whether the bonding feature is supported
+   or not.
+*/
+typedef enum
+{
+   /**
+   Default value for initialization (not updated/initialized so far) */
+   DSL_BND_SUPPORT_NOT_INITIALIZED = -1,
+   /**
+   Bonding is not supported. */
+   DSL_BND_SUPPORT_OFF = 0,
+   /**
+   Bonding is supported. */
+   DSL_BND_SUPPORT_ON = 1,
+} DSL_BND_Supported_t;
+
+/**
+   Data structure used to retrieve the bonding operation status (for NE and FE).
+*/
+typedef struct
+{
+   /**
+   Status for PAF (PTM) bonding operation at the near end side. */
+   DSL_OUT DSL_BND_Enable_t nPafEnable;
+   /**
+   Status for IMA+ (ATM) bonding operation at the near end side. */
+   DSL_OUT DSL_BND_Enable_t nImapEnable;
+   /**
+   Status for PAF (PTM) bonding support at the far end side. */
+   DSL_OUT DSL_BND_Supported_t nRemotePafSupported;
+   /**
+   Status for IMA+ (ATM) bonding support at the far end side. */
+   DSL_OUT DSL_BND_Supported_t nRemoteImapSupported;
+} DSL_BND_StatusData_t;
+
+/**
+   Structure to retrieve bonding operation status.
+   This structure has to be used for ioctl
+   - \ref DSL_FIO_BND_STATUS_GET
+*/
+typedef struct
+{
+   /**
+   Driver control/status structure */
+   DSL_IN_OUT DSL_AccessCtl_t accessCtl;
+   /**
+   Structure that returns Bonding status data */
+   DSL_OUT DSL_BND_StatusData_t data;
+} DSL_BND_StatusGet_t;
+
+/**
+   Defines possible values that signals the status whether the bonding feature
+   is enabled on the far end side.
+   \note This value is equivalent to the one with the same definition, which is
+         provided by the ioctl \ref DSL_FIO_BND_STATUS_GET. It remains here for
+         backward compatibility reason and reflects the former PAF only
+         implementation, together with the other parameters within this
+         structure.
+*/
+typedef DSL_BND_Enable_t DSL_BND_RemotePafSupported_t;
 
 /**
    This type enumerates the Discovery or Aggregation activation modes.
@@ -121,7 +172,12 @@ typedef enum
 typedef struct
 {
    /**
-   Indicates whether the bonding feature is enabled at the far end side. */
+   Indicates whether the bonding feature is enabled at the far end side.
+   \note This value is equivalent to the one with the same name, which is
+         provided by the ioctl \ref DSL_FIO_BND_STATUS_GET. It remains here for
+         backward compatibility reason and reflects the former PAF only
+         implementation, together with the other parameters within this
+         structure. */
    DSL_OUT DSL_BND_RemotePafSupported_t nRemotePafSupported;
    /**
    Indicates the type of Aggregate or Discovery command received */
@@ -332,7 +388,7 @@ DSL_Error_t DSL_DRV_BND_HwInit(
 #ifndef SWIG_TMP
 DSL_Error_t DSL_DRV_BND_ConfigSet(
    DSL_IN DSL_Context_t *pContext,
-   DSL_IN DSL_BND_ConfigSet_t *pData);
+   DSL_IN DSL_BND_Config_t *pData);
 #endif
 
 /*
@@ -343,8 +399,28 @@ DSL_Error_t DSL_DRV_BND_ConfigSet(
 #ifndef SWIG_TMP
 DSL_Error_t DSL_DRV_BND_ConfigGet(
    DSL_IN DSL_Context_t *pContext,
-   DSL_OUT DSL_BND_ConfigGet_t *pData);
+   DSL_OUT DSL_BND_Config_t *pData);
 #endif
+#endif
+
+/*
+   For a detailed description please refer to the equivalent ioctl
+   \ref DSL_FIO_BND_STATUS_GET
+*/
+#ifndef SWIG_TMP
+DSL_Error_t DSL_DRV_BND_StatusGet(
+   DSL_IN DSL_Context_t *pContext,
+   DSL_OUT DSL_BND_StatusGet_t *pData);
+#endif
+
+/*
+   For a detailed description please refer to the equivalent ioctl
+   \ref DSL_FIO_BND_STATUS_GET
+*/
+#ifndef SWIG_TMP
+DSL_Error_t DSL_DRV_BND_StatusGet(
+   DSL_IN DSL_Context_t *pContext,
+   DSL_OUT DSL_BND_StatusGet_t *pData);
 #endif
 
 /*
@@ -358,9 +434,32 @@ DSL_Error_t DSL_DRV_BND_HsStatusGet(
 #endif
 
 #ifndef SWIG_TMP
+DSL_Error_t DSL_DRV_BND_BondingStatusSet(
+   DSL_IN DSL_Context_t *pContext,
+   DSL_IN const DSL_void_t *pData);
+#endif
+
+#ifndef SWIG_TMP
+DSL_Error_t DSL_DRV_BND_BondingStatusCheck(
+   DSL_IN DSL_Context_t *pContext,
+   DSL_OUT DSL_BondingMode_t *pBndStatus);
+#endif
+
+#ifndef SWIG_TMP
 DSL_Error_t DSL_DRV_BND_RemotePafAvailableCheck(
    DSL_IN DSL_Context_t *pContext,
    DSL_OUT DSL_uint32_t *pRemotePafAvailable);
+#endif
+
+#ifndef SWIG_TMP
+DSL_Error_t DSL_DRV_BND_RemoteImapAvailableCheck(
+   DSL_IN DSL_Context_t *pContext,
+   DSL_OUT DSL_uint32_t *pRemoteImapAvailable);
+#endif
+
+#ifndef SWIG_TMP
+DSL_void_t DSL_DRV_BND_BondingStatusUpdate(
+   DSL_IN DSL_Context_t *pContext);
 #endif
 
 /*
@@ -403,7 +502,7 @@ DSL_Error_t DSL_DRV_BND_PortModeSyncSet(
    DSL_OUT DSL_BND_PortModeSync_t *pData);
 #endif
 
-/** @} DRV_DSL_CPE_BND */
+/** @} */ /*DRV_DSL_CPE_BND */
 
 #ifdef __cplusplus
 }

@@ -1,7 +1,9 @@
 /******************************************************************************
 
-                          Copyright (c) 2007-2015
-                     Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2016 - 2020 Intel Corporation
+         Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2009 - 2014 Lantiq Deutschland GmbH
+         Copyright 2007 - 2008 Infineon Technologies AG
 
   For licensing information, see the file 'LICENSE' in the root folder of
   this software module.
@@ -120,11 +122,6 @@ static DSL_Error_t DSL_DRV_AutobootThreadInit(
       nErrCode = DSL_DRV_AutobootStateSet(
                     pContext, DSL_AUTOBOOTSTATE_FIRMWARE_READY,
                     DSL_AUTOBOOT_FW_READY_POLL_TIME);
-   }
-
-   if (nErrCode == DSL_SUCCESS)
-   {
-      DSL_CTX_WRITE_SCALAR(pContext, nErrCode, bAutobootStopPending, DSL_FALSE);
    }
 
    if (pContext->disconnectTime == 0)
@@ -1049,7 +1046,7 @@ static DSL_Error_t DSL_DRV_AutobootHandleOrderlyShutdownRequest(
 
    DSL_DEBUG(DSL_DBG_MSG, (pContext, SYS_DBG_MSG
       "DSL[%02d]: OUT - DSL_DRV_AutobootHandleOrderlyShutdownRequest, retCode=%d"
-      DSL_DRV_CRLF, nErrCode, DSL_DEV_NUM(pContext)));
+      DSL_DRV_CRLF, DSL_DEV_NUM(pContext), nErrCode));
 
    return nErrCode;
 }
@@ -1140,6 +1137,7 @@ static DSL_Error_t DSL_DRV_AutobootHandleOrderlyShutdownReached(
 {
    DSL_Error_t nErrCode = DSL_SUCCESS;
    DSL_boolean_t bOrderlyShutDown = DSL_FALSE;
+   DSL_boolean_t bAutobootStopPending = DSL_FALSE;
 
    DSL_DEBUG(DSL_DBG_MSG, (pContext, SYS_DBG_MSG
       "DSL[%02d]: IN - DSL_DRV_AutobootHandleOrderlyShutdownReached"
@@ -1150,8 +1148,39 @@ static DSL_Error_t DSL_DRV_AutobootHandleOrderlyShutdownReached(
 
    if (bOrderlyShutDown)
    {
-      nErrCode = DSL_DRV_AutobootStateSet(pContext,
-                DSL_AUTOBOOTSTATE_RESTART, DSL_AUTOBOOT_RESTART_POLL_TIME);
+        DSL_CTX_READ_SCALAR(pContext,
+            nErrCode, bAutobootStopPending, bAutobootStopPending);
+
+        if (bAutobootStopPending)
+        {
+#ifdef INCLUDE_DSL_PM
+            if (DSL_DRV_PM_Suspend(pContext) != DSL_SUCCESS)
+            {
+               DSL_DEBUG( DSL_DBG_ERR, (pContext, SYS_DBG_ERR
+                  "DSL[%02d]: ERROR - PM module suspend failed!" DSL_DRV_CRLF,
+                  DSL_DEV_NUM(pContext)));
+            }
+#endif /* #ifdef INCLUDE_DSL_PM*/
+
+            DSL_DRV_LinkTerminate(pContext);
+            DSL_DRV_MSecSleep(DSL_AUTOBOOT_LINK_TERMINATE_WAIT_TIMEOUT);
+
+#ifdef INCLUDE_DSL_PM
+            if (DSL_DRV_PM_Stop(pContext) != DSL_SUCCESS)
+            {
+               DSL_DEBUG(DSL_DBG_ERR, (pContext, SYS_DBG_ERR
+                  "DSL[%02d]: ERROR - PM module stop failed!" DSL_DRV_CRLF,
+                  DSL_DEV_NUM(pContext)));
+            }
+#endif /* #ifdef INCLUDE_DSL_PM*/
+
+            pContext->bAutobootThreadShutdown = DSL_TRUE;
+        }
+        else
+        {
+            nErrCode = DSL_DRV_AutobootStateSet(pContext,
+               DSL_AUTOBOOTSTATE_RESTART, DSL_AUTOBOOT_RESTART_POLL_TIME);
+        }
    }
    else
    {
@@ -1164,7 +1193,7 @@ static DSL_Error_t DSL_DRV_AutobootHandleOrderlyShutdownReached(
 
    DSL_DEBUG(DSL_DBG_MSG, (pContext, SYS_DBG_MSG
       "DSL[%02d]: OUT - DSL_DRV_AutobootHandleOrderlyShutdownReached, retCode=%d"
-      DSL_DRV_CRLF, nErrCode, DSL_DEV_NUM(pContext)));
+      DSL_DRV_CRLF, DSL_DEV_NUM(pContext), nErrCode));
 
    return nErrCode;
 }
@@ -1209,6 +1238,14 @@ static DSL_Error_t DSL_DRV_AutobootHandleRestart(
    DSL_CTX_WRITE(pContext, nErrCode, pDevCtx->data.nLastShowtime, pContext->pDevCtx->data.nCurrShowtime);
    /* Reset bPermanentShowtime information*/
    DSL_CTX_WRITE_SCALAR(pContext, nErrCode, pDevCtx->data.bPermanentShowtime, DSL_FALSE);
+
+   if (DSL_DRV_BONDING_ENABLED)
+   {
+      /* Reset the bonding validity flags */
+      DSL_CTX_WRITE_SCALAR(pContext, nErrCode, bBndStatusValid, DSL_FALSE);
+      DSL_CTX_WRITE_SCALAR(pContext, nErrCode, bRemotePafBndValid, DSL_FALSE);
+      DSL_CTX_WRITE_SCALAR(pContext, nErrCode, bRemoteImapBndValid, DSL_FALSE);
+   }
 #endif /* defined(INCLUDE_DSL_CPE_API_VRX)*/
 
    DSL_DRV_LineStateSet(pContext, DSL_LINESTATE_NOT_INITIALIZED);
@@ -1722,7 +1759,7 @@ static DSL_Error_t DSL_DRV_AutobootHandleFwRequest(
    {
       /* Terminate link (stop fw) before reset & fw download */
       DSL_DRV_LinkTerminate(pContext);
-      DSL_DRV_MSecSleep(100);
+      DSL_DRV_MSecSleep(DSL_AUTOBOOT_LINK_TERMINATE_WAIT_TIMEOUT);
    }
 
 #elif defined(INCLUDE_DSL_CPE_API_DANUBE)
@@ -1749,6 +1786,13 @@ static DSL_Error_t DSL_DRV_AutobootHandleFwRequest(
          }
          else
          {
+            /* In this case the optimized FW download succeeded, which means that
+               the FW chunks within context of MEI Driver has been re-used *without*
+               requesting the binary data from user space again.
+               For PM related handling ('bFwReLoaded' flag) this case needs to be
+               handled as if the full download has been performed. */
+            DSL_CTX_WRITE_SCALAR(pContext, nErrCode, bFwReLoaded, DSL_TRUE);
+
             nErrCode = DSL_DRV_AutobootStateSet(
                pContext, DSL_AUTOBOOTSTATE_FIRMWARE_READY, DSL_AUTOBOOT_FW_READY_POLL_TIME);
 

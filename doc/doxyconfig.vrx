@@ -22,7 +22,7 @@ PROJECT_NAME           = "DSL CPE API"
 # This could be handy for archiving the generated documentation or
 # if some version control system is used.
 
-PROJECT_NUMBER         = 4.21.6.2
+PROJECT_NUMBER         = 4.23.1
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute)
 # base path where the generated documentation will be put.
@@ -357,7 +357,6 @@ SHOW_USED_FILES        = YES
 # then setting the SHOW_DIRECTORIES tag to YES will show the directory hierarchy
 # in the documentation.
 
-SHOW_DIRECTORIES       = NO
 FILE_VERSION_FILTER    =
 #---------------------------------------------------------------------------
 # configuration options related to warning and progress messages
@@ -428,8 +427,8 @@ INPUT                  = ./dsl_cpe_api.h \
                          ../src/include/drv_dsl_cpe_debug.h \
                          ../src/include/drv_dsl_cpe_api_error.h \
                          ../src/include/drv_dsl_cpe_vrx_ctx.h \
-                         ../../application/dsl_cpe_control/src/dsl_cpe_interface.h \
-                         ../../../drv_dsl_cpe_mei/vdsl/src/drv_mei_cpe_interface.h
+                         ../../../drv_dsl_cpe_mei/vdsl/src/drv_mei_cpe_interface.h \
+                         ../../application\dsl_cpe_control\dsl_mgmt_if\include
 FILE_PATTERNS          =
 
 # The RECURSIVE tag can be used to turn specify whether or not subdirectories
@@ -637,11 +636,7 @@ HTML_COLORSTYLE_SAT    = 150
 
 HTML_COLORSTYLE_GAMMA  = 80
 
-# If the HTML_ALIGN_MEMBERS tag is set to YES, the members of classes,
-# files or namespaces will be aligned in HTML using tables. If set to
-# NO a bullet list will be used.
-
-HTML_ALIGN_MEMBERS     = YES
+HTML_DYNAMIC_MENUS     = NO
 
 # If the GENERATE_HTMLHELP tag is set to YES, additional index files
 # will be generated that can be used as input for tools like the
@@ -699,7 +694,7 @@ ENUM_VALUES_PER_LINE   = 1
 # Netscape 6.0+, Internet explorer 5.0+, or Konqueror). Windows users are
 # probably better off using the HTML help feature.
 
-GENERATE_TREEVIEW      = YES
+GENERATE_TREEVIEW      = NO
 
 # If the treeview is enabled (see GENERATE_TREEVIEW) then this tag can be
 # used to set the initial width (in pixels) of the frame in which the tree
@@ -869,18 +864,6 @@ GENERATE_XML           = YES
 
 XML_OUTPUT             = xml
 
-# The XML_SCHEMA tag can be used to specify an XML schema,
-# which can be used by a validating XML parser to check the
-# syntax of the XML files.
-
-XML_SCHEMA             =
-
-# The XML_DTD tag can be used to specify an XML DTD,
-# which can be used by a validating XML parser to check the
-# syntax of the XML files.
-
-XML_DTD                =
-
 # If the XML_PROGRAMLISTING tag is set to YES Doxygen will
 # dump the program listings (including syntax highlighting
 # and cross-referencing information) to the XML output. Note that
@@ -985,8 +968,8 @@ INCLUDE_FILE_PATTERNS  =
 PREDEFINED             = __PACKED__= \
                          VXWORKS \
                          LINUX \
-                         INCLUDE_DSL_CPE_API_VDSL_SUPPORT:=1 \
-                         INCLUDE_DSL_CPE_API_ADSL_SUPPORT:=0 \
+                         INCLUDE_DSL_CPE_API_VDSL_SUPPORT=1 \
+                         INCLUDE_DSL_CPE_API_ADSL_SUPPORT=0 \
                          INCLUDE_DSL_CPE_API_VRX \
                          DSL_VRX_DEVICE_VR9 \
                          DSL_VRX_DEVICE_VR10 \
@@ -994,6 +977,7 @@ PREDEFINED             = __PACKED__= \
                          DSL_VRX_DEVICE_VR11 \
                          DSL_DOC_GENERATION_EXCLUDE_ADSL_MIB \
                          DSL_DOC_GENERATION_EXCLUDE_UNWANTED \
+                         INCLUDE_DSL_FILTER_DETECTION \
                          INCLUDE_DSL_API_G997 \
                          INCLUDE_DSL_CONFIG_GET \
                          INCLUDE_DSL_SYSTEM_INTERFACE \
@@ -1084,11 +1068,6 @@ ALLEXTERNALS           = NO
 # be listed.
 
 EXTERNAL_GROUPS        = YES
-
-# The PERL_PATH should be the absolute path and name of the perl script
-# interpreter (i.e. the result of `which perl').
-
-PERL_PATH              = /usr/bin/perl
 
 #---------------------------------------------------------------------------
 # Configuration options related to the dot tool

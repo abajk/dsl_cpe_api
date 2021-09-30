@@ -1,7 +1,10 @@
 /******************************************************************************
 
-           Copyright (c) 2018      Intel Corporation
-           Copyright (c) 2007-2015 Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2020 MaxLinear, Inc.
+         Copyright 2016 - 2020 Intel Corporation
+         Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2009 - 2014 Lantiq Deutschland GmbH
+         Copyright 2007 - 2008 Infineon Technologies AG
 
   For licensing information, see the file 'LICENSE' in the root folder of
   this software module.
@@ -130,9 +133,25 @@ static int DSL_DRV_Reboot_Notifier(struct notifier_block *nb,
                                    unsigned long action,
                                    void *data)
 {
-   printk("DSL: System reboot ongoing..." DSL_DRV_CRLF);
-   DSL_ModuleCleanup();
-   return NOTIFY_OK;
+   static DSL_boolean_t bFirstReboot = DSL_TRUE;
+
+   if (bFirstReboot == DSL_TRUE)
+   {
+      printk("DSL: Handling reboot notification" DSL_DRV_CRLF);
+
+      DSL_ModuleCleanup();
+      bFirstReboot = DSL_FALSE;
+
+      /* Notification handled, proceed with next callback. */
+      return NOTIFY_OK;
+   }
+   else
+   {
+      printk("DSL: Reboot notification already handled!" DSL_DRV_CRLF);
+
+      /* Return from the notifier and stop further calls. */
+      return NOTIFY_STOP;
+   }
 }
 
 static struct notifier_block dslRebootNb = {
@@ -257,7 +276,7 @@ static DSL_long_t DSL_DRV_Ioctls(DSL_DRV_file_t * pFile,
          (DSL_NULL, SYS_DBG_ERR"DSL: Ioctl call for file which was not opened"
          DSL_DRV_CRLF));
 
-      return -EFAULT;
+      return -EIO;
    }
    else
    {
@@ -345,7 +364,7 @@ static DSL_long_t DSL_DRV_Ioctls(DSL_DRV_file_t * pFile,
 
 static DSL_uint_t DSL_DRV_Poll(DSL_DRV_file_t *pFile, DSL_DRV_Poll_Table_t *wait)
 {
-   DSL_int_t nRet = 0;
+   DSL_uint_t nRet = 0;
    DSL_OpenContext_t *pOpenCtx;
 
    DSL_DEBUG(DSL_DBG_MSG, (DSL_NULL, SYS_DBG_MSG"IN - DSL_DRV_Poll" DSL_DRV_CRLF));
@@ -356,14 +375,14 @@ static DSL_uint_t DSL_DRV_Poll(DSL_DRV_file_t *pFile, DSL_DRV_Poll_Table_t *wait
       DSL_DEBUG(DSL_DBG_ERR, (DSL_NULL, SYS_DBG_ERR"!!! Ioctl call for file which "
          "was not opened" DSL_DRV_CRLF));
 
-      return (DSL_uint_t)(-EFAULT);
+      return POLLERR;
    }
    poll_wait(pFile, &pOpenCtx->eventWaitQueue, wait);
 
    if(DSL_DRV_MUTEX_LOCK(pOpenCtx->eventMutex))
    {
       DSL_DEBUG( DSL_DBG_ERR, (DSL_NULL, SYS_DBG_ERR"Couldn't lock event mutex"DSL_DRV_CRLF));
-      return (DSL_uint_t)DSL_ERROR;
+      return POLLERR;
    }
 
    if (pOpenCtx->eventFifo == DSL_NULL
@@ -384,9 +403,11 @@ static DSL_uint_t DSL_DRV_Poll(DSL_DRV_file_t *pFile, DSL_DRV_Poll_Table_t *wait
 
    DSL_DRV_MUTEX_UNLOCK(pOpenCtx->eventMutex);
 
-   DSL_DEBUG(DSL_DBG_MSG, (DSL_NULL, SYS_DBG_MSG"OUT - DSL_DRV_Poll" DSL_DRV_CRLF));
+   DSL_DEBUG(DSL_DBG_MSG, (DSL_NULL, SYS_DBG_MSG
+      "OUT - DSL_DRV_Poll (%d)" DSL_DRV_CRLF,
+      nRet));
 
-   return (DSL_uint_t)nRet;
+   return nRet;
 }
 
 static int DSL_DRV_DevNodeInit(DSL_void_t)
@@ -1408,6 +1429,8 @@ void DSL_ModuleCleanup(void)
    DSL_int_t i;
    static dev_t dsl_devt;
 
+   printk("DSL: Releasing driver resources" DSL_DRV_CRLF);
+
    for (i=0; i < g_MaxEntieties; i++)
    {
       dsl_devt = MKDEV(nMajorNum, i);
@@ -1433,10 +1456,9 @@ void DSL_ModuleCleanup(void)
 
 void __exit DSL_ModuleExit(void)
 {
-   printk("DSL: Module will be unloaded"DSL_DRV_CRLF);
+   printk("DSL: Unloading module" DSL_DRV_CRLF);
 
    unregister_reboot_notifier(&dslRebootNb);
-
    DSL_ModuleCleanup();
 
    return;

@@ -8,15 +8,11 @@
 ------------------------------------------------------------------------------------------------*/
 
 /**\mainpage
-   <B>"DSL CPE API Software Stack" </B>\n
-   \n
-
-   \n\n
    \section Purpose Purpose
    This document describes the API of the DSL CPE PHY Subsystem.
    \n
 
-   \section Software Overview
+   \section Software Software Overview
     The DSL CPE API package is divided in several parts as shown in the figure below.
     The configuration, status, fault and performance monitoring parts belongs to driver
     of the DSL CPE API. The API interface is provided on ioctl basis.

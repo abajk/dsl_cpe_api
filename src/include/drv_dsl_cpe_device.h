@@ -1,7 +1,9 @@
 /******************************************************************************
 
-                          Copyright (c) 2007-2015
-                     Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2016 - 2020 Intel Corporation
+         Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2009 - 2014 Lantiq Deutschland GmbH
+         Copyright 2007 - 2008 Infineon Technologies AG
 
   For licensing information, see the file 'LICENSE' in the root folder of
   this software module.
@@ -711,6 +713,10 @@ DSL_Error_t DSL_DRV_DEV_ChannelsStatusUpdate(
    DSL_Context_t *pContext
 );
 
+DSL_Error_t DSL_DRV_DEV_ChannelsStatusOnShowtimeExitUpdate(
+   DSL_Context_t *pContext
+);
+
 /**
    Firmware feature check routine
 
@@ -735,6 +741,10 @@ DSL_Error_t DSL_DRV_DEV_OlrStatisticsGet(
 
 #ifdef INCLUDE_DSL_FILTER_DETECTION
 DSL_Error_t DSL_DRV_FilterDetectionInit(
+   DSL_Context_t *pContext
+);
+
+DSL_Error_t DSL_DRV_FilterDetectionBasicInit(
    DSL_Context_t *pContext
 );
 #endif /* INCLUDE_DSL_FILTER_DETECTION */

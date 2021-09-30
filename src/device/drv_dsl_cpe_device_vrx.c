@@ -1,6 +1,7 @@
 /******************************************************************************
 
-         Copyright 2016 - 2019 Intel Corporation
+         Copyright (c) 2020, MaxLinear, Inc.
+         Copyright 2016 - 2020 Intel Corporation
          Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
          Copyright 2009 - 2014 Lantiq Deutschland GmbH
          Copyright 2007 - 2008 Infineon Technologies AG
@@ -89,8 +90,8 @@ static DSL_Error_t DSL_DRV_VRX_ReTxCountersGet(
    DSL_ReTxCounters_t *pCounters);
 
 #ifdef INCLUDE_DSL_SYSTEM_INTERFACE
-static DSL_Error_t DSL_DRV_VRX_SystemInterfaceStatusGet(
-   DSL_Context_t *pContext);
+static DSL_Error_t DSL_DRV_VRX_SystemInterfaceStatusUpdate(
+   DSL_IN DSL_Context_t *pContext);
 #endif /* INCLUDE_DSL_SYSTEM_INTERFACE */
 
 #undef DSL_DBG_BLOCK
@@ -1833,6 +1834,15 @@ DSL_Error_t DSL_DRV_VRX_FailReasonGet(
       lineInitSubStatus = LINIT_SUB_S_REBOOT_REQ;
       break;
 #endif /* defined (DSL_VRX_DEVICE_VR11) */
+   case ALM_ModemFSM_FailReasonGet_S_IMAP_DRIVER_REQ_ON:
+      lineInitSubStatus = LINIT_SUB_S_IMAP_DRIVER_REQ_ON;
+      break;
+   case ALM_ModemFSM_FailReasonGet_S_IMAP_DRIVER_REQ_OFF:
+      lineInitSubStatus = LINIT_SUB_S_IMAP_DRIVER_REQ_OFF;
+      break;
+   case ALM_ModemFSM_FailReasonGet_S_PP_TC2LINE_RES:
+      lineInitSubStatus = LINIT_SUB_S_TC2LINE_RESET;
+      break;
    default:
       lineInitSubStatus = LINIT_SUB_UNKNOWN;
       break;
@@ -2421,12 +2431,11 @@ DSL_Error_t DSL_DRV_VRX_UsPowerBackOffStatusGet(
 {
    DSL_Error_t nErrCode = DSL_SUCCESS;
    DSL_int_t i;
-   ACK_PBO_AELEM_Status_Get_t sAck;
-   DSL_BandList_t  sBandList;
+   ACK_PBO_AELEM_Status_Get_t sAck = { 0 };
+   DSL_BandList_t sBandList;
+   ACK_UPBO_KL0Get_t sAckKELR = { 0 };
    static const DSL_uint8_t nMaxNumOfBands =
       sizeof(sAck.Kl0EstimOPb)/sizeof(sAck.Kl0EstimOPb[0]);
-
-   memset(&sAck, 0, sizeof(sAck));
 
    /* init all data */
    for (i = 0; i < DSL_G997_MAX_NUMBER_OF_BANDS; i++)
@@ -2472,6 +2481,15 @@ DSL_Error_t DSL_DRV_VRX_UsPowerBackOffStatusGet(
          pData->UpboElmt = sAck.UpboElmt;
          pData->RxThreshDs = sAck.RxThreshDs;
       }
+
+      nErrCode = DSL_DRV_VRX_SendMsgUsPowerBackOffKLERStatusGet(
+         pContext, (DSL_uint8_t*)&sAckKELR);
+
+      if (nErrCode >= 0)
+      {
+         pData->nKl0EstimO = sAckKELR.kl0_EstimO;
+         pData->nKl0EstimR = sAckKELR.kl0_EstimR;
+      }
    }
 
    return (nErrCode);
@@ -2497,6 +2515,7 @@ static DSL_Error_t DSL_DRV_VRX_BearerChStatusGet(
       ACK_BearerChsUS_Get_t FUS;
       ACK_BearerChsDS_Get_t FDS;
    } sAckBch;
+   DSL_boolean_t bInpReportingMode = DSL_TRUE;
 
    memset(&sAckBch, 0, sizeof(sAckBch));
    memset(&sAckBchRtx, 0, sizeof(sAckBchRtx));
@@ -2662,12 +2681,24 @@ static DSL_Error_t DSL_DRV_VRX_BearerChStatusGet(
       ActInp =
          DSL_MAX(sAckBch.FUS.actInpNoErasure_LP0 + sAckBch.FUS.actInpNoErasure_LP1,
                  sAckBch.FUS.actInpErasure_LP0 + sAckBch.FUS.actInpErasure_LP1);
+
+      if ((sAckBch.FUS.actInpNoErasure_LP0 + sAckBch.FUS.actInpNoErasure_LP1) ==
+          (sAckBch.FUS.actInpErasure_LP0 + sAckBch.FUS.actInpErasure_LP1))
+      {
+         bInpReportingMode = DSL_FALSE;
+      }
    }
    else
    {
       ActInp =
          DSL_MAX(sAckBch.FDS.actInpNoErasure_LP0 + sAckBch.FDS.actInpNoErasure_LP1,
                  sAckBch.FDS.actInpErasure_LP0 + sAckBch.FDS.actInpErasure_LP1);
+
+      if ((sAckBch.FDS.actInpNoErasure_LP0 + sAckBch.FDS.actInpNoErasure_LP1) ==
+          (sAckBch.FDS.actInpErasure_LP0 + sAckBch.FDS.actInpErasure_LP1))
+      {
+         bInpReportingMode = DSL_FALSE;
+      }
    }
 
    if (bReTxEnable)
@@ -2694,6 +2725,10 @@ static DSL_Error_t DSL_DRV_VRX_BearerChStatusGet(
    DSL_CTX_WRITE_SCALAR(pContext, nErrCode,
                         ActualImpulseNoiseProtectionRoc[nDir][0],
                         ActInpRoc);
+
+   DSL_CTX_WRITE_SCALAR(pContext, nErrCode,
+                        ImpulseNoiseProtectionReportingMode[nDir][0],
+                        bInpReportingMode);
 
    return (nErrCode);
 }
@@ -2983,19 +3018,19 @@ static DSL_Error_t DSL_DRV_VRX_LineFailuresNeStatusGet(
    DSL_CTX_READ(pContext, nErrCode, pmLineEventShowtimeCounters, pmLineEventShowtimeCounters);
 
    /* Update LOS counter*/
-   if (nActLFM & DSL_G997_LINEFAILURE_LOS)
+   if (nActLF & DSL_G997_LINEFAILURE_LOS)
    {
       pmLineEventShowtimeCounters.data_ne.nLOS++;
    }
 
    /* Update LOF counter*/
-   if (nActLFM & DSL_G997_LINEFAILURE_LOF)
+   if (nActLF & DSL_G997_LINEFAILURE_LOF)
    {
       pmLineEventShowtimeCounters.data_ne.nLOF++;
    }
 
    /* Update LOM counter*/
-   if (nActLFM & DSL_G997_LINEFAILURE_LOM)
+   if (nActLF & DSL_G997_LINEFAILURE_LOM)
    {
       pmLineEventShowtimeCounters.data_ne.nLOM++;
    }
@@ -3130,19 +3165,19 @@ static DSL_Error_t DSL_DRV_VRX_LineFailuresFeStatusGet(
    DSL_CTX_READ(pContext, nErrCode, pmLineEventShowtimeCounters, pmLineEventShowtimeCounters);
 
    /* Update LOS counter*/
-   if (nActLFM & DSL_G997_LINEFAILURE_LOS)
+   if (nActLF & DSL_G997_LINEFAILURE_LOS)
    {
       pmLineEventShowtimeCounters.data_fe.nLOS++;
    }
 
    /* Update LOF counter*/
-   if (nActLFM & DSL_G997_LINEFAILURE_LPR)
+   if (nActLF & DSL_G997_LINEFAILURE_LPR)
    {
       pmLineEventShowtimeCounters.data_fe.nLPR++;
    }
 
    /* Update LOM counter*/
-   if (nActLFM & DSL_G997_LINEFAILURE_LOM)
+   if (nActLF & DSL_G997_LINEFAILURE_LOM)
    {
       pmLineEventShowtimeCounters.data_fe.nLOM++;
    }
@@ -3684,6 +3719,7 @@ DSL_Error_t DSL_DRV_VRX_HandleMessage(
    IOCTL_MEI_message_t sMsg;
    DSL_FctWaiting_t *pFctWait = DSL_NULL;
    DSL_LineStateValue_t nLineState;
+   EVT_TC_StatusGet_t *pData = DSL_NULL;
 
    pFctWait = &(pContext->pDevCtx->data.fctWait);
 
@@ -3726,11 +3762,24 @@ DSL_Error_t DSL_DRV_VRX_HandleMessage(
             DSL_DRV_DEV_LineStateGet(pContext, &nLineState, (EVT_ModemFSM_StateGet_t*) buf);
             DSL_CTX_WRITE_SCALAR(pContext, nErrCode, nFwEventLineState, nLineState);
             break;
+         case EVT_TC_STATUSGET:
+            DSL_DEBUG( DSL_DBG_MSG,
+               (pContext, SYS_DBG_MSG"DSL[%02d]: Received EVT_TC_STATUSGET"
+               DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+
+            pData = (EVT_TC_StatusGet_t*)buf;
+            nErrCode = DSL_DRV_VRX_TcStatusSet(pContext, pData);
+            if(nErrCode != DSL_SUCCESS)
+            {
+               DSL_DEBUG( DSL_DBG_ERR, (pContext, SYS_DBG_ERR
+                  "DSL[%02d]: ERROR - Failed to set TC status (on EVT)!"
+                  DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+            }
+            break;
          default:
             DSL_DEBUG( DSL_DBG_WRN,
                (pContext, SYS_DBG_WRN"DSL[%02d]: Unsupported VRx control message CTRL_MODEM_MSG received MsgID %x"
                DSL_DRV_CRLF, DSL_DEV_NUM(pContext), sMsg.msgId));
-
             break;
          }
       }
@@ -4193,6 +4242,7 @@ DSL_Error_t DSL_DRV_DEV_ModemWriteConfig(
    DSL_uint16_t nUsBreakpoints;
    DSL_uint16_t nDsBreakpoints;
    DSL_boolean_t bFwEventActivation;
+   ACK_ADSL_FeatureMapGet_t nFeatureMapGetAck = { 0 };
 
    DSL_CHECK_CTX_POINTER(pContext);
    DSL_CHECK_ERR_CODE();
@@ -4368,6 +4418,32 @@ DSL_Error_t DSL_DRV_DEV_ModemWriteConfig(
          return nErrCode;
       }
 #endif /* INCLUDE_DSL_CPE_API_VDSL_SUPPORT*/
+   }
+
+   if (DSL_DRV_BONDING_ENABLED && DSL_DRV_LINES_PER_DEVICE == 1)
+   {
+      /* In case of ADSL with given minimum FW version and IMAP bonding
+         requested by the FW, send CMD_IMAP_Control to the opposite line. */
+      if ((nVerCheck >= DSL_VERSION_EQUAL) &&
+         (DSL_DRV_VRX_FirmwareXdslModeCheck(pContext, DSL_VRX_FW_ADSL)))
+      {
+         nErrCode = DSL_DRV_VRX_SendMsgFeatureMapGet(pContext,
+                     (DSL_uint8_t *) &nFeatureMapGetAck);
+         /* Send msg only if IMA+ bonding supported by the FW */
+         if (nErrCode == DSL_SUCCESS && nFeatureMapGetAck.W1F01 == VRX_ENABLE)
+         {
+            nErrCode = DSL_DRV_VRX_SendMsgImapControl(pContext);
+            if( nErrCode!=DSL_SUCCESS )
+            {
+               DSL_DEBUG( DSL_DBG_ERR,
+                  (pContext, SYS_DBG_ERR"DSL[%02d]: "
+                  "DSL_DEV_ModemWriteConfig: ERROR - IMAP Control!"
+                  DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+
+               return nErrCode;
+            }
+         }
+      }
    }
 
    /* Send Rate Adaptation Mode Settings */
@@ -5268,11 +5344,20 @@ DSL_Error_t DSL_DRV_DEV_DeviceInit(
 
    if (DSL_DRV_BONDING_ENABLED)
    {
-      /* Set defaults for Bonding per DSL mode*/
+      /* Set defaults for Bonding configurations per DSL mode*/
       DSL_CTX_WRITE_SCALAR(pContext, nErrCode, BndConfig[DSL_MODE_VDSL].bPafEnable, DSL_TRUE);
-      DSL_CTX_WRITE_SCALAR(pContext, nErrCode, BndConfig[DSL_MODE_ADSL].bPafEnable, DSL_FALSE);
-      /* Disable Remote Bonding Status by default*/
+      DSL_CTX_WRITE_SCALAR(pContext, nErrCode, BndConfig[DSL_MODE_VDSL].bImapEnable, DSL_FALSE);
+      DSL_CTX_WRITE_SCALAR(pContext, nErrCode, BndConfig[DSL_MODE_ADSL].bPafEnable, DSL_TRUE);
+      DSL_CTX_WRITE_SCALAR(pContext, nErrCode, BndConfig[DSL_MODE_ADSL].bImapEnable, DSL_FALSE);
+      /* Set Imap Bonding Activate flag to FALSE by default */
+      DSL_CTX_WRITE_SCALAR(pContext, nErrCode, bImapActivate, DSL_FALSE);
+      /* Disable Remote Bonding Status by default */
       DSL_CTX_WRITE_SCALAR(pContext, nErrCode, RemoteBndConfig.bPafEnable, DSL_FALSE);
+      DSL_CTX_WRITE_SCALAR(pContext, nErrCode, RemoteBndConfig.bImapEnable, DSL_FALSE);
+      /* Set the bonding validity flags to FALSE by default */
+      DSL_CTX_WRITE_SCALAR(pContext, nErrCode, bBndStatusValid, DSL_FALSE);
+      DSL_CTX_WRITE_SCALAR(pContext, nErrCode, bRemotePafBndValid, DSL_FALSE);
+      DSL_CTX_WRITE_SCALAR(pContext, nErrCode, bRemoteImapBndValid, DSL_FALSE);
    }
 
    nErrCode = DSL_DRV_VRX_CamFsmStateSet(pContext, nCamStateNew);
@@ -5735,6 +5820,18 @@ DSL_Error_t DSL_DRV_DEV_MeiShowtimeSignaling
          return DSL_ERROR;
 #endif
       }
+
+      /* Update channel status information */
+      nErrCode = DSL_DRV_DEV_ChannelsStatusOnShowtimeExitUpdate(pContext);
+
+      if (nErrCode != DSL_SUCCESS)
+      {
+         DSL_DEBUG( DSL_DBG_ERR, (pContext,
+            SYS_DBG_ERR"DSL[%02d]: ERROR - Channels status update (on showtime exit) failed!"
+            DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+
+         return nErrCode;
+      }
    }
 #endif /* #if (DSL_DRV_ATM_PTM_INTERFACE_ENABLE == 1) */
 
@@ -5762,8 +5859,9 @@ DSL_Error_t DSL_DRV_DEV_ChannelsStatusUpdate(
       if(nErrCode != DSL_SUCCESS)
       {
          DSL_DEBUG( DSL_DBG_ERR, (pContext,
-            SYS_DBG_ERR"DSL[%02d]: ERROR - Channel %d status update failed!"
-            DSL_DRV_CRLF, DSL_DEV_NUM(pContext), i));
+            SYS_DBG_ERR"DSL[%02d]: ERROR - %s channel 0 status update failed!"
+            DSL_DRV_CRLF, DSL_DEV_NUM(pContext),
+            (i == DSL_UPSTREAM) ? "Upstream" : "Downstream"));
 
          break;
       }
@@ -5771,6 +5869,43 @@ DSL_Error_t DSL_DRV_DEV_ChannelsStatusUpdate(
 
    DSL_DEBUG( DSL_DBG_MSG, (pContext,
       SYS_DBG_MSG"DSL[%02d]: OUT - DSL_DRV_DEV_ChannelsStatusUpdate"
+      DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+
+   return nErrCode;
+}
+
+DSL_Error_t DSL_DRV_DEV_ChannelsStatusOnShowtimeExitUpdate(
+   DSL_Context_t *pContext)
+{
+   DSL_Error_t nErrCode = DSL_SUCCESS;
+   DSL_AccessDir_t nDir;
+   const DSL_uint16_t nChannel = 0;
+   const DSL_uint32_t nDataRateOnExit = 0;
+
+   DSL_DEBUG( DSL_DBG_MSG, (pContext,
+      SYS_DBG_MSG"DSL[%02d]: IN - DSL_DRV_DEV_ChannelsStatusOnShowtimeExitUpdate"
+      DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+
+   for (nDir = DSL_UPSTREAM; nDir < DSL_ACCESSDIR_LAST; ++nDir)
+   {
+      DSL_CTX_WRITE_SCALAR(pContext, nErrCode,
+         nChannelActualDataRate[nDir][nChannel], nDataRateOnExit);
+
+      nErrCode = DSL_DRV_VRX_DataRateUpdate(pContext, nDir, nDataRateOnExit);
+
+      if (nErrCode != DSL_SUCCESS)
+      {
+         DSL_DEBUG( DSL_DBG_ERR, (pContext,
+            SYS_DBG_ERR"DSL[%02d]: ERROR - %s channel 0 status "
+            "update (on showtime exit) failed!" DSL_DRV_CRLF, DSL_DEV_NUM(pContext),
+            (nDir == DSL_UPSTREAM) ? "Upstream" : "Downstream"));
+
+         break;
+      }
+   }
+
+   DSL_DEBUG( DSL_DBG_MSG, (pContext,
+      SYS_DBG_MSG"DSL[%02d]: OUT - DSL_DRV_DEV_ChannelsStatusOnShowtimeExitUpdate"
       DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
 
    return nErrCode;
@@ -6146,45 +6281,27 @@ DSL_Error_t DSL_DRV_DEV_DBG_DeviceMessageSend(
 }
 
 #ifdef INCLUDE_DSL_SYSTEM_INTERFACE
-/*
-   This function gets the System Interface Status to the DSL CPE context.
-
-   \param pContext - Pointer to dsl library context structure, [I/O]
-
-   \return
-   Return values are defined within the DSL_Error_t definition
-   - DSL_SUCCESS in case of success
-   - DSL_ERROR if operation failed
-*/
-static DSL_Error_t DSL_DRV_VRX_SystemInterfaceStatusGet(
-   DSL_Context_t *pContext)
+static DSL_Error_t DSL_DRV_VRX_TcLayerSet(
+   DSL_Context_t *pContext,
+   const ACK_TC_StatusGet_t *sAck)
 {
    DSL_Error_t nErrCode = DSL_SUCCESS;
-   ACK_TC_StatusGet_t sAck;
+   DSL_TcLayerSelection_t nTcLayer = DSL_TC_UNKNOWN,
+      nPrevTcLayer = DSL_TC_UNKNOWN;
+   DSL_boolean_t bIfStsValid = DSL_FALSE, bEventGenerate = DSL_FALSE;
+   DSL_SystemInterfaceConfigData_t stsData = {DSL_TC_UNKNOWN,
+      DSL_EMF_TC_CLEANED, DSL_EMF_TC_CLEANED, DSL_SYSTEMIF_UNKNOWN};
 
-   memset(&sAck, 0, sizeof(sAck));
-
-   /* Temporarily it is assumed that this configuration cannot be changed */
-   DSL_CTX_WRITE_SCALAR(pContext, nErrCode, pDevCtx->data.sysCIFSts.nEfmTcConfigUs, DSL_EMF_TC_CLEANED);
-   DSL_CTX_WRITE_SCALAR(pContext, nErrCode, pDevCtx->data.sysCIFSts.nEfmTcConfigDs, DSL_EMF_TC_CLEANED);
-   DSL_CTX_WRITE_SCALAR(pContext, nErrCode, pDevCtx->data.sysCIFSts.nSystemIf, DSL_SYSTEMIF_MII);
-
-   nErrCode = DSL_DRV_VRX_SendMsgTcStatusGet(pContext, (DSL_uint8_t*)&sAck);
-   if( nErrCode < DSL_SUCCESS )
-   {
-      return nErrCode;
-   }
-
-   switch (sAck.TC)
+   switch (sAck->TC)
    {
       case ACK_TC_StatusGet_UNKNOWN_TC:
-         DSL_CTX_WRITE_SCALAR(pContext, nErrCode, pDevCtx->data.sysCIFSts.nTcLayer, DSL_TC_UNKNOWN);
+         nTcLayer = DSL_TC_UNKNOWN;
          break;
       case ACK_TC_StatusGet_EFM_TC:
-         DSL_CTX_WRITE_SCALAR(pContext, nErrCode, pDevCtx->data.sysCIFSts.nTcLayer, DSL_TC_EFM);
+         nTcLayer = DSL_TC_EFM;
          break;
       case ACK_TC_StatusGet_ATM_TC:
-         DSL_CTX_WRITE_SCALAR(pContext, nErrCode, pDevCtx->data.sysCIFSts.nTcLayer, DSL_TC_ATM);
+         nTcLayer = DSL_TC_ATM;
          break;
       default:
          nErrCode = DSL_ERROR;
@@ -6194,10 +6311,121 @@ static DSL_Error_t DSL_DRV_VRX_SystemInterfaceStatusGet(
          return nErrCode;
    }
 
+   DSL_CTX_READ_SCALAR(pContext, nErrCode,
+      pDevCtx->data.bSystemIfStatusValid, bIfStsValid);
+   if(nErrCode == DSL_SUCCESS && bIfStsValid == DSL_TRUE)
+   {
+      DSL_CTX_READ(pContext, nErrCode,
+         pDevCtx->data.sysCIFSts.nTcLayer, nPrevTcLayer);
+      /* if the received TC-layer is UNKNOWN do not store anything
+         (it would overwrite the correct TC-layer set already from
+         the configuration); do nothing also if the value did not
+         change */
+      if (nTcLayer == DSL_TC_UNKNOWN || nPrevTcLayer == nTcLayer)
+      {
+         return nErrCode;
+      }
+      else if (nPrevTcLayer != nTcLayer)
+      {
+         DSL_DEBUG( DSL_DBG_WRN,(pContext, SYS_DBG_WRN"DSL[%02d]: "
+         "WARNING - TC layer value fluctuation observed during "
+         "startup" DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+
+         /* if TC layer has changed from ATM to EFM or EFM to ATM,
+            an additional event must be generated */
+         if (nTcLayer != DSL_TC_UNKNOWN)
+         {
+            bEventGenerate = DSL_TRUE;
+         }
+      }
+   }
+
+   /* Store TC Layer in pContext */
+   DSL_CTX_WRITE_SCALAR(
+      pContext, nErrCode, pDevCtx->data.sysCIFSts.nTcLayer, nTcLayer);
+
+   /* Set validity flag */
+   if (bIfStsValid == DSL_FALSE && nTcLayer != DSL_TC_UNKNOWN)
+   {
+      DSL_CTX_WRITE_SCALAR(pContext, nErrCode,
+         pDevCtx->data.bSystemIfStatusValid, DSL_TRUE);
+   }
+
+   /* Generate event if required */
+   if (bEventGenerate == DSL_TRUE)
+   {
+      DSL_CTX_READ(pContext, nErrCode, pDevCtx->data.sysCIFSts, stsData);
+
+      nErrCode = DSL_DRV_EventGenerate(
+            pContext, 0, DSL_ACCESSDIR_NA, DSL_XTUDIR_NA,
+            DSL_EVENT_S_SYSTEM_INTERFACE_STATUS,
+            (DSL_EventData_Union_t*)&stsData,
+            sizeof(DSL_SystemInterfaceConfigData_t));
+
+      if( nErrCode != DSL_SUCCESS )
+      {
+         DSL_DEBUG( DSL_DBG_ERR, (pContext,
+            SYS_DBG_ERR"DSL[%02d]: ERROR - Event(%d) generate failed!"
+            DSL_DRV_CRLF, DSL_DEV_NUM(pContext),
+            DSL_EVENT_S_SYSTEM_INTERFACE_STATUS));
+      }
+   }
+
    return nErrCode;
 }
 
-DSL_Error_t DSL_DRV_VRX_SystemInterfaceStatusUpdate(
+/*
+   This function stores the TC Status (the information provided with
+   the TC_STATUSGET ack/evt: the TC layer and the Bonding mode) to
+   the DSL CPE context.
+
+   \param pContext - Pointer to dsl library context structure, [I/O]
+   \param pAck     - Pointer to the ACK/EVT data
+
+   \return
+   Return values are defined within the DSL_Error_t definition
+   - DSL_SUCCESS in case of success
+   - DSL_ERROR if operation failed
+*/
+DSL_Error_t DSL_DRV_VRX_TcStatusSet(
+   DSL_Context_t *pContext,
+   const DSL_void_t *pData)
+{
+   DSL_Error_t nErrCode = DSL_SUCCESS, nRet = DSL_SUCCESS;
+   const ACK_TC_StatusGet_t *pAck = DSL_NULL;
+
+   if (pData == DSL_NULL)
+   {
+      return DSL_ERROR;
+   }
+
+   pAck = (ACK_TC_StatusGet_t*)pData;
+
+   nRet = DSL_DRV_VRX_TcLayerSet(pContext, pAck);
+   if (nRet != DSL_SUCCESS)
+   {
+      nErrCode = nRet;
+      DSL_DEBUG( DSL_DBG_ERR,(pContext, SYS_DBG_ERR"DSL[%02d]: "
+         "ERROR - Failed to get TC layer from FW!"
+         DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+   }
+
+   if (DSL_DRV_BONDING_ENABLED)
+   {
+      nRet = DSL_DRV_BND_BondingStatusSet(pContext, pAck);
+      if (nRet != DSL_SUCCESS)
+      {
+         nErrCode = nRet;
+         DSL_DEBUG( DSL_DBG_ERR,(pContext, SYS_DBG_ERR"DSL[%02d]: "
+            "ERROR - Failed to set bonding status!"
+            DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+      }
+   }
+
+   return nErrCode;
+}
+
+static DSL_Error_t DSL_DRV_VRX_SystemInterfaceStatusUpdate(
    DSL_IN DSL_Context_t *pContext)
 {
    DSL_Error_t nErrCode = DSL_SUCCESS;
@@ -6208,6 +6436,7 @@ DSL_Error_t DSL_DRV_VRX_SystemInterfaceStatusUpdate(
    DSL_SystemInterfaceConfigData_t stsData =
       {DSL_TC_UNKNOWN, DSL_EMF_TC_CLEANED, DSL_EMF_TC_CLEANED,
        DSL_SYSTEMIF_UNKNOWN};
+   ACK_TC_StatusGet_t sAck;
 
    DSL_DEBUG( DSL_DBG_MSG, (pContext,
       SYS_DBG_MSG"DSL[%02d]: IN - DSL_DRV_VRX_SystemInterfaceStatusUpdate"
@@ -6276,7 +6505,26 @@ DSL_Error_t DSL_DRV_VRX_SystemInterfaceStatusUpdate(
 
       if (bFwRequest == DSL_TRUE)
       {
-         nErrCode = DSL_DRV_VRX_SystemInterfaceStatusGet(pContext);
+         memset(&sAck, 0, sizeof(sAck));
+
+         /* Temporarily it is assumed that this configuration cannot be changed */
+         DSL_CTX_WRITE_SCALAR(pContext, nErrCode,
+            pDevCtx->data.sysCIFSts.nEfmTcConfigUs, DSL_EMF_TC_CLEANED);
+         DSL_CTX_WRITE_SCALAR(pContext, nErrCode,
+            pDevCtx->data.sysCIFSts.nEfmTcConfigDs, DSL_EMF_TC_CLEANED);
+         DSL_CTX_WRITE_SCALAR(pContext, nErrCode,
+            pDevCtx->data.sysCIFSts.nSystemIf, DSL_SYSTEMIF_MII);
+
+         nErrCode = DSL_DRV_VRX_SendMsgTcStatusGet(pContext, (DSL_uint8_t*)&sAck);
+         if( nErrCode < DSL_SUCCESS )
+         {
+            DSL_DEBUG( DSL_DBG_ERR, (pContext, SYS_DBG_ERR
+               "DSL[%02d]: ERROR - getting TC status failed!"
+               DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+            return nErrCode;
+         }
+
+         nErrCode = DSL_DRV_VRX_TcStatusSet(pContext, &sAck);
          if(nErrCode != DSL_SUCCESS)
          {
             DSL_DEBUG( DSL_DBG_ERR, (pContext, SYS_DBG_ERR
@@ -6662,6 +6910,66 @@ DSL_Error_t DSL_DRV_VRX_ShowtimeMeasurementCompleted(DSL_Context_t *pContext)
    nErrCode =  DSL_DRV_EventGenerate(pContext, 0,
       DSL_ACCESSDIR_NA, DSL_XTUDIR_NA, DSL_EVENT_S_LINE_STATE,
       (DSL_EventData_Union_t*)&nLineState, sizeof(DSL_LineStateData_t));
+
+   return nErrCode;
+}
+
+DSL_Error_t DSL_DRV_VRX_ShowtimeBasicMFDMeasurementUpdate(DSL_Context_t *pContext)
+{
+   DSL_Error_t nErrCode = DSL_SUCCESS;
+   ACK_MFD_InitResultsGet_t sInitResultAck = { 0 };
+   ACK_ADSL_FeatureMapGet_t nFeatureMapGetAck = { 0 };
+   DSL_FilterDetectionBasicData_t filterDetectionBasicData = { 0 };
+
+   DSL_DEBUG(DSL_DBG_MSG,
+      (pContext, SYS_DBG_MSG "DSL[%02d]: IN - "
+       "DSL_DRV_VRX_ShowtimeBasicMFDMeasurementUpdate" DSL_DRV_CRLF,
+       DSL_DEV_NUM(pContext)));
+
+   if (!DSL_DRV_VRX_FirmwareXdslModeCheck(pContext, DSL_VRX_FW_ADSL))
+   {
+      DSL_DEBUG(DSL_DBG_WRN,
+         (pContext, SYS_DBG_WRN "DSL[%02d]: WARNING - "
+         "Filter statistics supported only in ADSL mode!" DSL_DRV_CRLF,
+         DSL_DEV_NUM(pContext)));
+
+      return DSL_ERROR;
+   }
+
+   nErrCode = DSL_DRV_VRX_SendMsgFeatureMapGet(pContext,
+                  (DSL_uint8_t *) &nFeatureMapGetAck);
+
+   if (nErrCode == DSL_SUCCESS && nFeatureMapGetAck.W0F13 == VRX_ENABLE)
+   {
+      if ((nErrCode = DSL_DRV_VRX_SendMsgMfdInitResultsGet(pContext,
+            (DSL_uint8_t*)&sInitResultAck)) == DSL_SUCCESS)
+      {
+         filterDetectionBasicData.nInitResult =
+            (DSL_int16_t)(sInitResultAck.FilterDetected);
+         filterDetectionBasicData.nMetric3 =
+            (DSL_int16_t)(sInitResultAck.M3Metric);
+
+         DSL_CTX_WRITE(pContext, nErrCode,
+            showtimeMeasurement.filterDetectionBasicData,
+            filterDetectionBasicData);
+
+         DSL_CTX_WRITE_SCALAR(pContext, nErrCode,
+            showtimeMeasurement.bFilterDetectionBasicCompleted, DSL_TRUE);
+      }
+   }
+   else if (nFeatureMapGetAck.W0F13 == VRX_DISABLE)
+   {
+      DSL_DEBUG( DSL_DBG_WRN,
+         (pContext, SYS_DBG_WRN "DSL[%02d]: WARNING - Feature-Bit13 is disabled!"
+         DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+
+      nErrCode = DSL_ERR_NOT_SUPPORTED_BY_FIRMWARE;
+   }
+
+   DSL_DEBUG(DSL_DBG_MSG,
+      (pContext, SYS_DBG_MSG "DSL[%02d]: OUT - "
+       "DSL_DRV_VRX_ShowtimeBasicMFDMeasurementUpdate, retCode=%d" DSL_DRV_CRLF,
+      DSL_DEV_NUM(pContext), nErrCode));
 
    return nErrCode;
 }
@@ -7142,6 +7450,10 @@ DSL_Error_t DSL_DRV_VRX_ChannelStatusGet(
    DSL_CTX_READ_SCALAR(pContext, nErrCode,
       ActualImpulseNoiseProtectionNoErasure[nDirection][nChannel],
       pData->ActualImpulseNoiseProtectionNoErasure);
+
+   DSL_CTX_READ_SCALAR(pContext, nErrCode,
+      ImpulseNoiseProtectionReportingMode[nDirection][nChannel],
+      pData->ImpulseNoiseProtectionReportingMode);
 
    return nErrCode;
 }
@@ -8469,7 +8781,6 @@ DSL_Error_t DSL_DRV_DEV_AutobootHandleTraining(
 #endif /* INCLUDE_DSL_CPE_PM_LINE_COUNTERS*/
 #endif /* INCLUDE_DSL_PM*/
    DSL_boolean_t bPreFail = DSL_FALSE;
-   DSL_uint32_t nRemotePafAvailable;
 
    DSL_DEBUG(DSL_DBG_MSG,
       (pContext, SYS_DBG_MSG"DSL[%02d]: IN - DSL_DRV_DEV_AutobootHandleTraining"
@@ -8547,6 +8858,17 @@ DSL_Error_t DSL_DRV_DEV_AutobootHandleTraining(
                   DSL_DEV_NUM(pContext)));
          }
 #endif /* INCLUDE_DSL_CPE_API_VRX */
+
+#if defined(INCLUDE_DSL_FILTER_DETECTION) && defined(INCLUDE_DSL_CPE_API_VRX)
+         if (DSL_DRV_VRX_ShowtimeBasicMFDMeasurementUpdate(pContext)
+             != DSL_SUCCESS)
+         {
+            DSL_DEBUG(DSL_DBG_WRN,
+               (pContext, SYS_DBG_WRN "DSL[%02d]: WARNING - "
+               "Could not complete basic filter detection measurement!" DSL_DRV_CRLF,
+               DSL_DEV_NUM(pContext)));
+         }
+#endif /* INCLUDE_DSL_FILTER_DETECTION && INCLUDE_DSL_CPE_API_VRX */
 
 #ifdef INCLUDE_DSL_G997_LINE_INVENTORY
          /* Add FE Inventory Status timeout event. FE inventory information is available
@@ -8657,33 +8979,28 @@ DSL_Error_t DSL_DRV_DEV_AutobootHandleTraining(
             break;
          }
 
-         if (DSL_DRV_BONDING_ENABLED)
-         {
-            /* Update Remote Paf Status */
-            nErrCode = DSL_DRV_BND_RemotePafAvailableCheck(pContext,
-                                                            &nRemotePafAvailable);
-            if (nErrCode < DSL_SUCCESS)
-            {
-               DSL_DEBUG( DSL_DBG_ERR, (pContext,
-                  SYS_DBG_ERR"DSL[%02d]: ERROR - PAF check failed!"
-                  DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
-               break;
-            }
-            DSL_CTX_WRITE_SCALAR(pContext, nErrCode,
-               RemoteBndConfig.bPafEnable, nRemotePafAvailable);
-         }
-
 #ifdef INCLUDE_DSL_SYSTEM_INTERFACE
 #if defined(INCLUDE_DSL_CPE_API_VRX)
          nErrCode = DSL_DRV_VRX_SystemInterfaceStatusUpdate(pContext);
-#endif
+#endif /* defined(INCLUDE_DSL_CPE_API_VRX) */
          if(nErrCode != DSL_SUCCESS)
          {
             DSL_DEBUG( DSL_DBG_ERR, (pContext,
                SYS_DBG_ERR"DSL[%02d]: ERROR - System Interface status update failed!"
                DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
          }
-#endif /* INCLUDE_DSL_SYSTEM_INTERFACE*/
+#endif /* INCLUDE_DSL_SYSTEM_INTERFACE */
+
+         /* It might happen that CMD_TC_STATUSGET msg was already
+            sent in the DSL_DRV_VRX_SystemInterfaceStatusUpdate()
+            above (BndMode was updated and bBndStatusValid flag
+            was already set) therefore it is reasonable to call
+            DSL_DRV_BND_BondingStatusUpdate() after */
+         if (DSL_DRV_BONDING_ENABLED)
+         {
+            /* Update all Bonding Status information */
+            DSL_DRV_BND_BondingStatusUpdate(pContext);
+         }
 
          if (DSL_DRV_BONDING_ENABLED)
          {

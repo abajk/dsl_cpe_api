@@ -91,40 +91,54 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 @KERNEL_2_6_FALSE@bin_PROGRAMS = drv_dsl_cpe_api$(EXEEXT)
 @KERNEL_2_6_TRUE@bin_PROGRAMS = drv_dsl_cpe_api.ko$(EXEEXT)
-@DEVICE_DANUBE_TRUE@am__append_1 = \
-@DEVICE_DANUBE_TRUE@	$(drv_danube_specific_sources) \
-@DEVICE_DANUBE_TRUE@	$(drv_pm_danube_specific_sources) \
-@DEVICE_DANUBE_TRUE@	$(drv_ceoc_danube_specific_sources)
+@INCLUDE_DSL_ADSL_MIB_TRUE@am__append_1 = \
+@INCLUDE_DSL_ADSL_MIB_TRUE@	include/drv_dsl_cpe_api_adslmib.h \
+@INCLUDE_DSL_ADSL_MIB_TRUE@	include/drv_dsl_cpe_api_adslmib_ioctl.h
 
 @DEVICE_VRX_TRUE@am__append_2 = \
-@DEVICE_VRX_TRUE@	$(drv_vrx_specific_sources) \
-@DEVICE_VRX_TRUE@	$(drv_pm_vrx_specific_sources) \
-@DEVICE_VRX_TRUE@	$(drv_bnd_vrx_specific_sources) \
-@DEVICE_VRX_TRUE@	$(drv_ceoc_vrx_specific_sources)
+@DEVICE_VRX_TRUE@	include/drv_dsl_cpe_vrx_ctx.h
 
-@DEVICE_DANUBE_TRUE@am__append_3 = \
+@INCLUDE_DSL_PM_TRUE@am__append_3 = \
+@INCLUDE_DSL_PM_TRUE@	include/drv_dsl_cpe_api_pm.h
+
+@DEVICE_DANUBE_TRUE@am__append_4 = \
+@DEVICE_DANUBE_TRUE@	include/drv_dsl_cpe_cmv_danube.h \
+@DEVICE_DANUBE_TRUE@	include/drv_dsl_cpe_danube_ctx.h
+
+@DEVICE_DANUBE_TRUE@am__append_5 = \
 @DEVICE_DANUBE_TRUE@	$(drv_danube_specific_sources) \
 @DEVICE_DANUBE_TRUE@	$(drv_pm_danube_specific_sources) \
 @DEVICE_DANUBE_TRUE@	$(drv_ceoc_danube_specific_sources)
 
-@DEVICE_VRX_TRUE@am__append_4 = \
+@DEVICE_VRX_TRUE@am__append_6 = \
 @DEVICE_VRX_TRUE@	$(drv_vrx_specific_sources) \
 @DEVICE_VRX_TRUE@	$(drv_pm_vrx_specific_sources) \
 @DEVICE_VRX_TRUE@	$(drv_bnd_vrx_specific_sources) \
 @DEVICE_VRX_TRUE@	$(drv_ceoc_vrx_specific_sources)
 
-@DSL_DBG_MAX_LEVEL_SET_TRUE@am__append_5 = -DDSL_DBG_MAX_LEVEL=$(DSL_DBG_MAX_LEVEL_PRE)
+@DEVICE_DANUBE_TRUE@am__append_7 = \
+@DEVICE_DANUBE_TRUE@	$(drv_danube_specific_sources) \
+@DEVICE_DANUBE_TRUE@	$(drv_pm_danube_specific_sources) \
+@DEVICE_DANUBE_TRUE@	$(drv_ceoc_danube_specific_sources)
+
+@DEVICE_VRX_TRUE@am__append_8 = \
+@DEVICE_VRX_TRUE@	$(drv_vrx_specific_sources) \
+@DEVICE_VRX_TRUE@	$(drv_pm_vrx_specific_sources) \
+@DEVICE_VRX_TRUE@	$(drv_bnd_vrx_specific_sources) \
+@DEVICE_VRX_TRUE@	$(drv_ceoc_vrx_specific_sources)
+
+@DSL_DBG_MAX_LEVEL_SET_TRUE@am__append_9 = -DDSL_DBG_MAX_LEVEL=$(DSL_DBG_MAX_LEVEL_PRE)
 
 # the headerfile of linux kernels 2.6.x contain to much arithmetic
 # with void pointers (which is allowed for gcc!)
-@KERNEL_2_6_FALSE@am__append_6 = -Wpointer-arith
+@KERNEL_2_6_FALSE@am__append_10 = -Wpointer-arith
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.in
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
-DIST_COMMON = $(srcdir)/Makefile.am $(drv_dsl_cpe_api_include_HEADERS) \
-	$(am__DIST_COMMON)
+DIST_COMMON = $(srcdir)/Makefile.am \
+	$(am__drv_dsl_cpe_api_include_HEADERS_DIST) $(am__DIST_COMMON)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/src/include/drv_dsl_cpe_api_config.h
 CONFIG_CLEAN_FILES =
@@ -310,6 +324,17 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
+am__drv_dsl_cpe_api_include_HEADERS_DIST =  \
+	include/drv_dsl_cpe_api_bnd.h include/drv_dsl_cpe_api_error.h \
+	include/drv_dsl_cpe_api_g997.h include/drv_dsl_cpe_api.h \
+	include/drv_dsl_cpe_api_ioctl.h \
+	include/drv_dsl_cpe_api_types.h include/drv_dsl_cpe_debug.h \
+	include/drv_dsl_cpe_os_win32.h \
+	include/drv_dsl_cpe_api_adslmib.h \
+	include/drv_dsl_cpe_api_adslmib_ioctl.h \
+	include/drv_dsl_cpe_vrx_ctx.h include/drv_dsl_cpe_api_pm.h \
+	include/drv_dsl_cpe_cmv_danube.h \
+	include/drv_dsl_cpe_danube_ctx.h
 HEADERS = $(drv_dsl_cpe_api_include_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
@@ -479,16 +504,21 @@ top_srcdir = @top_srcdir@
 @DSL_CPE_API_LIBRARY_BUILD_2_6_TRUE@@KERNEL_2_6_TRUE@noinst_LIBRARIES = lib_dsl_cpe_api.a
 @KERNEL_2_6_FALSE@noinst_LIBRARIES = lib_dsl_cpe_api.a
 @DEVICE_DANUBE_TRUE@bin_SCRIPTS = ../scripts/inst_drv_dsl_cpe_api_danube.sh
-@FW_R9_FALSE@VRX_HEADER_DIR = include/mcat3.2
+@FW_R9_FALSE@VRX_HEADER_DIR = include/mcat3.4.1
 @FW_R9_TRUE@VRX_HEADER_DIR = include/mcat2.7
 drv_dsl_cpe_api_includedir = $(includedir)
-drv_dsl_cpe_api_include_HEADERS = include/drv_dsl_cpe*.h
+drv_dsl_cpe_api_include_HEADERS = include/drv_dsl_cpe_api_bnd.h \
+	include/drv_dsl_cpe_api_error.h include/drv_dsl_cpe_api_g997.h \
+	include/drv_dsl_cpe_api.h include/drv_dsl_cpe_api_ioctl.h \
+	include/drv_dsl_cpe_api_types.h include/drv_dsl_cpe_debug.h \
+	include/drv_dsl_cpe_os_win32.h $(am__append_1) $(am__append_2) \
+	$(am__append_3) $(am__append_4)
 drv_bnd_sources = \
 	bnd/drv_dsl_cpe_api_bnd.c
 
 drv_bnd_extra = \
 	include/drv_dsl_cpe_api_bnd.h \
-   include/drv_dsl_cpe_api_bnd_vrx.h
+	include/drv_dsl_cpe_api_bnd_vrx.h
 
 drv_pm_sources = \
 	pm/drv_dsl_cpe_api_pm.c \
@@ -591,13 +621,13 @@ drv_vrx_specific_extra = \
 	include/mcat2.7/drv_dsl_cpe_vrx_msg_olr.h \
 	include/mcat2.7/drv_dsl_cpe_vrx_msg_perf_pmd.h \
 	include/mcat2.7/drv_dsl_cpe_vrx_msg_tc_counters.h \
-	include/mcat3.2/drv_dsl_cpe_vrx_msg_config_pmd.h \
-	include/mcat3.2/drv_dsl_cpe_vrx_msg_const.h \
-	include/mcat3.2/drv_dsl_cpe_vrx_msg_dmt_scope.h \
-	include/mcat3.2/drv_dsl_cpe_vrx_msg_ghs_status.h \
-	include/mcat3.2/drv_dsl_cpe_vrx_msg_olr.h \
-	include/mcat3.2/drv_dsl_cpe_vrx_msg_perf_pmd.h \
-	include/mcat3.2/drv_dsl_cpe_vrx_msg_tc_counters.h \
+	include/mcat3.4.1/drv_dsl_cpe_vrx_msg_config_pmd.h \
+	include/mcat3.4.1/drv_dsl_cpe_vrx_msg_const.h \
+	include/mcat3.4.1/drv_dsl_cpe_vrx_msg_dmt_scope.h \
+	include/mcat3.4.1/drv_dsl_cpe_vrx_msg_ghs_status.h \
+	include/mcat3.4.1/drv_dsl_cpe_vrx_msg_olr.h \
+	include/mcat3.4.1/drv_dsl_cpe_vrx_msg_perf_pmd.h \
+	include/mcat3.4.1/drv_dsl_cpe_vrx_msg_tc_counters.h \
 	include/drv_dsl_cpe_vrx_ctx.h \
 	../scripts/inst_drv_dsl_cpe_api_vrx.sh
 
@@ -607,10 +637,10 @@ drv_bnd_specific = $(drv_bnd_sources)
 @INCLUDE_DSL_ADSL_MIB_TRUE@drv_mib_specific = $(drv_adsl_mib_sources)
 drv_dsl_cpe_api_SOURCES = $(drv_common_sources) $(drv_pm_specific) \
 	$(drv_bnd_specific) $(drv_ceoc_specific) $(drv_mib_specific) \
-	$(drv_specific_sources) $(am__append_1) $(am__append_2)
+	$(drv_specific_sources) $(am__append_5) $(am__append_6)
 lib_dsl_cpe_api_a_SOURCES = $(drv_common_sources) $(drv_pm_specific) \
 	$(drv_ceoc_specific) $(drv_mib_specific) \
-	$(drv_specific_sources) $(am__append_3) $(am__append_4)
+	$(drv_specific_sources) $(am__append_7) $(am__append_8)
 EXTRA_DIST = \
 	../LICENSE \
 	$(drv_danube_specific_sources) \
@@ -626,7 +656,7 @@ EXTRA_DIST = \
 	$(drv_ceoc_extra) \
 	$(drv_adsl_mib_extra) \
 	$(drv_danube_specific_extra) \
-   $(drv_vrx_specific_extra)
+	$(drv_vrx_specific_extra)
 
 @DSL_CPE_API_LIBRARY_BUILD_2_6_FALSE@drv_dsl_cpe_api_common_mod_cflags = 
 
@@ -636,8 +666,8 @@ drv_dsl_cpe_api_common_cflags = -DLINUX -D__LINUX__ -D__KERNEL__ \
 	-DEXPORT_SYMTAB -pipe -Wall -Wformat -Wimplicit -Wunused \
 	-Wswitch -Wcomment -Winline -Wuninitialized -Wparentheses \
 	-Wreturn-type -Wstrict-prototypes -Wno-trigraphs \
-	-fno-strict-aliasing -fno-common $(am__append_5) \
-	$(am__append_6)
+	-fno-strict-aliasing -fno-common $(am__append_9) \
+	$(am__append_10)
 
 # target cflags, specified by configure options
 drv_dsl_cpe_api_target_cflags = $(ADD_DRV_CFLAGS)

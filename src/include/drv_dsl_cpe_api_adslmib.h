@@ -1,7 +1,9 @@
 /******************************************************************************
 
-                          Copyright (c) 2007-2015
-                     Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2016 - 2020 Intel Corporation
+         Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2009 - 2014 Lantiq Deutschland GmbH
+         Copyright 2007 - 2008 Infineon Technologies AG
 
   For licensing information, see the file 'LICENSE' in the root folder of
   this software module.
@@ -1483,7 +1485,7 @@ typedef struct
       Table index */
    DSL_int_t ifIndex;
    /**
-   Performance Data Interval number 1 is the the most recent previous interval;
+   Performance Data Interval number 1 is the most recent previous interval;
    interval 96 is 24 hours ago.  Intervals 2..96 are
    optional.
    - Numerical syntax: Integer (32 bit)
@@ -1603,7 +1605,7 @@ typedef struct
       Table index */
    DSL_int_t ifIndex;
    /**
-   Performance Data Interval number 1 is the the most recent previous interval;
+   Performance Data Interval number 1 is the most recent previous interval;
    interval 96 is 24 hours ago.  Intervals 2..96 are optional.
    - Numerical syntax: Integer (32 bit)
    - Base syntax: INTEGER
@@ -2097,7 +2099,7 @@ typedef struct
       Table index */
    DSL_int_t ifIndex;
    /**
-   Performance Data Interval number 1 is the the most recent previous interval;
+   Performance Data Interval number 1 is the most recent previous interval;
    interval 96 is 24 hours ago. Intervals 2..96 are optional.
    - Numerical syntax: Integer (32 bit)
    - Base syntax: INTEGER
@@ -2157,7 +2159,7 @@ typedef struct
       Table index */
    DSL_int_t ifIndex;
    /**
-   Performance Data Interval number 1 is the the most recent previous interval;
+   Performance Data Interval number 1 is the most recent previous interval;
    interval 96 is 24 hours ago. Intervals 2..96 are optional.
    - Numerical syntax: Integer (32 bit)
    - Base syntax: INTEGER

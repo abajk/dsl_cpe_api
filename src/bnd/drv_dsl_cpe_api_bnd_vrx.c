@@ -1,7 +1,9 @@
 /******************************************************************************
 
-                          Copyright (c) 2007-2015
-                     Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2016 - 2020 Intel Corporation
+         Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2009 - 2014 Lantiq Deutschland GmbH
+         Copyright 2007 - 2008 Infineon Technologies AG
 
   For licensing information, see the file 'LICENSE' in the root folder of
   this software module.
@@ -23,39 +25,40 @@
 #define DSL_DBG_BLOCK DSL_DBG_DEVICE
 
 /*
-   This function writes PAF Handshake configuration to the firmware.
+   This function writes Bonding Handshake configuration to the firmware.
 
    \param pContext - Pointer to dsl cpe library context structure, [I/O]
-   \param pData    - Pointer to the PAF control data [I]
+   \param pData    - Pointer to the control data [I]
 
    \return
    Return values are defined within the DSL_Error_t definition
    - DSL_SUCCESS in case of success
    - DSL_ERROR if operation failed
 */
-static DSL_Error_t DSL_DRV_BND_VRX_PafHsControlSet(
+static DSL_Error_t DSL_DRV_BND_VRX_HsControlSet(
    DSL_Context_t *pContext,
-   DSL_BND_VRX_PafHsControl_t *pData)
+   DSL_BND_VRX_HsControl_t *pData)
 {
    DSL_Error_t nErrCode = DSL_SUCCESS;
-   CMD_PAF_HS_Control_t sCmd;
-   ACK_PAF_HS_Control_t sAck;
+   CMD_Bonding_HS_Control_t sCmd;
+   ACK_Bonding_HS_Control_t sAck;
 
    DSL_DEBUG(DSL_DBG_MSG, (pContext,
-      SYS_DBG_MSG"DSL[%02d]: IN - DSL_DRV_BND_VRX_PafHsControlSet"
+      SYS_DBG_MSG"DSL[%02d]: IN - DSL_DRV_BND_VRX_HsControlSet"
       DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
 
    memset(&sCmd, 0x0, sizeof(sCmd));
 
    sCmd.Length     = 0x1;
    sCmd.PAF_Enable = pData->nPafEnable ? VRX_ENABLE : VRX_DISABLE;
+   sCmd.IMAP_Enable = pData->nImapEnable ? VRX_ENABLE : VRX_DISABLE;
 
-   nErrCode =  DSL_DRV_VRX_SendMessage( pContext, CMD_PAF_HS_CONTROL,
-                   sizeof(CMD_PAF_HS_Control_t), (DSL_uint8_t *)&sCmd,
-                   sizeof(ACK_PAF_HS_Control_t), (DSL_uint8_t *)&sAck );
+   nErrCode =  DSL_DRV_VRX_SendMessage( pContext, CMD_BONDING_HS_CONTROL,
+                   sizeof(CMD_Bonding_HS_Control_t), (DSL_uint8_t *)&sCmd,
+                   sizeof(ACK_Bonding_HS_Control_t), (DSL_uint8_t *)&sAck );
 
    DSL_DEBUG(DSL_DBG_MSG, (pContext,
-      SYS_DBG_MSG"DSL[%02d]: OUT - DSL_DRV_BND_VRX_PafHsControlSet, retCode=%d"
+      SYS_DBG_MSG"DSL[%02d]: OUT - DSL_DRV_BND_VRX_HsControlSet, retCode=%d"
       DSL_DRV_CRLF, DSL_DEV_NUM(pContext), nErrCode));
 
    return nErrCode;
@@ -124,6 +127,79 @@ DSL_Error_t DSL_DRV_BND_VRX_PafHsStatusGet(
 
    DSL_DEBUG(DSL_DBG_MSG, (pContext,
       SYS_DBG_MSG"DSL[%02d]: OUT - DSL_DRV_BND_VRX_PafHsStatusGet, retCode=%d"
+      DSL_DRV_CRLF, DSL_DEV_NUM(pContext), nErrCode));
+
+   return nErrCode;
+}
+
+/*
+   This function gets IMA+ Handshake status from the firmware.
+
+   \param pContext - Pointer to dsl cpe library context structure, [I/O]
+   \param pData    - Pointer to the PAF status data [O]
+
+   \return
+   Return values are defined within the DSL_Error_t definition
+   - DSL_SUCCESS in case of success
+   - DSL_ERROR if operation failed
+*/
+static DSL_Error_t DSL_DRV_BND_VRX_ImapHsStatusGet(
+   DSL_Context_t *pContext,
+   DSL_BND_VRX_ImapHsStatus_t *pData)
+{
+   DSL_Error_t nErrCode = DSL_SUCCESS;
+   CMD_IMAP_HS_StatusGet_t sCmd;
+   ACK_IMAP_HS_StatusGet_t sAck;
+   ACK_ADSL_FeatureMapGet_t nFeatureMapGetAck = { 0 };
+
+   DSL_DEBUG(DSL_DBG_MSG, (pContext,
+      SYS_DBG_MSG"DSL[%02d]: IN - DSL_DRV_BND_VRX_ImapHsStatusGet" DSL_DRV_CRLF,
+      DSL_DEV_NUM(pContext)));
+
+   memset(pData, 0x00, sizeof(DSL_BND_VRX_ImapHsStatus_t));
+
+   if (DSL_DRV_LINES_PER_DEVICE == 2)
+   {
+      if (DSL_DRV_DEV_FirmwareFeatureCheck(pContext,
+         DSL_FW_XDSLFEATURE_DUALPORT) == DSL_FALSE)
+      {
+         DSL_DEBUG(DSL_DBG_ERR, (pContext, SYS_DBG_ERR
+            "DSL[%02d]: ERROR - Bonding is not supported with the current FW!"
+            DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+
+         return DSL_ERR_NOT_SUPPORTED_BY_FIRMWARE;
+      }
+   }
+
+   nErrCode = DSL_DRV_VRX_SendMsgFeatureMapGet(pContext,
+      (DSL_uint8_t *) &nFeatureMapGetAck);
+   if (nErrCode == DSL_SUCCESS && nFeatureMapGetAck.W1F01 == VRX_ENABLE)
+   {
+      memset(&sCmd, 0x00, sizeof(sCmd));
+
+      sCmd.Length = 0x2;
+
+      nErrCode =  DSL_DRV_VRX_SendMessage( pContext, CMD_IMAP_HS_STATUSGET,
+                     sizeof(CMD_IMAP_HS_StatusGet_t), (DSL_uint8_t *)&sCmd,
+                     sizeof(ACK_IMAP_HS_StatusGet_t), (DSL_uint8_t *)&sAck );
+
+      if (nErrCode >= DSL_SUCCESS)
+      {
+         pData->bImapEnable = (DSL_boolean_t)sAck.IMAP_FE;
+         pData->nMaxDiffDelayDs = sAck.MaxDiffDelay;
+      }
+   }
+   else
+   {
+      DSL_DEBUG(DSL_DBG_ERR, (pContext, SYS_DBG_ERR
+            "DSL[%02d]: ERROR - IMA+ Bonding is not supported with the current FW!"
+            DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+
+      nErrCode = DSL_ERR_NOT_SUPPORTED_BY_FIRMWARE;
+   }
+
+   DSL_DEBUG(DSL_DBG_MSG, (pContext,
+      SYS_DBG_MSG"DSL[%02d]: OUT - DSL_DRV_BND_VRX_ImapHsStatusGet, retCode=%d"
       DSL_DRV_CRLF, DSL_DEV_NUM(pContext), nErrCode));
 
    return nErrCode;
@@ -199,7 +275,7 @@ DSL_Error_t DSL_DRV_BND_VRX_ConfigWrite(
    DSL_BND_ConfigData_t BndConfig;
    DSL_PortMode_t nPortMode;
    DSL_DEV_VersionCheck_t nVerCheck = DSL_VERSION_ERROR;
-   DSL_BND_VRX_PafHsControl_t PafHsControl;
+   DSL_BND_VRX_HsControl_t HsControl;
    DSL_DslModeSelection_t nDslMode;
 
    DSL_DEBUG(DSL_DBG_MSG, (pContext,
@@ -232,19 +308,21 @@ DSL_Error_t DSL_DRV_BND_VRX_ConfigWrite(
    if (DSL_DRV_LINES_PER_DEVICE == 2 && nPortMode != DSL_PORT_MODE_DUAL)
    {
       DSL_DEBUG(DSL_DBG_WRN, (pContext,
-         SYS_DBG_MSG"DSL[%02d]: Ignore PAF settings, disable PAF" DSL_DRV_CRLF,
+         SYS_DBG_MSG"DSL[%02d]: Ignore BND settings, disable PAF and IMAP" DSL_DRV_CRLF,
          DSL_DEV_NUM(pContext)));
-      PafHsControl.nPafEnable = VRX_DISABLE;
+      HsControl.nPafEnable = VRX_DISABLE;
+      HsControl.nImapEnable = VRX_DISABLE;
    }
    else
    {
-      PafHsControl.nPafEnable = BndConfig.bPafEnable ? VRX_ENABLE : VRX_DISABLE;
+      HsControl.nPafEnable = BndConfig.bPafEnable ? VRX_ENABLE : VRX_DISABLE;
+      HsControl.nImapEnable = BndConfig.bImapEnable ? VRX_ENABLE : VRX_DISABLE;
    }
 
-   /* Always write PAF control independent if bonding is enabled or disabled */
-   nErrCode = DSL_DRV_BND_VRX_PafHsControlSet(pContext, &PafHsControl);
+   /* Always write HS control independent if bonding is enabled or disabled */
+   nErrCode = DSL_DRV_BND_VRX_HsControlSet(pContext, &HsControl);
 
-   /* The following configurations will be only written if bonding is enabled */
+   /* The following configurations will be only written if PAF bonding is enabled */
    if (BndConfig.bPafEnable == DSL_TRUE)
    {
       if (DSL_DRV_VRX_FirmwareXdslModeCheck(pContext, DSL_VRX_FW_VDSL2))
@@ -335,7 +413,7 @@ DSL_Error_t DSL_DRV_BND_DEV_HsStatusGet(
    if (nErrCode != DSL_SUCCESS)
    {
       DSL_DEBUG(DSL_DBG_ERR, (pContext,
-         SYS_DBG_ERR"DSL[%02d]: ERROR - VRX PAF HS status get failed!"
+         SYS_DBG_ERR"DSL[%02d]: ERROR - VRX HS status get failed!"
          DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
    }
    else
@@ -370,6 +448,80 @@ DSL_Error_t DSL_DRV_BND_DEV_HsStatusGet(
 
    DSL_DEBUG(DSL_DBG_MSG, (pContext,
       SYS_DBG_MSG"DSL[%02d]: OUT - DSL_DRV_BND_DEV_HsStatusGet, retCode=%d"
+      DSL_DRV_CRLF, DSL_DEV_NUM(pContext), nErrCode));
+
+   return nErrCode;
+}
+
+/*
+   For a detailed description of the function, its arguments and return value
+   please refer to the description in the header file 'drv_dsl_cpe_bnd_vrx.h'
+*/
+DSL_Error_t DSL_DRV_BND_DEV_PafBndStatusGet(
+   DSL_Context_t *pContext,
+   DSL_BND_StatusData_t *pData)
+{
+   DSL_Error_t nErrCode = DSL_SUCCESS;
+   DSL_BND_VRX_PafHsStatus_t pafHsStatus;
+
+   DSL_DEBUG(DSL_DBG_MSG, (pContext,
+      SYS_DBG_MSG"DSL[%02d]: IN - DSL_DRV_BND_DEV_PafBndStatusGet" DSL_DRV_CRLF,
+      DSL_DEV_NUM(pContext)));
+
+   /* Get VRX PAF handshake status*/
+   nErrCode = DSL_DRV_BND_VRX_PafHsStatusGet(pContext, &pafHsStatus);
+
+   if (nErrCode != DSL_SUCCESS)
+   {
+      DSL_DEBUG(DSL_DBG_ERR, (pContext,
+         SYS_DBG_ERR"DSL[%02d]: ERROR - VRX PAF BND status get failed!"
+         DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+   }
+   else
+   {
+      pData->nRemotePafSupported =
+         pafHsStatus.bPafEnable ? DSL_BND_ENABLE_ON : DSL_BND_ENABLE_OFF;
+   }
+
+   DSL_DEBUG(DSL_DBG_MSG, (pContext,
+      SYS_DBG_MSG"DSL[%02d]: OUT - DSL_DRV_BND_DEV_PafBndStatusGet, retCode=%d"
+      DSL_DRV_CRLF, DSL_DEV_NUM(pContext), nErrCode));
+
+   return nErrCode;
+}
+
+/*
+   For a detailed description of the function, its arguments and return value
+   please refer to the description in the header file 'drv_dsl_cpe_bnd_vrx.h'
+*/
+DSL_Error_t DSL_DRV_BND_DEV_ImapBndStatusGet(
+   DSL_Context_t *pContext,
+   DSL_BND_StatusData_t *pData)
+{
+   DSL_Error_t nErrCode = DSL_SUCCESS;
+   DSL_BND_VRX_ImapHsStatus_t imapHsStatus;
+
+   DSL_DEBUG(DSL_DBG_MSG, (pContext,
+      SYS_DBG_MSG"DSL[%02d]: IN - DSL_DRV_BND_DEV_ImapBndStatusGet" DSL_DRV_CRLF,
+      DSL_DEV_NUM(pContext)));
+
+   /* Get VRX IMAP handshake status*/
+   nErrCode = DSL_DRV_BND_VRX_ImapHsStatusGet(pContext, &imapHsStatus);
+
+   if (nErrCode != DSL_SUCCESS)
+   {
+      DSL_DEBUG(DSL_DBG_ERR, (pContext,
+         SYS_DBG_ERR"DSL[%02d]: ERROR - VRX IMA+ BND status get failed!"
+         DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+   }
+   else
+   {
+      pData->nRemoteImapSupported =
+         imapHsStatus.bImapEnable ? DSL_BND_ENABLE_ON : DSL_BND_ENABLE_OFF;
+   }
+
+   DSL_DEBUG(DSL_DBG_MSG, (pContext,
+      SYS_DBG_MSG"DSL[%02d]: OUT - DSL_DRV_BND_DEV_ImapBndStatusGet, retCode=%d"
       DSL_DRV_CRLF, DSL_DEV_NUM(pContext), nErrCode));
 
    return nErrCode;

@@ -1,7 +1,9 @@
 /******************************************************************************
 
-                          Copyright (c) 2007-2015
-                     Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2016 - 2020 Intel Corporation
+         Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2009 - 2014 Lantiq Deutschland GmbH
+         Copyright 2007 - 2008 Infineon Technologies AG
 
   For licensing information, see the file 'LICENSE' in the root folder of
   this software module.
@@ -31,7 +33,10 @@ typedef struct
    /**
       PAF enable/disable*/
    DSL_uint8_t nPafEnable;
-} DSL_BND_VRX_PafHsControl_t;
+   /**
+      IMAP enable/disable*/
+   DSL_uint8_t nImapEnable;
+} DSL_BND_VRX_HsControl_t;
 
 typedef struct
 {
@@ -86,19 +91,50 @@ typedef struct
 } DSL_BND_VRX_PafHsStatus_t;
 
 /**
-   This function gets PAF Handshake status from the firmware.
+   This function gets PAF Bonding status from the firmware.
 
    \param pContext - Pointer to dsl cpe library context structure, [I/O]
-   \param pData    - Pointer to the PAF status data [O]
+   \param pData    - Pointer to the BND status data [O]
 
    \return
    Return values are defined within the DSL_Error_t definition
    - DSL_SUCCESS in case of success
    - DSL_ERROR if operation failed
 */
-DSL_Error_t DSL_DRV_BND_VRX_PafHsStatusGet(
+DSL_Error_t DSL_DRV_BND_DEV_PafBndStatusGet(
    DSL_Context_t *pContext,
-   DSL_BND_VRX_PafHsStatus_t *pData);
+   DSL_BND_StatusData_t *pData);
+
+/**
+   Structure for the PAF HS status
+*/
+typedef struct
+{
+   /**
+      Remote IMAP supported. VRX_TRUE/VRX_FALSE */
+   DSL_boolean_t bImapEnable;
+   /**
+      Max Differential Delay DS
+      Maximum downstream differential delay between members of an
+      ATM bonding group in ms. The value received during G.HS from CO.
+   */
+   DSL_uint16_t nMaxDiffDelayDs;
+} DSL_BND_VRX_ImapHsStatus_t;
+
+/**
+   This function gets IMA+ Bonding status from the firmware.
+
+   \param pContext - Pointer to dsl cpe library context structure, [I/O]
+   \param pData    - Pointer to the BND status data [O]
+
+   \return
+   Return values are defined within the DSL_Error_t definition
+   - DSL_SUCCESS in case of success
+   - DSL_ERROR if operation failed
+*/
+DSL_Error_t DSL_DRV_BND_DEV_ImapBndStatusGet(
+   DSL_Context_t *pContext,
+   DSL_BND_StatusData_t *pData);
 
 /**
    Structure for the PAF HS continue command

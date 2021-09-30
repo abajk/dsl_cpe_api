@@ -1,7 +1,9 @@
 /******************************************************************************
 
-                          Copyright (c) 2007-2015
-                     Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2016 - 2020 Intel Corporation
+         Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
+         Copyright 2009 - 2014 Lantiq Deutschland GmbH
+         Copyright 2007 - 2008 Infineon Technologies AG
 
   For licensing information, see the file 'LICENSE' in the root folder of
   this software module.
@@ -35,6 +37,8 @@ typedef enum
    /* *********************************************************************** */
    /* *** Error Codes for bonding functionality                           *** */
    /* *********************************************************************** */
+   /** IMAP (ATM) bonding is only supported with ADSL transmission mode */
+   DSL_ERR_BND_IMAP_ONLY_SUPPORTED_IN_ADSL = -503,
    /** Command/feature can not be performed because only one line can be in
        showtime in case of disabled bonding on the CO side. This line has been
        disabled because the other line has reached a line state that is equal

@@ -1,6 +1,6 @@
 /******************************************************************************
 
-         Copyright 2016 - 2019 Intel Corporation
+         Copyright 2016 - 2020 Intel Corporation
          Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
          Copyright 2009 - 2014 Lantiq Deutschland GmbH
          Copyright 2007 - 2008 Infineon Technologies AG
@@ -185,6 +185,8 @@ typedef struct
    DSL_boolean_t bFilterDetectionCompleted;
    DSL_boolean_t bFilterDetectionActive;
    DSL_FilterDetectionData_t filterDetectionData;
+   DSL_boolean_t bFilterDetectionBasicCompleted;
+   DSL_FilterDetectionBasicData_t filterDetectionBasicData;
 #endif /* #if defined(INCLUDE_DSL_FILTER_DETECTION)*/
 } DSL_ShowtimeMeasurement_t;
 
@@ -417,6 +419,7 @@ struct DSL_Context
    DSL_uint16_t ActualImpulseNoiseProtectionRein[DSL_ACCESSDIR_LAST][DSL_MAX_SUPPORTED_CHANNELS_PER_LINE];
    DSL_uint16_t ActualImpulseNoiseProtectionNoErasure[DSL_ACCESSDIR_LAST][DSL_MAX_SUPPORTED_CHANNELS_PER_LINE];
    DSL_uint16_t ActualImpulseNoiseProtectionRoc[DSL_ACCESSDIR_LAST][DSL_MAX_SUPPORTED_CHANNELS_PER_LINE];
+   DSL_boolean_t ImpulseNoiseProtectionReportingMode[DSL_ACCESSDIR_LAST][DSL_MAX_SUPPORTED_CHANNELS_PER_LINE];
 
    /** Actual Data Rate per direction, per channel */
    DSL_uint32_t nChannelActualDataRate[DSL_ACCESSDIR_LAST][DSL_MAX_SUPPORTED_CHANNELS_PER_LINE];
@@ -538,8 +541,23 @@ struct DSL_Context
    Remote Bonding Configuration Data*/
    DSL_BND_ConfigData_t RemoteBndConfig;
    /**
+   Bonding Status Data*/
+   DSL_BondingMode_t BndStatus;
+   /**
    Bonding Port Mode sync Data*/
    DSL_PortMode_t BndPortModeSync;
+   /**
+   Bonding status validity flag */
+   DSL_boolean_t bBndStatusValid;
+   /**
+   Remote PAF Bonding validity flag */
+   DSL_boolean_t bRemotePafBndValid;
+   /**
+   Remote IMA+ Bonding validity flag */
+   DSL_boolean_t bRemoteImapBndValid;
+   /**
+   Bonding IMA+ Control flag */
+   DSL_boolean_t bImapActivate;
 
    /** Retransmission counters */
    DSL_ReTxCounters_t retxCounters;
@@ -1429,6 +1447,19 @@ DSL_Error_t DSL_DRV_FilterDetectionDataGet(
 
 /**
    For a detailed description please refer to the equivalent ioctl
+   \ref DSL_FIO_FILTER_DETECTION_BASIC_DATA_GET
+*/
+#if defined(INCLUDE_DSL_CPE_API_VRX) && defined(INCLUDE_DSL_FILTER_DETECTION)
+#ifndef SWIG_TMP
+DSL_Error_t DSL_DRV_FilterDetectionBasicDataGet(
+   DSL_IN DSL_Context_t *pContext,
+   DSL_OUT DSL_FilterDetectionBasic_t *pData
+);
+#endif
+#endif /* #if defined(INCLUDE_DSL_CPE_API_VRX) && defined(INCLUDE_DSL_FILTER_DETECTION)*/
+
+/**
+   For a detailed description please refer to the equivalent ioctl
    \ref DSL_FIO_HYBRID_SELECTION_DATA_GET
 */
 #ifdef INCLUDE_DSL_CPE_API_DANUBE
@@ -1607,31 +1638,6 @@ DSL_void_t DSL_DRV_Cleanup(DSL_void_t);
 #endif
 
 /**
-   This function returns the context for the specific device
-
-   \param nNum
-      Device number
-   \param pRefContext
-      Reference to NULL pointer of type 'DSL_OpenContext_t'.
-
-   \return
-   Return values are defined within the \ref DSL_Error_t definition
-   - DSL_SUCCESS in case of success
-   - DSL_ERROR if operation failed
-   - or any other defined specific error code
-
-   \remarks
-   Supported by
-   - Danube: ADSL-CPE
-*/
-#ifndef SWIG
-DSL_Error_t DSL_DRV_HandleGet(
-   DSL_IN     DSL_int_t     nNum,
-   DSL_IN_OUT DSL_OpenContext_t **pRefOpenContext
-);
-#endif
-
-/**
    This function implements a driver internal (kernel space) specific open
    functionality which is only necessary in case of using this DSL CPE API driver
    from within the kernel space. It refers to the fd open in case of using ioctl
@@ -1642,7 +1648,7 @@ DSL_Error_t DSL_DRV_HandleGet(
    \param pRefContext
       Reference to NULL pointer of type 'DSL_OpenContext_t'. The memory allocation
       and deletion will be done by the driver.
-      If the function return with DSL_SUCCESS the pointer points to successfully
+      If the function returns with DSL_SUCCESS the pointer points to successfully
       allocated memory and has to be used for calling the DSL CPE_API functions
       later on.
       \attention For ALL later API function calls the pointer has to be used
@@ -1673,7 +1679,7 @@ DSL_Error_t DSL_DRV_HandleInit(
 
    \param pOpenContext
       Pointer of type 'DSL_OpenContext_t' to be released.
-      If the function return with DSL_SUCCESS the pointer and all associated
+      If the function returns with DSL_SUCCESS the pointer and all associated
       data are successfully released.
 
    Return values are defined within the \ref DSL_Error_t definition
@@ -1696,7 +1702,7 @@ DSL_Error_t DSL_DRV_HandleDelete(
    functionality. It releases all memory allocated by structures linked with
    passed device context.
 
-   \param pRefContext
+   \param pDevContext
       pointer to the device context
    \param bForce
       force decrement module usage count to 1 and memory release

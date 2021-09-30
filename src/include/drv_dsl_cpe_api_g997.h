@@ -1,6 +1,7 @@
 /******************************************************************************
 
-         Copyright 2016 - 2019 Intel Corporation
+         Copyright (c) 2020, MaxLinear, Inc.
+         Copyright 2016 - 2020 Intel Corporation
          Copyright 2015 - 2016 Lantiq Beteiligungs-GmbH & Co. KG
          Copyright 2009 - 2014 Lantiq Deutschland GmbH
          Copyright 2007 - 2008 Infineon Technologies AG
@@ -1256,9 +1257,9 @@ typedef struct
    this parameter reports the Expected Throughput (ETR) (as defined in G.inp)
    at which the bearer channel is operating.
 
-   If retransmsission is used in a given direction: the reporting of
+   If retransmission is used in a given direction: the reporting of
    ActualDataRate is according to  ITU-T G.997.1 chapter 7.5.2.1.
-   If retransmsission is not used in a given direction: the reporting of
+   If retransmission is not used in a given direction: the reporting of
    ActualDataRate is not according to  ITU-T G.997.1 chapter 7.5.2.1
    during L2 power state but the reporting of parameter ActualNetDataRate
    is according to  ITU-T G.997.1 chapter 7.5.2.1 during all power states.
@@ -1267,7 +1268,12 @@ typedef struct
    According to G992.1 Table 6-3:
    "Net data rate" + Frame overhead rate = "Aggregate data rate"
    "Aggregate data rate" + RS Coding overhead rate = "Total data rate"
-   "Total data rate" + Trellis Coding overhead rate = Line rate */
+   "Total data rate" + Trellis Coding overhead rate = Line rate
+
+   In case actual data rate, reported via event handling,
+   is 0 and the line is not in showtime,
+   only the parameters: ActualDataRate and PreviousDataRate are relevant,
+   other parameters are reflecting last showtime status. */
    DSL_OUT DSL_uint32_t ActualDataRate;
    /**
    Previous Data Rate.
@@ -1284,7 +1290,12 @@ typedef struct
    A rate change can occur at a power management state transition, e.g.,
    at full or short initialization, fast retrain, or power down or at
    a dynamic rate adaptation.
-   The rate is coded in bit/s. */
+   The rate is coded in bit/s.
+
+   In case \ref ActualDataRate, reported via event handling,
+   is 0 and the line is not in showtime,
+   only the parameters: ActualDataRate and PreviousDataRate are relevant,
+   other parameters are reflecting last showtime status.*/
    DSL_OUT DSL_uint32_t PreviousDataRate;
    /**
    Actual Interleaving Delay.
@@ -1378,8 +1389,8 @@ typedef struct
    /**
    Actual impulse noise protection (ACTINP) without erasure decoding.
    In VDSL2 it is calculated according to the "INP_no_erasure" formula in
-   chpter 9.6 of G.993.2 and is the value to be reported in conjunction with
-   INPREPORT=0 (see G.997.1 chpter 7.5.2.5).
+   chapter 9.6 of G.993.2 and is the value to be reported in conjunction with
+   INPREPORT=0 (see G.997.1 chapter 7.5.2.5).
    The value is coded in fractions of DMT symbols with a granularity of
    0.1 symbols. The range and the special value of this parameter depends on
    the retransmission status as follows
@@ -1392,6 +1403,16 @@ typedef struct
    The special value indicates that the parameter is above the maximum value
    of the defined range. */
    DSL_OUT DSL_uint16_t ActualImpulseNoiseProtectionNoErasure;
+   /**
+   Impulse noise protection reporting mode (INPREPORT)
+
+   Refer to ITU-T G.997.1 chapter 7.5.2.5
+
+   This parameter reports the method used to compute the ACTINP. If set to 0,
+   the ACTINP is computed according to the INP_no_erasure formula (see clause
+   9.6 of [ITU-T G.993.2]). If set to 1, the ACTINP is the value estimated by
+   the xTU receiver. */
+   DSL_OUT DSL_boolean_t ImpulseNoiseProtectionReportingMode;
 
 } DSL_G997_ChannelStatusData_t;
 
@@ -1762,6 +1783,15 @@ typedef enum
    Recovery from PPE-FW stuck required */
    LINIT_SUB_S_REBOOT_REQ = 14,
 #endif /* defined(DSL_VRX_DEVICE_VR11) */
+   /**
+   IMAP reconfiguration required (enable) */
+   LINIT_SUB_S_IMAP_DRIVER_REQ_ON = 15,
+   /**
+   IMAP reconfiguration required (disable) */
+   LINIT_SUB_S_IMAP_DRIVER_REQ_OFF = 16,
+   /**
+   TC to line assignment reset required */
+   LINIT_SUB_S_TC2LINE_RESET = 17,
 } DSL_G997_LineInitSubStatus_t;
 
 /**
@@ -2689,55 +2719,101 @@ typedef enum
 
 /**
    Upstream Power Back Off (UPBO) status parameters.
-   See chapter 7.3.1.2.14 of G.997.1 Rev4 */
+   See chapter 7.5.1.23 of G.997.1 Rev7 */
 typedef struct {
    /**
-   Alternative electrical length estimation mode (AELE-MODE).
+   Alternative electrical length estimation mode (Chapter 7.3.1.2.14.a.5 of G.997.1)
+
    This parameter returns the actually used UPBO electrical length estimation
-   mode to be used in the alternative electrical length estimation method
-   (ELE-M1). See chapter 7.2.1.3.2.1.2 of G.993.2.
+   mode (AELE-MODE) to be used in the alternative electrical length estimation
+   method (ELE-M1). See chapter 7.2.1.3.2.1.2 of G.993.2.
    Valid values are 0, 1, 2, 3; where 0 corresponds to the default electrical
    length estimation method (ELE-M0). */
    DSL_G997_AeleMode_t nAeleMode;
    /**
+   Kl0 estimated VTU-O (Chapter 7.5.1.23.1 of G.997.1)
+
+   This parameter contains the estimated electrical length (UPBOKLE) expressed
+   in dB at 1 MHz, kl0 (see O-UPDATE in clause 12.3.3.2.1.2 of [ITU-T G.993.2]).
+   This is the final electrical length that would have been sent from the VTU-O
+   to the VTU-R if the electrical length was not forced by the CO-MIB.
+   The value ranges from 0 to 128 dB, in steps of 0.1 dB. */
+   DSL_uint16_t nKl0EstimO;
+   /**
+   Kl0 estimated VTU-R (Chapter 7.5.1.23.2 of G.997.1)
+
+   This parameter contains the electrical length estimated by the VTU-R
+   (UPBOKLE-R) expressed in dB at 1 MHz.
+   This is the value contained in the message R-MSG1 (see clause 12.3.3.2.2.1
+   of [ITU-T G.993.2]).
+   The value ranges from 0 to 128 dB, in steps of 0.1 dB. */
+   DSL_uint16_t nKl0EstimR;
+   /**
    Final Kl0 per Band VTU-O (see chapter 7.5.1.23.3 of G.997.1).
-   Final UPBO electrical length per upstream-band (UPBOKLE-pb), excluding US0,
-   as received from the VTU-O with O-UPDATE.
+
+   This parameter is a vector of UPBO electrical length per-band (UPBOKLE-pb)
+   estimates for each supported upstream band, expressed in dB at 1 MHz (kl0)
+   calculated by the VTU-O, based on separate measurements in the supported
+   upstream bands excluding US0, as received from the VTU-O with O-UPDATE.
+   The value ranges from 0 to 128 dB in steps of 0.1 dB, with special value
+   204.7 which indicates that the estimate is greater than 128 dB.
+   This parameter is required for the alternative electrical length estimation
+   method (ELE-M1).
+
    Parameter definitions:
    - Resolution: 0.1 dB
    - Range: 0 (coded as 0) to 128 dB (coded as 1280)
+
    Special Values:
    - 0x7FF: "Out of range" (greater than 128 dB)
    - 0x800: Unused band */
    DSL_uint16_t nKl0EstimOPb[DSL_G997_MAX_NUMBER_OF_BANDS];
    /**
    Kl0 Estimate per Band VTU-R (Chapter 7.5.1.23.4 of G.997.1)
-   VTU-R estimated UPBO electrical length per supported downstream band
-   (UPBOKLE-R-pb), as reported by CPE with R-MSG1 SOC message.
+
+   This parameter is a vector of UPBO electrical length per-band estimates
+   (UPBOKLE-R-pb) for each supported downstream band, expressed in dB at 1 MHz
+   (kl0) calculated by the VTU-R, based on separate measurements in the
+   supported downstream bands, as reported by CPE with R-MSG1 SOC message.
+   The value ranges from 0 to 128 dB in steps of 0.1 dB, with special value
+   204.7 which indicates that the estimate is greater than 128 dB.
+   This parameter is required for the alternative electrical length estimation
+   method (ELE-M1).
+
+   Parameter definitions:
    - Resolution: 0.1 dB
-   - Range: 0 to 128 dB
-   Min. value: 0D
-   Max. value: 1280D
+   - Range: 0 (coded as 0) to 128 dB (coded as 1280)
+
    Special Values:
-   - 7FFH; = "Out of range" (greater than 128 dB)
-   - 800H; Unused band */
+   - 0x7FF: "Out of range" (greater than 128 dB)
+   - 0x800: Unused band */
    DSL_uint16_t nKl0EstimRPb[DSL_G997_MAX_NUMBER_OF_BANDS];
    /**
-   UPBO electrical length minimum threshold (UPBOELMT). (Received from CO, see
-   Chapter 7.3.1.2.14.a.6 of G.997.1) It is used in the alternative electrical
-   length estimation method (ELEM1) (see chapter 7.2.1.3.2.2 of G.993.2).
-   Range: 0 to 25 percent in 1 percent steps.
-   Min. value: 0D
-   Max. value: 25D
-   Default value: 10D */
+   UPBO electrical length threshold percentile (Chapter 7.3.1.2.14.a.6 of G.997.1))
+
+   This parameter defines the UPBO electrical length minimum threshold percentile
+   (UPBOELMT) in percent used in the alternative electrical length estimation
+   method (ELE-M1) in clause 7.2.1.3.2.2 of G.993.2.
+   It is set by network management via the CO-MIB. The parameter ranges from 0
+   to 25 percent in steps of 1 percent.
+   This value is communicated to the VTU-R in accordance with G.994.1 at start-up.
+
+   Parameter definitions:
+   - Range: 0 to 25 percent (in 1 percent steps)
+   - Default value: 10 */
    DSL_uint16_t UpboElmt;
    /**
-   UPBO downstream CPE receiver signal level threshold. Only one value for all
-   bands. This parameter represents an offset from -100 dBm/Hz, and ranges from
-   -64 dB to 0 dB in steps of 1 dB.
-   Min. value: -64D
-   Max. value: 0D
-   Default value: -30D */
+   UPBO downstream CPE receiver signal level threshold  (Chapter 7.5.1.23.5 of G.997.1)
+
+   This parameter reports the downstream received signal level threshold value
+   used in the alternative electrical length estimation method (ELE-M1) in
+   clause 7.2.1.3.2.2. This parameter represents an offset from –100 dBm/Hz
+   and ranges from –64 dB to 0 dB in steps of 1 dB.
+
+   Parameter definitions:
+   - Resolution: 1 dB
+   - Range: -64 to 0 dB
+   - Default value: -30 */
    DSL_int16_t RxThreshDs;
 } DSL_G997_UsPowerBackOffStatusData_t;
 
