@@ -685,7 +685,7 @@ DSL_DRV_STATIC DSL_int32_t DSL_DRV_KernelThreadStartup(
    retVal = pThrCntrl->pThrFct(&pThrCntrl->thrParams);
    pThrCntrl->thrParams.bRunning = 0;
 
-   complete_and_exit(&pThrCntrl->thrCompletion, (long)retVal);
+   kthread_complete_and_exit(&pThrCntrl->thrCompletion, (long)retVal);
 
    DSL_DEBUG( DSL_DBG_MSG,
       (DSL_NULL, SYS_DBG_MSG"EXIT - Kernel Thread Startup <%s>" DSL_DRV_CRLF,
